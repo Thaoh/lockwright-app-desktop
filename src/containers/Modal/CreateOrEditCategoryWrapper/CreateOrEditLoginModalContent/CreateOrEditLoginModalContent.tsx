@@ -8,9 +8,11 @@ import {
   AttachmentField as UiKitAttachmentField,
   Button,
   Dialog,
+  Dropdown,
   Form,
   InputField,
   MultiSlotInput,
+  NavbarListItem,
   PasswordField,
   Text,
   useTheme,
@@ -23,6 +25,7 @@ import {
 import {
   Add,
   Close,
+  KeyboardArrowBottom,
   SyncLock,
   TrashOutlined,
   UploadFileFilled
@@ -43,8 +46,20 @@ import { getFilteredAttachmentsById } from '../../../../utils/getFilteredAttachm
 import { handleFileSelect } from '../../../../utils/handleFileSelect'
 import { UploadFilesModalContent } from '../../UploadFilesModalContent'
 import { FolderDropdown } from '../../../../components/FolderDropdown/FolderDropdown'
+import {
+  URI_MATCH_TYPES,
+  type UriMatchType
+} from '../../../../shared/constants/uriMatch'
 import { PassType } from '../../../../shared/types'
+import {
+  buildLoginUris,
+  resolveUriMatchType
+} from '../../../../shared/utils/uriMatchSetting'
 import { PasswordFieldStrengthIndicator } from '../../../../components/PasswordFieldStrengthIndicator'
+
+type Website = { website?: string; name?: string; matchType?: UriMatchType }
+
+const URI_MATCH_OPTION_VALUES = Object.values(URI_MATCH_TYPES)
 
 export type CreateOrEditLoginModalContentProps = {
   initialRecord?: {
@@ -54,6 +69,7 @@ export type CreateOrEditLoginModalContentProps = {
       password: string
       note: string
       websites: string[]
+      uris?: Array<{ uri?: string; match?: string }>
       customFields: { type: string; name: string }[]
       attachments: { id: string; name: string }[]
       otpInput?: string
@@ -83,9 +99,19 @@ export const CreateOrEditLoginModalContent = ({
   const { closeModal, setModal } = useModal()
   const { handleCreateOrEditRecord } = useCreateOrEditRecord()
   const [passwordType, setPasswordType] = useState<PassType>(PassType.Password)
+  const [openMatchTypeIndex, setOpenMatchTypeIndex] = useState<number | null>(
+    null
+  )
   const { setToast } = useToast()
   const { theme } = useTheme()
   const styles = createStyles()
+
+  const uriMatchOptionLabels: Record<UriMatchType, string> = {
+    [URI_MATCH_TYPES.DOMAIN]: t('Domain'),
+    [URI_MATCH_TYPES.HOST]: t('Host'),
+    [URI_MATCH_TYPES.STARTS_WITH]: t('Starts with'),
+    [URI_MATCH_TYPES.EXACT]: t('Exact')
+  }
 
   const { createRecord, isLoading: isCreateLoading } = useCreateRecord({
     onCompleted: () => {
@@ -117,7 +143,8 @@ export const CreateOrEditLoginModalContent = ({
     note: Validator.string(),
     websites: Validator.array().items(
       Validator.object({
-        website: Validator.string().website('Wrong format of website')
+        website: Validator.string().website('Wrong format of website'),
+        matchType: Validator.string()
       })
     ),
     customFields: Validator.array().items(
@@ -144,8 +171,11 @@ export const CreateOrEditLoginModalContent = ({
         initialRecord?.data?.otpInput ?? initialRecord?.data?.otp?.secret ?? '',
       note: initialRecord?.data?.note ?? '',
       websites: initialRecord?.data?.websites?.length
-        ? initialRecord.data.websites.map((website: string) => ({ website }))
-        : [{ name: 'website' }],
+        ? initialRecord.data.websites.map((website: string) => ({
+            website,
+            matchType: resolveUriMatchType(initialRecord, website) as UriMatchType
+          }))
+        : [{ name: 'website', website: '', matchType: URI_MATCH_TYPES.DOMAIN }],
       customFields: initialRecord?.data?.customFields?.length
         ? initialRecord.data.customFields
         : [{ type: 'note', name: 'note', note: '' }],
@@ -183,9 +213,12 @@ export const CreateOrEditLoginModalContent = ({
   const onSubmit = (formValues: Record<string, unknown>) => {
     const otpInput = (formValues.otpSecret as string)?.trim() || undefined
 
-    // TODO(dual-store): bind per-URI `match` (baseDomain/host/exact/…) in the
-    // form when UI kit SelectField layout is ready. Until then, websites-only
-    // submit is enough — lib-vault deriveUrisFromWebsites fills uris+match.
+    const websiteRows = ((formValues.websites as Website[]) ?? []).filter(
+      (website) => !!website?.website?.trim().length
+    )
+    const websites = websiteRows.map((website) => addHttps(website.website!))
+    const uris = buildLoginUris(websiteRows)
+
     const data = {
       type: RECORD_TYPES.LOGIN,
       folder: formValues.folder,
@@ -196,9 +229,8 @@ export const CreateOrEditLoginModalContent = ({
         username: formValues.username,
         password: formValues.password,
         note: formValues.note,
-        websites: (formValues.websites as Array<{ website?: string }>)
-          .filter((website) => !!website?.website?.trim().length)
-          .map((website) => addHttps(website.website!)),
+        websites,
+        uris,
         customFields: (
           (formValues.customFields as Array<{ type: string; note?: string }>) ??
           []
@@ -399,7 +431,13 @@ export const CreateOrEditLoginModalContent = ({
               size='small'
               type='button'
               iconBefore={<Add width={16} height={16} />}
-              onClick={() => addWebsite({ name: 'website' })}
+              onClick={() =>
+                addWebsite({
+                  name: 'website',
+                  website: '',
+                  matchType: URI_MATCH_TYPES.DOMAIN
+                })
+              }
               data-testid='createoredit-button-addwebsite'
             >
               {t('Add Another Website')}
@@ -408,35 +446,77 @@ export const CreateOrEditLoginModalContent = ({
         >
           {websitesList.map((website: { id: string }, index: number) => {
             const websiteField = registerWebsiteItem('website', index)
+            const matchTypeField = registerWebsiteItem('matchType', index)
+            const selectedMatchType = (matchTypeField.value ||
+              URI_MATCH_TYPES.DOMAIN) as UriMatchType
             return (
-              <InputField
-                key={website.id}
-                label={t('Website')}
-                placeholder={t('Enter Website')}
-                value={websiteField.value}
-                onChange={(e) => websiteField.onChange(e.target.value)}
-                error={websiteField.error || undefined}
-                testID={`createoredit-input-website-${index}`}
-                rightSlot={
-                  index > 0 ? (
-                    <Button
-                      variant='tertiary'
-                      size='small'
-                      type='button'
-                      aria-label={t('Remove website')}
-                      iconBefore={
-                        <TrashOutlined
-                          width={16}
-                          height={16}
-                          color={theme.colors.colorTextPrimary}
-                        />
-                      }
-                      onClick={() => removeWebsite(index)}
-                      data-testid={`createoredit-button-removewebsite-${index}`}
-                    />
-                  ) : undefined
-                }
-              />
+              <div key={website.id} style={styles.websiteRow}>
+                <InputField
+                  label={t('Website')}
+                  placeholder={t('Enter Website')}
+                  value={websiteField.value}
+                  onChange={(e) => websiteField.onChange(e.target.value)}
+                  error={websiteField.error || undefined}
+                  testID={`createoredit-input-website-${index}`}
+                  rightSlot={
+                    index > 0 ? (
+                      <Button
+                        variant='tertiary'
+                        size='small'
+                        type='button'
+                        aria-label={t('Remove website')}
+                        iconBefore={
+                          <TrashOutlined
+                            width={16}
+                            height={16}
+                            color={theme.colors.colorTextPrimary}
+                          />
+                        }
+                        onClick={() => removeWebsite(index)}
+                        data-testid={`createoredit-button-removewebsite-${index}`}
+                      />
+                    ) : undefined
+                  }
+                />
+                <div style={styles.websiteMatchRow}>
+                  <Text
+                    variant='caption'
+                    color={theme.colors.colorTextSecondary}
+                  >
+                    {t('URI match')}
+                  </Text>
+                  <Dropdown
+                    open={openMatchTypeIndex === index}
+                    onOpenChange={(open) =>
+                      setOpenMatchTypeIndex(open ? index : null)
+                    }
+                    trigger={
+                      <Button
+                        variant='secondary'
+                        size='small'
+                        type='button'
+                        iconAfter={<KeyboardArrowBottom />}
+                        data-testid={`createoredit-website-match-${index}`}
+                      >
+                        {uriMatchOptionLabels[selectedMatchType] ?? t('Domain')}
+                      </Button>
+                    }
+                  >
+                    {URI_MATCH_OPTION_VALUES.map((value) => (
+                      <NavbarListItem
+                        key={value}
+                        testID={`createoredit-website-match-${index}-${value}`}
+                        label={uriMatchOptionLabels[value]}
+                        selected={selectedMatchType === value}
+                        onClick={() => {
+                          matchTypeField.onChange(value)
+                          setOpenMatchTypeIndex(null)
+                        }}
+                      />
+                    ))}
+                  </Dropdown>
+                </div>
+              </div>
             )
           })}
         </MultiSlotInput>

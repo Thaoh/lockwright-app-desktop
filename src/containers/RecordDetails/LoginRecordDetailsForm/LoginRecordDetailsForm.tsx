@@ -10,6 +10,7 @@ import {
   InputField,
   MultiSlotInput,
   PasswordField,
+  Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import { OpenInNew } from '@tetherto/pearpass-lib-ui-kit/icons'
@@ -24,6 +25,11 @@ import { addHttps } from '../../../utils/addHttps'
 import { formatPasskeyDate } from '../../../utils/formatPasskeyDate'
 import { isPasswordChangeReminderDisabled } from '../../../utils/isPasswordChangeReminderDisabled'
 import { useTranslation } from '../../../hooks/useTranslation'
+import {
+  URI_MATCH_TYPES,
+  type UriMatchType
+} from '../../../shared/constants/uriMatch'
+import { resolveUriMatchType } from '../../../shared/utils/uriMatchSetting'
 import { DisplayPictureModalContent } from '../../Modal/DisplayPictureModalContent/DisplayPictureModalContent'
 import { createStyles } from './LoginRecordDetailsForm.styles'
 import { toReadOnlyFieldProps } from './utils'
@@ -52,6 +58,7 @@ type LoginRecord = {
     password?: string
     note?: string
     websites?: string[]
+    uris?: Array<{ uri?: string; match?: string }>
     customFields?: CustomField[]
     credential?: { id: string }
     passkeyCreatedAt?: number | string | Date | null
@@ -212,46 +219,64 @@ export const LoginRecordDetailsForm = ({
         )}
 
         {hasWebsites &&
-          values.websites.map((website: string, index: number) => (
-            <MultiSlotInput
-              key={`${website}-${index}`}
-              testID={`website-multi-slot-input-${index}`}
-            >
-              <InputField
-                label={t('Website')}
-                value={website}
-                placeholder={t('Enter Website')}
-                readOnly
-                copyable
-                onCopy={copyToClipboard}
-                isGrouped
-                testID={`website-multi-slot-input-slot-${index}`}
-                rightSlot={
-                  website?.length ? (
-                    <Button
-                      variant="tertiary"
-                      size="small"
-                      aria-label={t('Open website')}
-                      iconBefore={
-                        <OpenInNew
-                          width={16}
-                          height={16}
-                          color={theme.colors.colorTextPrimary}
-                        />
-                      }
-                      onClick={() =>
-                        window.open(
-                          addHttps(website) as unknown as string,
-                          '_blank',
-                          'noopener,noreferrer'
-                        )
-                      }
-                    />
-                  ) : undefined
-                }
-              />
-            </MultiSlotInput>
-          ))}
+          values.websites.map((website: string, index: number) => {
+            const matchType = (
+              initialRecord
+                ? resolveUriMatchType(initialRecord, website)
+                : URI_MATCH_TYPES.DOMAIN
+            ) as UriMatchType
+            const matchLabel =
+              {
+                [URI_MATCH_TYPES.DOMAIN]: t('Domain'),
+                [URI_MATCH_TYPES.HOST]: t('Host'),
+                [URI_MATCH_TYPES.STARTS_WITH]: t('Starts with'),
+                [URI_MATCH_TYPES.EXACT]: t('Exact')
+              }[matchType] ?? t('Domain')
+
+            return (
+              <MultiSlotInput
+                key={`${website}-${index}`}
+                testID={`website-multi-slot-input-${index}`}
+              >
+                <InputField
+                  label={t('Website')}
+                  value={website}
+                  placeholder={t('Enter Website')}
+                  readOnly
+                  copyable
+                  onCopy={copyToClipboard}
+                  isGrouped
+                  testID={`website-multi-slot-input-slot-${index}`}
+                  rightSlot={
+                    website?.length ? (
+                      <Button
+                        variant="tertiary"
+                        size="small"
+                        aria-label={t('Open website')}
+                        iconBefore={
+                          <OpenInNew
+                            width={16}
+                            height={16}
+                            color={theme.colors.colorTextPrimary}
+                          />
+                        }
+                        onClick={() =>
+                          window.open(
+                            addHttps(website) as unknown as string,
+                            '_blank',
+                            'noopener,noreferrer'
+                          )
+                        }
+                      />
+                    ) : undefined
+                  }
+                />
+                <Text variant="caption" color={theme.colors.colorTextSecondary}>
+                  {`${t('URI match')}: ${matchLabel}`}
+                </Text>
+              </MultiSlotInput>
+            )
+          })}
 
         {hasPasskey && (
           <InputField

@@ -1,3 +1,8 @@
+type VaultUriEntry = {
+    uri?: string
+    match?: string
+}
+
 type VaultRecord = {
     id: string
     type: string
@@ -7,6 +12,7 @@ type VaultRecord = {
         username?: string
         email?: string
         websites?: Array<string | { website?: string | undefined }>
+        uris?: VaultUriEntry[]
         [key: string]: unknown
     }
     folder?: string | null
