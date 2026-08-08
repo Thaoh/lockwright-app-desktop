@@ -16,6 +16,7 @@ import { AppHeaderContainer } from '../../containers/AppHeaderContainer'
 import { useRouter } from '../../context/RouterContext'
 import { usePearUpdate } from '../../hooks/usePearUpdate'
 import { useVaultAccessRevoked } from '../../hooks/useVaultAccessRevoked'
+import { useVaultSchemaBoot } from '../../hooks/useVaultSchemaBoot'
 import { useVaultSwitch } from '../../hooks/useVaultSwitch'
 import { Routes } from '../Routes'
 
@@ -32,6 +33,7 @@ export const App = () => {
   useOnExtensionLockOut()
 
   useVaultAccessRevoked()
+  const { isMigrationReady } = useVaultSchemaBoot()
   const { data: vaultsForDevTrigger, refetch: refetchVaults } = useVaults()
   const { data: activeVault } = useVault()
   const { switchVault } = useVaultSwitch()
@@ -79,7 +81,10 @@ export const App = () => {
     setIsLoadingPageComplete(true)
   }, [])
 
-  const showLoadingPage = isDataLoading || !isLoadingPageComplete
+  const showLoadingPage =
+    isDataLoading ||
+    !isLoadingPageComplete ||
+    (!!activeVault?.id && !isMigrationReady)
 
   const useLogoTitleBar = appConfig.headerWithLogo.includes(currentPage)
   return html`

@@ -72,6 +72,7 @@ const VAULT_METHODS = [
   'vaultsList',
   'activeVaultInit',
   'activeVaultGetStatus',
+  'getVaultMigrationStatus',
   'recordFailedMasterPassword',
   'getMasterPasswordStatus',
   'resetFailedAttempts',

@@ -104,8 +104,8 @@
     "lint:fix": "eslint --fix ./src",
     "lint": "eslint ./src",
     "build:worklet": "node scripts/build.worklet.mjs",
-    "build": "node scripts/build.worklet.mjs && npm run build:app && node scripts/bundle-renderer.mjs && node scripts/bundle-bridge.mjs",
-    "build:prod": "cross-env NODE_ENV=production npm run build",
+    "build": "node scripts/build.worklet.mjs && pnpm run build:app && node scripts/bundle-renderer.mjs && node scripts/bundle-bridge.mjs",
+    "build:prod": "cross-env NODE_ENV=production pnpm run build",
     "bundle:renderer": "node scripts/bundle-renderer.mjs",
     "bundle:bridge": "node scripts/bundle-bridge.mjs",
     "lingui:extract": "lingui extract",
@@ -115,28 +115,29 @@
     "watch:packages": "nodemon --watch packages --ext js,json --exec \"echo 'Packages changed'\"",
     "electron": "electron .",
     "dev": "concurrently -n \"TypeScript,Bundle,Bridge,Electron\" -c \"blue,cyan,magenta,green\" \"node node_modules/typescript/bin/tsc --watch\" \"node scripts/bundle-renderer.mjs --watch\" \"node scripts/bundle-bridge.mjs --watch\" \"wait-on dist/renderer.bundle.js && electron .\"",
-    "dev:reset": "PEARPASS_DEV_RESET=1 npm run dev",
-    "dist:prepare:dev": "npm install && npm run build && npm prune --omit=dev && npm install electron --no-save",
+    "dev:reset": "PEARPASS_DEV_RESET=1 pnpm run dev",
+    "dist:prepare:dev": "npm install && pnpm run build && npm prune --omit=dev && npm install electron --no-save",
     "dist:mac:arm64": "npx electron-builder --mac --arm64 -c electron-builder.mac.json --publish never",
     "dist:mac:x64": "npx electron-builder --mac --x64 -c electron-builder.mac.json --publish never",
-    "dist:mac:arm64:dev": "SKIP_NOTARIZE=true CSC_IDENTITY_AUTO_DISCOVERY=false npm run dist:mac:arm64",
-    "dist:mac:x64:dev": "SKIP_NOTARIZE=true CSC_IDENTITY_AUTO_DISCOVERY=false npm run dist:mac:x64",
+    "dist:mac:arm64:dev": "SKIP_NOTARIZE=true CSC_IDENTITY_AUTO_DISCOVERY=false pnpm run dist:mac:arm64",
+    "dist:mac:x64:dev": "SKIP_NOTARIZE=true CSC_IDENTITY_AUTO_DISCOVERY=false pnpm run dist:mac:x64",
     "dist:win:x64": "electron-forge make --platform=win32 --arch=x64",
     "dist:win:arm64": "electron-forge make --platform=win32 --arch=arm64",
     "dist:linux:x64": "npx electron-builder --linux --x64 -c electron-builder.linux.json --publish never",
     "dist:linux:arm64": "npx electron-builder --linux --arm64 -c electron-builder.linux.json --publish never",
-    "make": "npm run build:prod && npm run dist:win:x64 && npm run dist:win:arm64",
+    "make": "pnpm run build:prod && pnpm run dist:win:x64 && pnpm run dist:win:arm64",
     "dist:snap:x64": "npx electron-builder --linux snap --x64 --publish never",
     "dist:snap:arm64": "npx electron-builder --linux snap --arm64 --publish never",
-    "dist:snap:x64:dev": "npm run dist:prepare:dev && dist:snap:x64 && npm install",
-    "dist:snap:arm64:dev": "npm run dist:prepare:dev && dist:snap:arm64 && npm install",
+    "dist:snap:x64:dev": "pnpm run dist:prepare:dev && dist:snap:x64 && npm install",
+    "dist:snap:arm64:dev": "pnpm run dist:prepare:dev && dist:snap:arm64 && npm install",
     "pear:build:darwin:arm64": "npx pear-build --package=./package.json --darwin-arm64-app ./out/mac-arm64/PearPass.app --target ../pearpass-app-desktop-$npm_package_version",
     "pear:build:darwin:x64": "npx pear-build --package=./package.json --darwin-x64-app ./out/mac/PearPass.app --target ../pearpass-app-desktop-$npm_package_version",
     "pear:build:linux:x64": "npx pear-build --package=./package.json --linux-x64-app ./out/PearPass.AppImage --target ../pearpass-app-desktop-$npm_package_version",
     "pear:build:linux:arm64": "npx pear-build --package=./package.json --linux-arm64-app ./out/PearPass.AppImage --target ../pearpass-app-desktop-$npm_package_version",
     "pear:build:win:x64": "npx pear-build --package=./package.json --win32-x64-app ./out/PearPass/PearPass.msix --target ../pearpass-app-desktop-%npm_package_version%",
     "pear:build:win:arm64": "npx pear-build --package=./package.json --win32-arm64-app ./out/PearPass/PearPass.msix --target ../pearpass-app-desktop-%npm_package_version%",
-    "knip": "knip"
+    "knip": "knip",
+    "preinstall": "node scripts/ensure-pnpm.mjs"
   },
   "devDependencies": {
     "@babel/core": "7.26.10",
@@ -198,8 +199,8 @@
     "@tetherto/pearpass-lib-data-import": "git+https://github.com/tetherto/pearpass-lib-data-import.git",
     "@tetherto/pearpass-lib-native-messaging-bridge": "git+https://github.com/tetherto/pearpass-lib-native-messaging-bridge.git",
     "@tetherto/pearpass-lib-ui-kit": "github:tetherto/pearpass-lib-ui-react-native-components#design-system-v2",
-    "@tetherto/pearpass-lib-vault": "git+https://github.com/tetherto/pearpass-lib-vault.git",
-    "@tetherto/pearpass-lib-vault-core": "git+https://github.com/tetherto/pearpass-lib-vault-core.git",
+    "@tetherto/pearpass-lib-vault": "file:../pearpass-lib-vault",
+    "@tetherto/pearpass-lib-vault-core": "file:../pearpass-lib-vault-core",
     "@tetherto/pearpass-utils-password-check": "git+https://github.com/tetherto/pearpass-utils-password-check.git",
     "@tetherto/pearpass-utils-password-generator": "git+https://github.com/tetherto/pearpass-utils-password-generator.git",
     "autopass": "~3.3.0",
@@ -235,5 +236,22 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "electron-windows-msix": "git+https://github.com/chetasr/electron-windows-msix.git"
+  },
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=22.12.0",
+    "pnpm": ">=11.10.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=22.12.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.10.0",
+      "onFail": "error"
+    }
   }
 }

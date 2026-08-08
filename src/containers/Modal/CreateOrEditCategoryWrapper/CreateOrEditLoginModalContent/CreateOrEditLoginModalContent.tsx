@@ -183,6 +183,9 @@ export const CreateOrEditLoginModalContent = ({
   const onSubmit = (formValues: Record<string, unknown>) => {
     const otpInput = (formValues.otpSecret as string)?.trim() || undefined
 
+    // TODO(dual-store): bind per-URI `match` (baseDomain/host/exact/…) in the
+    // form when UI kit SelectField layout is ready. Until then, websites-only
+    // submit is enough — lib-vault deriveUrisFromWebsites fills uris+match.
     const data = {
       type: RECORD_TYPES.LOGIN,
       folder: formValues.folder,

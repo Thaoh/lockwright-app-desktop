@@ -1,0 +1,18 @@
+# Single-package workspace (pnpm v11 project settings).
+strictPeerDependencies: false
+autoInstallPeers: true
+nodeLinker: hoisted
+blockExoticSubdeps: false
+
+allowBuilds:
+  "@tetherto/pearpass-lib-data-import@https://codeload.github.com/tetherto/pearpass-lib-data-import/tar.gz/1647d841c56e84e4a20fc59ec9d76305037229cf": true
+  "@tetherto/pearpass-lib-data-export@https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1": true
+  "@tetherto/pearpass-lib-vault-core@file:../pearpass-lib-vault-core": true
+  "@tetherto/pearpass-lib-vault@file:../pearpass-lib-vault": true
+  electron: set this to true or false
+  electron-winstaller: set this to true or false
+  esbuild: set this to true or false
+  "electron-winstaller@5.4.0": true
+  "electron@33.4.11": true
+  "esbuild@0.21.5": true
+  "esbuild@0.24.2": true
