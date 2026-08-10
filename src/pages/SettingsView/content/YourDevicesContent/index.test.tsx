@@ -3,7 +3,7 @@
 import React from 'react'
 
 import '@testing-library/jest-dom'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 
 import { YourDevicesContent } from './index'
 ;(globalThis as { React?: typeof React }).React = React
@@ -15,9 +15,14 @@ jest.mock('../../../../hooks/useTranslation', () => ({
 }))
 
 const mockToggleBrowserExtension = jest.fn()
+const mockApplyChromiumExtensionAllowlist = jest.fn(
+  async (_idsText: string): Promise<string[]> => []
+)
 let mockExtensionState = {
   isBrowserExtensionEnabled: false,
-  toggleBrowserExtension: mockToggleBrowserExtension
+  toggleBrowserExtension: mockToggleBrowserExtension,
+  chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
 }
 
 jest.mock('../../../../hooks/useConnectExtension', () => ({
@@ -33,7 +38,9 @@ jest.mock('./styles', () => ({
     iconWrap: {},
     emptyBrowserStateWrap: {},
     emptyStateCaptions: {},
-    emptyStateFooter: {}
+    emptyStateFooter: {},
+    allowlistWrap: {},
+    allowlistActions: {}
   })
 }))
 
@@ -108,12 +115,31 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
     <button type="button" onClick={props.onClick}>
       {props.label}
     </button>
+  ),
+  TextArea: (props: {
+    label?: string
+    value?: string
+    onChange?: (value: string) => void
+    error?: string
+    testID?: string
+    [key: string]: unknown
+  }) => (
+    <label>
+      {props.label}
+      <textarea
+        data-testid={props.testID}
+        value={props.value}
+        onChange={(event) => props.onChange?.(event.target.value)}
+      />
+      {props.error ? <span>{props.error}</span> : null}
+    </label>
   )
 }))
 
 jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
   MoreVert: () => null,
   PhoneIphone: () => null,
+  PublicOutlined: () => null,
   SwapVert: () => null
 }))
 
@@ -122,7 +148,9 @@ describe('YourDevicesContent', () => {
     jest.clearAllMocks()
     mockExtensionState = {
       isBrowserExtensionEnabled: false,
-      toggleBrowserExtension: mockToggleBrowserExtension
+      toggleBrowserExtension: mockToggleBrowserExtension,
+      chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
     }
   })
 
@@ -165,7 +193,9 @@ describe('YourDevicesContent', () => {
   it('shows browser device row when the extension is enabled', () => {
     mockExtensionState = {
       isBrowserExtensionEnabled: true,
-      toggleBrowserExtension: mockToggleBrowserExtension
+      toggleBrowserExtension: mockToggleBrowserExtension,
+      chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
     }
 
     render(<YourDevicesContent />)
@@ -179,10 +209,34 @@ describe('YourDevicesContent', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('applies approved Chromium extension IDs', async () => {
+    mockApplyChromiumExtensionAllowlist.mockResolvedValue([
+      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+    ])
+
+    render(<YourDevicesContent />)
+
+    fireEvent.change(
+      screen.getByTestId('settings-chromium-extension-allowlist'),
+      { target: { value: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' } }
+    )
+    await act(async () => {
+      fireEvent.click(
+        screen.getByTestId('settings-chromium-extension-allowlist-apply')
+      )
+    })
+
+    expect(mockApplyChromiumExtensionAllowlist).toHaveBeenCalledWith(
+      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+    )
+  })
+
   it('shows the extension actions button when the extension is enabled', () => {
     mockExtensionState = {
       isBrowserExtensionEnabled: true,
-      toggleBrowserExtension: mockToggleBrowserExtension
+      toggleBrowserExtension: mockToggleBrowserExtension,
+      chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
     }
 
     render(<YourDevicesContent />)
@@ -195,7 +249,9 @@ describe('YourDevicesContent', () => {
   it('calls toggleBrowserExtension(false) when unpair is clicked', () => {
     mockExtensionState = {
       isBrowserExtensionEnabled: true,
-      toggleBrowserExtension: mockToggleBrowserExtension
+      toggleBrowserExtension: mockToggleBrowserExtension,
+      chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
     }
 
     render(<YourDevicesContent />)

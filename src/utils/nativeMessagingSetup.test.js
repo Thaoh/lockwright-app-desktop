@@ -11,12 +11,17 @@ import {
   cleanupNativeMessaging,
   killNativeMessagingHostProcesses
 } from './nativeMessagingSetup'
+import { getChromiumExtensionIds } from '../services/chromiumExtensionAllowlist'
 
 // Mock dependencies
 jest.mock('@tetherto/pearpass-lib-constants', () => ({
   MANIFEST_NAME: 'com.pearpass.native_messaging',
-  CHROMIUM_EXTENSION_ID: 'mock-extension-id',
-  FIREFOX_EXTENSION_ID: 'pearpass@example.com'
+  CHROMIUM_EXTENSION_ID: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  FIREFOX_EXTENSION_ID: 'pearpass@example.com',
+  FIREFOX_NIGHTLY_EXTENSION_ID: 'pearpass-nightly@example.com'
+}))
+jest.mock('../services/chromiumExtensionAllowlist', () => ({
+  getChromiumExtensionIds: jest.fn(() => ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'])
 }))
 jest.mock('os')
 jest.mock('fs/promises')
@@ -171,7 +176,7 @@ describe('getNativeMessagingLocations', () => {
   it('should return correct browser entries for macOS', () => {
     os.platform.mockReturnValue('darwin')
     const { browsers } = getNativeMessagingLocations()
-    expect(browsers).toHaveLength(5)
+    expect(browsers).toHaveLength(6)
     expect(browsers[0].name).toBe('Google Chrome')
     expect(browsers[0].manifestPath).toContain('Google/Chrome')
     expect(browsers[0].browserDir).toContain('Google/Chrome')
@@ -181,14 +186,16 @@ describe('getNativeMessagingLocations', () => {
     expect(browsers[2].manifestPath).toContain('Chromium')
     expect(browsers[3].name).toBe('Brave')
     expect(browsers[3].manifestPath).toContain('BraveSoftware/Brave-Browser')
-    expect(browsers[4].name).toBe('Firefox')
-    expect(browsers[4].manifestPath).toContain('Mozilla')
+    expect(browsers[4].name).toBe('Vivaldi')
+    expect(browsers[4].manifestPath).toContain('Vivaldi')
+    expect(browsers[5].name).toBe('Firefox')
+    expect(browsers[5].manifestPath).toContain('Mozilla')
   })
 
   it('should return correct browser entries for Linux including snap', () => {
     os.platform.mockReturnValue('linux')
     const { browsers } = getNativeMessagingLocations()
-    expect(browsers).toHaveLength(8)
+    expect(browsers).toHaveLength(9)
     expect(browsers[0].name).toBe('Google Chrome')
     expect(browsers[0].manifestPath).toContain('google-chrome')
     expect(browsers[0].browserDir).toBeNull()
@@ -203,28 +210,31 @@ describe('getNativeMessagingLocations', () => {
     expect(browsers[4].manifestPath).toContain('BraveSoftware/Brave-Browser')
     expect(browsers[5].name).toBe('Brave (Snap)')
     expect(browsers[5].manifestPath).toContain('snap/brave/current')
-    expect(browsers[6].name).toBe('Firefox')
-    expect(browsers[6].manifestPath).toContain(
+    expect(browsers[6].name).toBe('Vivaldi')
+    expect(browsers[6].manifestPath).toContain('.config/vivaldi')
+    expect(browsers[7].name).toBe('Firefox')
+    expect(browsers[7].manifestPath).toContain(
       '.mozilla/native-messaging-hosts'
     )
-    expect(browsers[7].name).toBe('Firefox (Snap)')
-    expect(browsers[7].manifestPath).toContain(
+    expect(browsers[8].name).toBe('Firefox (Snap)')
+    expect(browsers[8].manifestPath).toContain(
       'snap/firefox/common/.mozilla/native-messaging-hosts'
     )
-    expect(browsers[7].browserDir).toBeNull()
+    expect(browsers[8].browserDir).toBeNull()
   })
 
   it('should return correct browser entries with registry keys for Windows', () => {
     os.platform.mockReturnValue('win32')
     const { browsers } = getNativeMessagingLocations()
-    expect(browsers).toHaveLength(5)
+    expect(browsers).toHaveLength(6)
     expect(browsers[0].browserDir).toBeNull()
     expect(browsers[0].manifestPath).toContain('PearPass/NativeMessaging')
     expect(browsers[0].registryKey).toContain('Google\\Chrome')
     expect(browsers[1].registryKey).toContain('Microsoft\\Edge')
     expect(browsers[2].registryKey).toContain('Chromium')
     expect(browsers[3].registryKey).toContain('BraveSoftware\\Brave-Browser')
-    expect(browsers[4].registryKey).toContain('Mozilla\\NativeMessagingHosts')
+    expect(browsers[4].registryKey).toContain('Vivaldi\\NativeMessagingHosts')
+    expect(browsers[5].registryKey).toContain('Mozilla\\NativeMessagingHosts')
   })
 
   it('should throw error for unsupported platform', () => {
@@ -242,16 +252,16 @@ describe('cleanupNativeMessaging', () => {
     os.platform.mockReturnValue('linux')
     const result = await cleanupNativeMessaging()
     expect(result.success).toBe(true)
-    expect(result.message).toContain('Removed 8 manifest file')
-    expect(fs.unlink).toHaveBeenCalledTimes(8)
+    expect(result.message).toContain('Removed 9 manifest file')
+    expect(fs.unlink).toHaveBeenCalledTimes(9)
   })
 
   it('should remove manifest files on macOS', async () => {
     os.platform.mockReturnValue('darwin')
     const result = await cleanupNativeMessaging()
     expect(result.success).toBe(true)
-    expect(result.message).toContain('Removed 5 manifest file')
-    expect(fs.unlink).toHaveBeenCalledTimes(5)
+    expect(result.message).toContain('Removed 6 manifest file')
+    expect(fs.unlink).toHaveBeenCalledTimes(6)
   })
 
   it('should remove manifest files and registry keys on Windows', async () => {
@@ -263,7 +273,7 @@ describe('cleanupNativeMessaging', () => {
     expect(result.success).toBe(true)
     expect(result.message).toContain('Removed 2 manifest file')
     expect(fs.unlink).toHaveBeenCalledTimes(2)
-    expect(execMock).toHaveBeenCalledTimes(5)
+    expect(execMock).toHaveBeenCalledTimes(6)
   })
 
   it('should handle ENOENT errors gracefully', async () => {
@@ -443,7 +453,36 @@ describe('setupNativeMessaging', () => {
     expect(result.message).toMatch(
       /Native messaging host installed successfully/
     )
-    expect(execMock).toHaveBeenCalledTimes(5)
+    expect(execMock).toHaveBeenCalledTimes(6)
+  })
+
+  it('writes Chromium allowed_origins from the allowlist', async () => {
+    getChromiumExtensionIds.mockReturnValueOnce([
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+    ])
+    const result = await setupNativeMessaging({
+      userDataPath: MOCK_USER_DATA_PATH,
+      execPath: MOCK_EXEC_PATH,
+      bridgePath: MOCK_BRIDGE_PATH
+    })
+    expect(result.success).toBe(true)
+    const chromiumWrites = fs.writeFile.mock.calls
+      .map(([, contents]) => {
+        try {
+          return JSON.parse(contents)
+        } catch {
+          return null
+        }
+      })
+      .filter((manifest) => manifest?.allowed_origins)
+    expect(chromiumWrites.length).toBeGreaterThan(0)
+    for (const manifest of chromiumWrites) {
+      expect(manifest.allowed_origins).toEqual([
+        'chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/',
+        'chrome-extension://bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/'
+      ])
+    }
   })
 
   it('should continue on partial manifest write failures', async () => {
@@ -471,8 +510,8 @@ describe('setupNativeMessaging', () => {
       bridgePath: MOCK_BRIDGE_PATH
     })
     expect(result.success).toBe(true)
-    // Linux installs always write: 1 executable + 8 browser manifests.
-    expect(fs.writeFile).toHaveBeenCalledTimes(9)
+    // Linux installs always write: 1 executable + 9 browser manifests.
+    expect(fs.writeFile).toHaveBeenCalledTimes(10)
   })
 
   it('under snap, skips the wrapper and points manifests at /snap/bin/<name>.native-host', async () => {
@@ -488,8 +527,8 @@ describe('setupNativeMessaging', () => {
         bridgePath: MOCK_BRIDGE_PATH
       })
       expect(result.success).toBe(true)
-      // 8 browser manifests, no wrapper executable.
-      expect(fs.writeFile).toHaveBeenCalledTimes(8)
+      // 9 browser manifests, no wrapper executable.
+      expect(fs.writeFile).toHaveBeenCalledTimes(9)
       // Every chmod is the manifest 0o644; no wrapper 0o755.
       for (const [, mode] of fs.chmod.mock.calls) {
         expect(mode).toBe(0o644)

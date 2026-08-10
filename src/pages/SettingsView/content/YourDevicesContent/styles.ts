@@ -74,5 +74,18 @@ export const createStyles = (colors: ThemeColors) => ({
     display: 'flex' as const,
     justifyContent: 'flex-start' as const,
     padding: `${rawTokens.spacing4}px`
+  },
+
+  allowlistWrap: {
+    display: 'flex' as const,
+    flexDirection: 'column' as const,
+    gap: `${rawTokens.spacing12}px`,
+    padding: `${rawTokens.spacing12}px`,
+    borderTop: `1px solid ${colors.colorBorderPrimary}`
+  },
+
+  allowlistActions: {
+    display: 'flex' as const,
+    justifyContent: 'flex-start' as const
   }
 })

@@ -25,6 +25,7 @@ jest.mock(
 import { act, renderHook, waitFor } from '@testing-library/react'
 
 import { useConnectExtension } from './useConnectExtension'
+import { setChromiumExtensionIds } from '../services/chromiumExtensionAllowlist'
 import { createOrGetPearpassClient } from '../services/createOrGetPearpassClient'
 import {
   isNativeMessagingIPCRunning,
@@ -83,6 +84,16 @@ jest.mock('../utils/nativeMessagingSetup', () => ({
   setupNativeMessaging: jest.fn(),
   cleanupNativeMessaging: jest.fn().mockResolvedValue(),
   killNativeMessagingHostProcesses: jest.fn().mockResolvedValue()
+}))
+jest.mock('../services/chromiumExtensionAllowlist', () => ({
+  formatChromiumExtensionIdsText: jest.fn(
+    () => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+  ),
+  getChromiumExtensionIds: jest.fn(() => ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']),
+  parseChromiumExtensionIdsText: jest.fn((text) =>
+    text.split(/[\s,]+/).filter(Boolean)
+  ),
+  setChromiumExtensionIds: jest.fn((ids) => ({ ok: true, ids }))
 }))
 jest.mock('../electron', () => ({
   getElectronConfig: jest.fn().mockResolvedValue({
@@ -168,6 +179,33 @@ describe('useConnectExtension', () => {
 
     expect(stopNativeMessagingIPC).toHaveBeenCalled()
     expect(setNativeMessagingEnabled).toHaveBeenCalledWith(false)
+  })
+
+  it('applies chromium extension allowlist and rewrites the host manifest', async () => {
+    setupNativeMessaging.mockResolvedValue({ success: true })
+    killNativeMessagingHostProcesses.mockResolvedValue()
+    isNativeMessagingIPCRunning.mockReturnValue(true)
+    setChromiumExtensionIds.mockReturnValue({
+      ok: true,
+      ids: ['bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb']
+    })
+
+    const { result } = renderHook(() => useConnectExtension())
+
+    let ids
+    await act(async () => {
+      ids = await result.current.applyChromiumExtensionAllowlist(
+        'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+      )
+    })
+
+    expect(setChromiumExtensionIds).toHaveBeenCalledWith([
+      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+    ])
+    expect(setupNativeMessaging).toHaveBeenCalled()
+    expect(killNativeMessagingHostProcesses).toHaveBeenCalled()
+    expect(ids).toEqual(['bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'])
+    expect(mockSetToast).toHaveBeenCalled()
   })
 
   it('loads pairing info on enable', async () => {

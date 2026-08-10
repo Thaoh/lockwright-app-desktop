@@ -9,6 +9,12 @@ import { useGlobalLoading } from '../context/LoadingContext.js'
 import { useModal } from '../context/ModalContext'
 import { useToast } from '../context/ToastContext'
 import { getElectronConfig } from '../electron'
+import {
+  formatChromiumExtensionIdsText,
+  getChromiumExtensionIds,
+  parseChromiumExtensionIdsText,
+  setChromiumExtensionIds
+} from '../services/chromiumExtensionAllowlist'
 import { createOrGetPearpassClient } from '../services/createOrGetPearpassClient'
 import {
   isNativeMessagingIPCRunning,
@@ -152,8 +158,47 @@ export const useConnectExtension = () => {
     return handleStopNativeMessaging()
   }
 
+  const applyChromiumExtensionAllowlist = async (idsText) => {
+    const parsed = parseChromiumExtensionIdsText(idsText)
+    const saved = setChromiumExtensionIds(parsed)
+    if (!saved.ok) {
+      throw new Error(saved.error)
+    }
+
+    const config = await getElectronConfig()
+    const result = await setupNativeMessaging({
+      userDataPath: config.userDataPath,
+      execPath: config.execPath,
+      bridgePath: config.bridgePath
+    })
+    if (!result.success) {
+      throw new Error(result.message || t('Setup failed'))
+    }
+
+    await killNativeMessagingHostProcesses()
+
+    if (!isNativeMessagingIPCRunning()) {
+      const client = createOrGetPearpassClient()
+      await startNativeMessagingIPC(client)
+    }
+    setNativeMessagingEnabled(true)
+    setIsBrowserExtensionEnabled(true)
+
+    setToast({
+      message: t(
+        'Approved extension IDs updated. Restart the browser tab if needed.'
+      )
+    })
+
+    return saved.ids
+  }
+
   return {
     toggleBrowserExtension,
-    isBrowserExtensionEnabled
+    isBrowserExtensionEnabled,
+    chromiumExtensionIdsText: formatChromiumExtensionIdsText(
+      getChromiumExtensionIds()
+    ),
+    applyChromiumExtensionAllowlist
   }
 }

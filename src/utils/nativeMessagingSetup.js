@@ -5,7 +5,6 @@ import path from 'path'
 
 import {
   MANIFEST_NAME,
-  CHROMIUM_EXTENSION_ID,
   FIREFOX_EXTENSION_ID,
   FIREFOX_NIGHTLY_EXTENSION_ID
 } from '@tetherto/pearpass-lib-constants'
@@ -13,6 +12,7 @@ import {
 import { logger } from './logger'
 import flatpakPaths from '../../electron/flatpak-paths.cjs'
 import nativeHostWrapper from '../../electron/nativeHostWrapper.cjs'
+import { getChromiumExtensionIds } from '../services/chromiumExtensionAllowlist'
 
 const { isFlatpakRuntime, isSnapRuntime, getHostHome, getSnapRealHome } =
   flatpakPaths
@@ -206,6 +206,23 @@ export const getNativeMessagingLocations = () => {
           )
         },
         {
+          name: 'Vivaldi',
+          browserDir: path.join(
+            home,
+            'Library',
+            'Application Support',
+            'Vivaldi'
+          ),
+          manifestPath: path.join(
+            home,
+            'Library',
+            'Application Support',
+            'Vivaldi',
+            'NativeMessagingHosts',
+            manifestFile
+          )
+        },
+        {
           name: 'Firefox',
           isFirefox: true,
           browserDir: path.join(
@@ -263,6 +280,12 @@ export const getNativeMessagingLocations = () => {
           browserDir: null,
           manifestPath,
           registryKey: `HKCU\\Software\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\${MANIFEST_NAME}`
+        },
+        {
+          name: 'Vivaldi',
+          browserDir: null,
+          manifestPath,
+          registryKey: `HKCU\\Software\\Vivaldi\\NativeMessagingHosts\\${MANIFEST_NAME}`
         },
         {
           name: 'Firefox',
@@ -349,6 +372,17 @@ export const getNativeMessagingLocations = () => {
             '.config',
             'BraveSoftware',
             'Brave-Browser',
+            'NativeMessagingHosts',
+            manifestFile
+          )
+        },
+        {
+          name: 'Vivaldi',
+          browserDir: null,
+          manifestPath: path.join(
+            home,
+            '.config',
+            'vivaldi',
             'NativeMessagingHosts',
             manifestFile
           )
@@ -536,16 +570,17 @@ export const setupNativeMessaging = async ({
       }
     }
 
-    const extensionId =
-      localStorage.getItem('CHROMIUM_EXTENSION_ID') || CHROMIUM_EXTENSION_ID
+    const chromiumExtensionIds = getChromiumExtensionIds()
 
-    // Create Chromium native messaging manifest
+    // Create Chromium native messaging manifest (Chrome / Edge / Brave / Vivaldi / …)
     const chromiumManifest = {
       name: MANIFEST_NAME,
       description: 'PearPass Native Messaging Host',
       path: manifestExecPath,
       type: 'stdio',
-      allowed_origins: [`chrome-extension://${extensionId}/`]
+      allowed_origins: chromiumExtensionIds.map(
+        (id) => `chrome-extension://${id}/`
+      )
     }
 
     // Create Firefox native messaging manifest
