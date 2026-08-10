@@ -7,7 +7,11 @@
  *    prebuilds for every platform (darwin/linux/win32/android/ios × x64/arm64
  *    + simulators).
  *
- * 2. Linux only: remove chrome-sandbox (squashfs/AppImage cannot preserve
+ * 2. Restore nested dual-major deps that electron-builder's pnpm collector
+ *    flattens incorrectly (e.g. hypercore needs compact-encoding@3 but the
+ *    collector copies the root @2 into every nested slot).
+ *
+ * 3. Linux only: remove chrome-sandbox (squashfs/AppImage cannot preserve
  *    SUID bits, so Chromium's setuid sandbox probe crashes before Node.js
  *    even starts) and wrap the real Electron binary with a shell script that
  *    passes --no-sandbox. app.commandLine.appendSwitch('no-sandbox') in
@@ -27,32 +31,38 @@ const ARCH_NAMES = {
   4: 'universal'
 }
 
+/** Packages known to ship a second major alongside a different root version. */
+const NESTED_VERSION_SENSITIVE = ['compact-encoding']
+
 exports.default = async function afterPack(context) {
   await prunePrebuilds(context)
+  await restoreNestedPackageVersions(context)
 
   if (context.electronPlatformName === 'linux') {
     await wrapLinuxNoSandbox(context)
   }
 }
 
-async function prunePrebuilds(context) {
-  const { appOutDir, electronPlatformName, arch, packager } = context
-  const archName = ARCH_NAMES[arch] ?? String(arch)
-  const target = `${electronPlatformName}-${archName}`
-
-  let appRoot
+function getAppRoot(context) {
+  const { appOutDir, electronPlatformName, packager } = context
   if (electronPlatformName === 'darwin' || electronPlatformName === 'mas') {
     const appName = packager.appInfo.productFilename
-    appRoot = path.join(
+    return path.join(
       appOutDir,
       `${appName}.app`,
       'Contents',
       'Resources',
       'app'
     )
-  } else {
-    appRoot = path.join(appOutDir, 'resources', 'app')
   }
+  return path.join(appOutDir, 'resources', 'app')
+}
+
+async function prunePrebuilds(context) {
+  const { electronPlatformName, arch } = context
+  const archName = ARCH_NAMES[arch] ?? String(arch)
+  const target = `${electronPlatformName}-${archName}`
+  const appRoot = getAppRoot(context)
 
   const nodeModules = path.join(appRoot, 'node_modules')
   if (!fs.existsSync(nodeModules)) {
@@ -70,6 +80,90 @@ async function prunePrebuilds(context) {
     `afterPack: pruned ${stats.removed} prebuild dir(s), kept ${stats.kept} ` +
       `matching '${target}'/-universal, freed ~${mb} MB`
   )
+}
+
+/**
+ * electron-builder's pnpm collector often copies the wrong major into nested
+ * node_modules when the same package name exists at two majors (root @2 vs
+ * nested @3). Copy the project's real nested copies back over the packed ones.
+ */
+async function restoreNestedPackageVersions(context) {
+  const appRoot = getAppRoot(context)
+  const projectRoot = context.packager.projectDir
+  const packedNm = path.join(appRoot, 'node_modules')
+  const sourceNm = path.join(projectRoot, 'node_modules')
+
+  if (!fs.existsSync(packedNm) || !fs.existsSync(sourceNm)) return
+
+  let fixed = 0
+  for await (const pkgRel of listDirectPackages(sourceNm)) {
+    for (const depName of NESTED_VERSION_SENSITIVE) {
+      const sourceNested = path.join(
+        sourceNm,
+        pkgRel,
+        'node_modules',
+        depName
+      )
+      const packedNested = path.join(
+        packedNm,
+        pkgRel,
+        'node_modules',
+        depName
+      )
+      if (!fs.existsSync(sourceNested) || !fs.existsSync(packedNested)) {
+        continue
+      }
+
+      const sourceVer = readPackageVersion(sourceNested)
+      const packedVer = readPackageVersion(packedNested)
+      if (!sourceVer || !packedVer || sourceVer === packedVer) continue
+
+      await fsp.rm(packedNested, { recursive: true, force: true })
+      await fsp.mkdir(path.dirname(packedNested), { recursive: true })
+      await fsp.cp(sourceNested, packedNested, {
+        recursive: true,
+        dereference: true
+      })
+      fixed++
+      console.log(
+        `afterPack: restored ${depName}@${sourceVer} under ${pkgRel} ` +
+          `(was ${packedVer})`
+      )
+    }
+  }
+
+  if (fixed === 0) {
+    console.log('afterPack: nested package versions already match project tree')
+  } else {
+    console.log(`afterPack: restored ${fixed} nested package version(s)`)
+  }
+}
+
+function readPackageVersion(pkgDir) {
+  try {
+    return JSON.parse(
+      fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8')
+    ).version
+  } catch {
+    return null
+  }
+}
+
+async function* listDirectPackages(nodeModulesDir) {
+  const entries = await safeReadDir(nodeModulesDir)
+  for (const entry of entries) {
+    if (!entry.isDirectory() || entry.name === '.bin' || entry.name === '.pnpm') {
+      continue
+    }
+    if (entry.name.startsWith('@')) {
+      const scoped = await safeReadDir(path.join(nodeModulesDir, entry.name))
+      for (const sub of scoped) {
+        if (sub.isDirectory()) yield path.join(entry.name, sub.name)
+      }
+    } else {
+      yield entry.name
+    }
+  }
 }
 
 async function pruneTree(base, target, stats) {
