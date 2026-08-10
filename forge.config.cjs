@@ -41,6 +41,9 @@ const packagerConfig = {
   ]
 }
 
+// Local/dev makes: SKIP_WIN_SIGN=true skips the production codesign cert.
+const skipWinSign = process.env.SKIP_WIN_SIGN === 'true'
+
 /** @type {import('@electron-forge/shared-types').ForgeConfig} */
 module.exports = {
   packagerConfig,
@@ -62,13 +65,18 @@ module.exports = {
           publisher:
             'CN=&quot;Tether Operations, SA de CV&quot;, O=&quot;Tether Operations, SA de CV&quot;, L=San Salvador, C=SV, SERIALNUMBER=2025120324, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.3=SV'
         },
-        windowsSignOptions: {
-          certificateSha1: '874b95fdc8a490a3d3bab28643902948b2c7ad43',
-          signWithParams: '/sha1 874b95fdc8a490a3d3bab28643902948b2c7ad43',
-          timestampServer: 'http://timestamp.digicert.com',
-          fileDigestAlgorithm: 'sha256',
-          timestampDigestAlgorithm: 'sha256'
-        }
+        sign: !skipWinSign,
+        ...(skipWinSign
+          ? {}
+          : {
+              windowsSignOptions: {
+                certificateSha1: '874b95fdc8a490a3d3bab28643902948b2c7ad43',
+                signWithParams: '/sha1 874b95fdc8a490a3d3bab28643902948b2c7ad43',
+                timestampServer: 'http://timestamp.digicert.com',
+                fileDigestAlgorithm: 'sha256',
+                timestampDigestAlgorithm: 'sha256'
+              }
+            })
       }
     }
   ],

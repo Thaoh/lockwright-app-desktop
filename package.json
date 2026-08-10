@@ -123,6 +123,8 @@
     "dist:mac:x64:dev": "SKIP_NOTARIZE=true CSC_IDENTITY_AUTO_DISCOVERY=false pnpm run dist:mac:x64",
     "dist:win:x64": "electron-forge make --platform=win32 --arch=x64",
     "dist:win:arm64": "electron-forge make --platform=win32 --arch=arm64",
+    "dist:win:x64:dev": "cross-env SKIP_WIN_SIGN=true electron-forge make --platform=win32 --arch=x64",
+    "dist:win:arm64:dev": "cross-env SKIP_WIN_SIGN=true electron-forge make --platform=win32 --arch=arm64",
     "dist:linux:x64": "pnpm exec electron-builder --linux --x64 -c electron-builder.linux.json --publish never",
     "dist:linux:arm64": "pnpm exec electron-builder --linux --arm64 -c electron-builder.linux.json --publish never",
     "make": "pnpm run build:prod && pnpm run dist:win:x64 && pnpm run dist:win:arm64",
