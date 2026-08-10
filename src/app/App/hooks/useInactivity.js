@@ -6,7 +6,6 @@ import {
   useVaults
 } from '@tetherto/pearpass-lib-vault'
 
-import { NAVIGATION_ROUTES } from '../../../constants/navigation'
 import { useLoadingContext } from '../../../context/LoadingContext'
 import { useModal } from '../../../context/ModalContext'
 import { useRouter } from '../../../context/RouterContext'
@@ -14,6 +13,7 @@ import {
   getAutoLockTimeoutMs,
   useAutoLockPreferences
 } from '../../../hooks/useAutoLockPreferences'
+import { lockAppSession } from '../../../utils/lockAppSession'
 import { logger } from '../../../utils/logger'
 const DEDUPE_WINDOW_MS = 50
 
@@ -66,11 +66,16 @@ export function useInactivity() {
       }
 
       setIsLoading(true)
-      await closeAllInstances()
-      closeModal()
-      navigate('welcome', { state: NAVIGATION_ROUTES.MASTER_PASSWORD })
-      resetState()
-      setIsLoading(false)
+      try {
+        await lockAppSession({
+          closeAllInstances,
+          navigate,
+          resetState,
+          closeModal
+        })
+      } finally {
+        setIsLoading(false)
+      }
 
       logger.info('INACTIVITY-TIMER', 'Inactivity timer reset')
     }, timeoutMs)

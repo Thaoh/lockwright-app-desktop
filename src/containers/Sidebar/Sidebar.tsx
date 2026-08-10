@@ -40,13 +40,13 @@ import {
   FOLDERS_CHEVRON_CENTER_SHIFT_PX
 } from './Sidebar.styles'
 import { VaultSelector } from './VaultSelector/VaultSelector'
-import { NAVIGATION_ROUTES } from '../../constants/navigation'
 import { useLoadingContext } from '../../context/LoadingContext'
 import { useModal } from '../../context/ModalContext'
 import { useRouter } from '../../context/RouterContext'
 import { useRecordMenuItems } from '../../hooks/useRecordMenuItems'
 import { useTranslation } from '../../hooks/useTranslation'
 import { FAVORITES_FOLDER_ID } from '../../utils/isFavorite'
+import { lockAppSession } from '../../utils/lockAppSession'
 import { sortByName } from '../../utils/sortByName'
 import { CreateFolderModalContent } from '../Modal/CreateFolderModalContent/CreateFolderModalContent'
 import { DeleteFolderModalContent } from '../Modal/DeleteFolderModalContent/DeleteFolderModalContent'
@@ -164,9 +164,11 @@ export const Sidebar = () => {
   const handleLockApp = async () => {
     setIsLoading(true)
     try {
-      await closeAllInstances()
-      navigate('welcome', { state: NAVIGATION_ROUTES.MASTER_PASSWORD })
-      resetState()
+      await lockAppSession({
+        closeAllInstances,
+        navigate,
+        resetState
+      })
     } finally {
       setIsLoading(false)
     }
