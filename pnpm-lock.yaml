@@ -2339,11 +2339,11 @@ packages:
     version: 0.0.11
 
   '@tetherto/pearpass-lib-data-export@https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1}
+    resolution: {gitHosted: true, integrity: sha512-rjK331MZoLO0qhzrpJINE5vBPq+IZuwqbofcANdxo4C9swpIn5ZlvDHLam5tl5jTxWxqpRAbBxwtGXucYyFnMA==, tarball: https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1}
     version: 0.0.13
 
   '@tetherto/pearpass-lib-data-import@https://codeload.github.com/tetherto/pearpass-lib-data-import/tar.gz/1647d841c56e84e4a20fc59ec9d76305037229cf':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-lib-data-import/tar.gz/1647d841c56e84e4a20fc59ec9d76305037229cf}
+    resolution: {gitHosted: true, integrity: sha512-PKeGBULll5C5MWbbUNF9q1UWHYYXBENZD6fObJmWchYOUSj7WhMg64nG4OiY78nvfSbh2MIB1YIOyrmerQhKBw==, tarball: https://codeload.github.com/tetherto/pearpass-lib-data-import/tar.gz/1647d841c56e84e4a20fc59ec9d76305037229cf}
     version: 0.0.14
 
   '@tetherto/pearpass-lib-native-messaging-bridge@https://codeload.github.com/tetherto/pearpass-lib-native-messaging-bridge/tar.gz/a1a3f4e71ce3e8d98172b13a6a9daa285f98eeae':
