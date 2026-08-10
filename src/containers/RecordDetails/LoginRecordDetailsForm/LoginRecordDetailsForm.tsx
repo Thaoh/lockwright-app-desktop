@@ -11,6 +11,7 @@ import {
   MultiSlotInput,
   PasswordField,
   Text,
+  rawTokens,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
 import { OpenInNew } from '@tetherto/pearpass-lib-ui-kit/icons'
@@ -238,42 +239,55 @@ export const LoginRecordDetailsForm = ({
                 key={`${website}-${index}`}
                 testID={`website-multi-slot-input-${index}`}
               >
-                <InputField
-                  label={t('Website')}
-                  value={website}
-                  placeholder={t('Enter Website')}
-                  readOnly
-                  copyable
-                  onCopy={copyToClipboard}
-                  isGrouped
-                  testID={`website-multi-slot-input-slot-${index}`}
-                  rightSlot={
-                    website?.length ? (
-                      <Button
-                        variant="tertiary"
-                        size="small"
-                        aria-label={t('Open website')}
-                        iconBefore={
-                          <OpenInNew
-                            width={16}
-                            height={16}
-                            color={theme.colors.colorTextPrimary}
-                          />
-                        }
-                        onClick={() =>
-                          window.open(
-                            addHttps(website) as unknown as string,
-                            '_blank',
-                            'noopener,noreferrer'
-                          )
-                        }
-                      />
-                    ) : undefined
-                  }
-                />
-                <Text variant="caption" color={theme.colors.colorTextSecondary}>
-                  {`${t('URI match')}: ${matchLabel}`}
-                </Text>
+                <div style={styles.websiteFieldWrap}>
+                  <InputField
+                    label={t('Website')}
+                    value={website}
+                    placeholder={t('Enter Website')}
+                    readOnly
+                    copyable
+                    onCopy={copyToClipboard}
+                    isGrouped
+                    testID={`website-multi-slot-input-slot-${index}`}
+                    rightSlot={
+                      website?.length ? (
+                        <Button
+                          variant="tertiary"
+                          size="small"
+                          aria-label={t('Open website')}
+                          iconBefore={
+                            <OpenInNew
+                              width={16}
+                              height={16}
+                              color={theme.colors.colorTextPrimary}
+                            />
+                          }
+                          onClick={() =>
+                            window.open(
+                              addHttps(website) as unknown as string,
+                              '_blank',
+                              'noopener,noreferrer'
+                            )
+                          }
+                        />
+                      ) : undefined
+                    }
+                  />
+                  <div
+                    style={{
+                      ...styles.websiteMatchAccessory,
+                      right: rawTokens.spacing48
+                    }}
+                    data-testid={`website-uri-match-caption-${index}`}
+                  >
+                    <Text
+                      variant="caption"
+                      color={theme.colors.colorTextSecondary}
+                    >
+                      {`${t('URI match')}: ${matchLabel}`}
+                    </Text>
+                  </div>
+                </div>
               </MultiSlotInput>
             )
           })}

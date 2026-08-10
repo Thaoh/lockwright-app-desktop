@@ -10,15 +10,16 @@ export const createStyles = () => ({
   sectionLabel: {
     marginTop: `${rawTokens.spacing8}px`
   },
-  websiteRow: {
-    display: 'flex' as const,
-    flexDirection: 'column' as const,
-    gap: `${rawTokens.spacing8}px`
+  websiteFieldWrap: {
+    position: 'relative' as const,
+    width: '100%'
   },
-  websiteMatchRow: {
+  websiteMatchAccessory: {
+    position: 'absolute' as const,
+    top: rawTokens.spacing12,
+    zIndex: 1,
     display: 'flex' as const,
     alignItems: 'center' as const,
-    justifyContent: 'space-between' as const,
-    gap: `${rawTokens.spacing12}px`
+    pointerEvents: 'auto' as const
   }
 })

@@ -15,7 +15,7 @@ jest.mock('./useTranslation', () => ({
   })
 }))
 jest.mock('@tetherto/pearpass-lib-constants', () => ({
-  CLIPBOARD_CLEAR_TIMEOUT: 1000
+  DEFAULT_CLIPBOARD_CLEAR_TIMEOUT: 1000
 }))
 
 const mockSetToast = jest.fn()

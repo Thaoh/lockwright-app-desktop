@@ -5,7 +5,7 @@
  */
 import React, { useState, useEffect } from 'react'
 
-import { CLIPBOARD_CLEAR_TIMEOUT } from '@tetherto/pearpass-lib-constants'
+import { DEFAULT_CLIPBOARD_CLEAR_TIMEOUT } from '@tetherto/pearpass-lib-constants'
 import { Check } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { useTranslation } from './useTranslation'
@@ -62,7 +62,7 @@ export const useCopyToClipboard = ({ onCopy } = {}) => {
         if (window.electronAPI) {
           window.electronAPI.clearClipboardAfter?.(
             text,
-            CLIPBOARD_CLEAR_TIMEOUT
+            DEFAULT_CLIPBOARD_CLEAR_TIMEOUT
           )
         }
       },

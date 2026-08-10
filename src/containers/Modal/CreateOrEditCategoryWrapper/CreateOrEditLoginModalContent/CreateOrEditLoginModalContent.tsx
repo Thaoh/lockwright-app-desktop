@@ -7,14 +7,15 @@ import { AUTHENTICATOR_ENABLED } from '@tetherto/pearpass-lib-constants'
 import {
   AttachmentField as UiKitAttachmentField,
   Button,
+  ContextMenu,
   Dialog,
-  Dropdown,
   Form,
   InputField,
   MultiSlotInput,
   NavbarListItem,
   PasswordField,
   Text,
+  rawTokens,
   useTheme,
 } from '@tetherto/pearpass-lib-ui-kit'
 import { RECORD_TYPES, validateOtpInput } from '@tetherto/pearpass-lib-vault'
@@ -99,9 +100,6 @@ export const CreateOrEditLoginModalContent = ({
   const { closeModal, setModal } = useModal()
   const { handleCreateOrEditRecord } = useCreateOrEditRecord()
   const [passwordType, setPasswordType] = useState<PassType>(PassType.Password)
-  const [openMatchTypeIndex, setOpenMatchTypeIndex] = useState<number | null>(
-    null
-  )
   const { setToast } = useToast()
   const { theme } = useTheme()
   const styles = createStyles()
@@ -449,17 +447,19 @@ export const CreateOrEditLoginModalContent = ({
             const matchTypeField = registerWebsiteItem('matchType', index)
             const selectedMatchType = (matchTypeField.value ||
               URI_MATCH_TYPES.DOMAIN) as UriMatchType
+            const hasRightSlot = index > 0
             return (
-              <div key={website.id} style={styles.websiteRow}>
+              <div key={website.id} style={styles.websiteFieldWrap}>
                 <InputField
                   label={t('Website')}
                   placeholder={t('Enter Website')}
                   value={websiteField.value}
                   onChange={(e) => websiteField.onChange(e.target.value)}
                   error={websiteField.error || undefined}
+                  isGrouped
                   testID={`createoredit-input-website-${index}`}
                   rightSlot={
-                    index > 0 ? (
+                    hasRightSlot ? (
                       <Button
                         variant='tertiary'
                         size='small'
@@ -478,27 +478,34 @@ export const CreateOrEditLoginModalContent = ({
                     ) : undefined
                   }
                 />
-                <div style={styles.websiteMatchRow}>
-                  <Text
-                    variant='caption'
-                    color={theme.colors.colorTextSecondary}
-                  >
-                    {t('URI match')}
-                  </Text>
-                  <Dropdown
-                    open={openMatchTypeIndex === index}
-                    onOpenChange={(open) =>
-                      setOpenMatchTypeIndex(open ? index : null)
-                    }
+                <div
+                  style={{
+                    ...styles.websiteMatchAccessory,
+                    right: hasRightSlot
+                      ? rawTokens.spacing48
+                      : rawTokens.spacing12
+                  }}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  <ContextMenu
+                    menuPlacement='top'
+                    closeOnContentClick
+                    testID={`createoredit-website-match-menu-${index}`}
                     trigger={
                       <Button
-                        variant='secondary'
+                        variant='tertiary'
                         size='small'
                         type='button'
-                        iconAfter={<KeyboardArrowBottom />}
+                        iconAfter={
+                          <KeyboardArrowBottom
+                            width={14}
+                            height={14}
+                            color={theme.colors.colorTextSecondary}
+                          />
+                        }
                         data-testid={`createoredit-website-match-${index}`}
                       >
-                        {uriMatchOptionLabels[selectedMatchType] ?? t('Domain')}
+                        {`${t('URI match')}: ${uriMatchOptionLabels[selectedMatchType] ?? t('Domain')}`}
                       </Button>
                     }
                   >
@@ -510,11 +517,10 @@ export const CreateOrEditLoginModalContent = ({
                         selected={selectedMatchType === value}
                         onClick={() => {
                           matchTypeField.onChange(value)
-                          setOpenMatchTypeIndex(null)
                         }}
                       />
                     ))}
-                  </Dropdown>
+                  </ContextMenu>
                 </div>
               </div>
             )
