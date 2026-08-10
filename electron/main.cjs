@@ -36,6 +36,13 @@ let debugMode = false
 })()
 
 const pkg = require('../package.json')
+
+// Windows Task Manager / taskbar group by AppUserModelID + exe FileDescription.
+// Must be set before ready; keeps packaged PearPass from grouping under "Electron".
+if (isWindows) {
+  app.setAppUserModelId(pkg.build?.appId ?? 'com.pears.pass')
+}
+
 const {
   getSandboxSafePath,
   isFlatpakRuntime,
@@ -150,6 +157,15 @@ async function resolveRuntimeStorageDir() {
   const { legacyChannelLink, upgrade } = runtimeConfig || {}
 
   let storageDir = getStorageDir()
+
+  // Local/NSIS builds may omit the pear upgrade channel. Keep vault data under
+  // a stable folder and never call String methods on a null upgrade link.
+  if (!upgrade) {
+    storageDir = path.join(storageDir, 'app-storage', 'local')
+    logger.info('[MAIN]', 'Using local app-storage root (no upgrade link):', storageDir)
+    return storageDir
+  }
+
   const linkId = upgrade.replace(/^pear:\/\//, '')
 
   if (isFlatpakRuntime() || isSnapRuntime()) {
@@ -317,7 +333,11 @@ function waitForWorkletReady(sidecar) {
  * Start pear-runtime and the vault worklet (bare worker). Called after app is ready.
  */
 async function startRuntime() {
-  const upgrade = runtimeConfig.upgrade
+  const upgrade =
+    process.env.PEARPASS_DISABLE_UPGRADE === '1' ||
+    process.env.PEARPASS_DISABLE_UPGRADE === 'true'
+      ? null
+      : runtimeConfig.upgrade
 
   if (!upgrade) {
     logger.warn(
@@ -337,7 +357,14 @@ async function startRuntime() {
   const { PearpassVaultClient } = await import(
     '@tetherto/pearpass-lib-vault-core'
   )
-  const extension = isLinux ? '.AppImage' : isMac ? '.app' : '.msix'
+  // MSIX (Store/Forge) vs NSIS/portable: Pear OTA artifact extension must match.
+  const extension = isLinux
+    ? '.AppImage'
+    : isMac
+      ? '.app'
+      : process.windowsStore
+        ? '.msix'
+        : '.exe'
 
   pearRuntime = new PearRuntime({
     // pear runtime doesn't care about pear (platform) directory
@@ -505,7 +532,7 @@ async function startWorkletOnly() {
     logger.error('MAIN', '[worklet process error]', err)
   })
   await waitForWorkletReady(workletSidecar)
-  const storagePath = getStorageDir()
+  const storagePath = await resolveRuntimeStorageDir()
   emitStartupMarker('STORAGE_PATH_SET', storagePath)
   try {
     vaultClient = new PearpassVaultClient(workletSidecar, storagePath, {
@@ -597,6 +624,22 @@ function createWindow() {
       contextIsolation: false,
       sandbox: false
     }
+  })
+
+  mainWindow.webContents.on('console-message', (_e, level, message, line, sourceId) => {
+    emitStartupMarker(
+      'RENDERER_CONSOLE',
+      `level=${level} ${message} (${sourceId}:${line})`
+    )
+  })
+  mainWindow.webContents.on('did-fail-load', (_e, code, desc, url) => {
+    emitStartupMarker('RENDERER_FAIL_LOAD', `${code} ${desc} ${url}`)
+  })
+  mainWindow.webContents.on('render-process-gone', (_e, details) => {
+    emitStartupMarker(
+      'RENDERER_GONE',
+      `${details?.reason || 'unknown'} exit=${details?.exitCode}`
+    )
   })
 
   mainWindow.loadFile(path.join(__dirname, '..', 'index.html'))
