@@ -14,9 +14,37 @@ const POLL_MS = 100
 const POLL_TIMEOUT_MS = 60_000
 
 /**
+ * Reject if `promise` does not settle within `ms`.
+ * Prevents a hung RPC from defeating the boot-gate timeout.
+ * @template T
+ * @param {Promise<T>} promise
+ * @param {number} ms
+ * @param {string} message
+ * @returns {Promise<T>}
+ */
+const withTimeout = (promise, ms, message) =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolve(value)
+      },
+      (err) => {
+        clearTimeout(timer)
+        reject(err)
+      }
+    )
+  })
+
+/**
  * After vault open: wait for schema-2 migrate readiness, advertise
  * recordSchema: 2 on this device, and emit SCHEMA_MIGRATION_WARNING once
  * when no other live devices still report schema 1.
+ *
+ * The splash/boot gate only waits on migration readiness. Device advertise +
+ * warning emission run after the gate opens so a hung addDevice cannot pin
+ * the UI on the loading screen.
  *
  * @returns {{ isMigrationReady: boolean }}
  */
@@ -51,24 +79,28 @@ export const useVaultSchemaBoot = () => {
         return { ready: true, migratedToSchema: SCHEMA_V2 }
       }
 
-      const started = Date.now()
-      while (!cancelled) {
-        const status = await client.getVaultMigrationStatus()
-        if (
-          status?.ready === true &&
-          Number(status?.migratedToSchema) >= SCHEMA_V2
-        ) {
-          return status
+      const poll = async () => {
+        while (!cancelled) {
+          const status = await client.getVaultMigrationStatus()
+          if (
+            status?.ready === true &&
+            Number(status?.migratedToSchema) >= SCHEMA_V2
+          ) {
+            return status
+          }
+          if (status?.error && !status?.inProgress) {
+            throw new Error(status.error)
+          }
+          await new Promise((r) => setTimeout(r, POLL_MS))
         }
-        if (status?.error && !status?.inProgress) {
-          throw new Error(status.error)
-        }
-        if (Date.now() - started > POLL_TIMEOUT_MS) {
-          throw new Error('Timed out waiting for vault schema migration')
-        }
-        await new Promise((r) => setTimeout(r, POLL_MS))
+        return null
       }
-      return null
+
+      return withTimeout(
+        poll(),
+        POLL_TIMEOUT_MS,
+        'Timed out waiting for vault schema migration'
+      )
     }
 
     const maybeEmitMigrationWarning = async () => {
@@ -100,14 +132,17 @@ export const useVaultSchemaBoot = () => {
         await waitForMigration()
         if (cancelled) return
 
-        await addDeviceRef.current()
-        if (cancelled) return
-
-        await maybeEmitMigrationWarning()
-        if (cancelled) return
-
+        // Release the splash gate before side effects that can hang.
         ranForVaultRef.current = vaultId
         setIsMigrationReady(true)
+
+        try {
+          await addDeviceRef.current()
+          if (cancelled) return
+          await maybeEmitMigrationWarning()
+        } catch (err) {
+          logger.error('useVaultSchemaBoot post-migration failed', err)
+        }
       } catch (err) {
         logger.error('useVaultSchemaBoot failed', err)
         // Fail open so unlock/create flows are not permanently stuck.

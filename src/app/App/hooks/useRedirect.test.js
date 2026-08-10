@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { useUserData } from '@tetherto/pearpass-lib-vault'
 
 import { useRedirect } from './useRedirect'
@@ -9,7 +9,7 @@ import { useRouter } from '../../../context/RouterContext'
 jest.mock('@tetherto/pearpass-lib-vault')
 jest.mock('../../../context/RouterContext')
 jest.mock('../../../utils/logger', () => ({
-  error: jest.fn()
+  logger: { error: jest.fn(), log: jest.fn() }
 }))
 jest.mock('../../../constants/localStorage', () => ({
   LOCAL_STORAGE_KEYS: {
@@ -23,6 +23,7 @@ const mockRefetchUser = jest.fn()
 describe('useRedirect', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.useRealTimers()
 
     useRouter.mockReturnValue({ navigate: mockNavigate })
     useUserData.mockReturnValue({
@@ -84,5 +85,29 @@ describe('useRedirect', () => {
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('intro')
     })
+  })
+
+  it('should navigate to "intro" when initializeUser fails', async () => {
+    mockRefetchUser.mockRejectedValue(new Error('vault unavailable'))
+
+    renderHook(() => useRedirect())
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('intro')
+    })
+  })
+
+  it('should navigate to "intro" when initializeUser hangs past timeout', async () => {
+    jest.useFakeTimers()
+    mockRefetchUser.mockImplementation(() => new Promise(() => {}))
+
+    renderHook(() => useRedirect())
+
+    await act(async () => {
+      jest.advanceTimersByTime(5_000)
+    })
+
+    expect(mockNavigate).toHaveBeenCalledWith('intro')
+    jest.useRealTimers()
   })
 })

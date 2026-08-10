@@ -81,10 +81,13 @@ export const App = () => {
     setIsLoadingPageComplete(true)
   }, [])
 
+  // Only gate the vault UI on schema migration — welcome/intro must not stall
+  // if migrate/addDevice hang. Routes also treats currentPage === 'loading' as
+  // splash, so useRedirect must always navigate away (see useRedirect.js).
   const showLoadingPage =
     isDataLoading ||
     !isLoadingPageComplete ||
-    (!!activeVault?.id && !isMigrationReady)
+    (currentPage === 'vault' && !!activeVault?.id && !isMigrationReady)
 
   const useLogoTitleBar = appConfig.headerWithLogo.includes(currentPage)
   return html`

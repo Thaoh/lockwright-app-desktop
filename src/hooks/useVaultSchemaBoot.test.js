@@ -107,4 +107,29 @@ describe('useVaultSchemaBoot', () => {
     expect(result.current.isMigrationReady).toBe(true)
     expect(mockGetVaultMigrationStatus).not.toHaveBeenCalled()
   })
+
+  it('does not stay blocked when addDevice hangs after migration', async () => {
+    mockAddDevice.mockImplementation(() => new Promise(() => {}))
+
+    const { result } = renderHook(() => useVaultSchemaBoot())
+
+    await waitFor(() => {
+      expect(result.current.isMigrationReady).toBe(true)
+    })
+  })
+
+  it('fail-opens when migration status RPC hangs past timeout', async () => {
+    jest.useFakeTimers()
+    mockGetVaultMigrationStatus.mockImplementation(() => new Promise(() => {}))
+
+    const { result } = renderHook(() => useVaultSchemaBoot())
+    expect(result.current.isMigrationReady).toBe(false)
+
+    await act(async () => {
+      jest.advanceTimersByTime(60_000)
+    })
+
+    expect(result.current.isMigrationReady).toBe(true)
+    jest.useRealTimers()
+  })
 })
