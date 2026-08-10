@@ -19,6 +19,9 @@ assets/.DS_Store
 
 dist
 
+# Electron / electron-builder local caches (zip + toolsets)
+.cache/
+
 # Build output
 build/
 *.AppImage

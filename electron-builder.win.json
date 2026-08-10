@@ -1,0 +1,57 @@
+{
+  "appId": "com.pears.pass",
+  "productName": "PearPass",
+  "icon": "assets/win32/icon.png",
+  "asar": false,
+  "electronDownload": {
+    "cache": ".cache/electron"
+  },
+  "directories": {
+    "output": "out"
+  },
+  "files": [
+    "electron/**/*",
+    "dist/**/*",
+    "index.html",
+    "index.js",
+    "packages/**/*",
+    "assets/**/*",
+    "src/utils/**/*",
+    "!**/node_modules/react-native/**/*",
+    "!**/node_modules/@react-native/**/*"
+  ],
+  "extraResources": [
+    {
+      "from": "assets",
+      "to": "assets"
+    },
+    {
+      "from": "resources/bin",
+      "to": "bin"
+    }
+  ],
+  "afterPack": "scripts/afterPack.cjs",
+  "extraMetadata": {
+    "upgrade": null
+  },
+  "win": {
+    "icon": "assets/win32/icon.png",
+    "target": ["nsis"],
+    "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
+    "signAndEditExecutable": true,
+    "signExecutable": false
+  },
+  "nsis": {
+    "oneClick": true,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": false,
+    "allowElevation": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "PearPass",
+    "uninstallDisplayName": "PearPass",
+    "deleteAppDataOnUninstall": false,
+    "runAfterFinish": true,
+    "differentialPackage": false
+  }
+}
