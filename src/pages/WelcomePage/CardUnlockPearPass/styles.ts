@@ -1,27 +1,50 @@
-import styled from 'styled-components'
+import type { ThemeColors } from '@tetherto/pearpass-lib-ui-kit'
 import { rawTokens } from '@tetherto/pearpass-lib-ui-kit'
 
-export const Shell = styled.form`
-  display: flex;
-  width: min(100%, 500px);
-  flex-direction: column;
-  gap: ${rawTokens.spacing24}px;
-`
+export const createStyles = (colors: ThemeColors) => ({
+  card: {
+    background: colors.colorSurfacePrimary,
+    paddingTop: '55px',
+    paddingBottom: '55px',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '35px',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    boxSizing: 'border-box' as const
+  },
 
-export const Header = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${rawTokens.spacing6}px;
-  text-align: center;
-`
+  container: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: `${rawTokens.spacing24}px`,
+    alignItems: 'stretch',
+    justifyContent: 'center',
+    width: '100%',
+    maxWidth: '500px'
+  },
 
-export const Footer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-`
+  header: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: `${rawTokens.spacing6}px`,
+    width: '100%'
+  },
 
-export const ButtonIconWrapper = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-`
+  fieldsWrapper: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: `${rawTokens.spacing12}px`,
+    width: '100%'
+  },
+
+  footerRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    width: '100%'
+  }
+})

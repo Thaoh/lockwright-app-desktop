@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
@@ -32,6 +32,7 @@ import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 import { createStyles } from './styles'
 import { LOCAL_STORAGE_KEYS } from '../../../constants/localStorage'
+import { NAVIGATION_ROUTES } from '../../../constants/navigation'
 import { useGlobalLoading } from '../../../context/LoadingContext'
 import { useRouter } from '../../../context/RouterContext'
 import { clearStaleVaultsDir } from '../../../electron'
@@ -43,6 +44,7 @@ export const CardCreateMasterPassword = () => {
   const { t } = useTranslation()
   const { navigate } = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const submitInFlightRef = useRef(false)
   const { theme } = useTheme()
   const styles = createStyles(theme.colors)
 
@@ -58,14 +60,15 @@ export const CardCreateMasterPassword = () => {
     passwordConfirm: Validator.string().required(t('Password is required'))
   })
 
-  const { register, handleSubmit, setErrors, setValue, values } = useForm({
-    initialValues: {
-      password: '',
-      passwordConfirm: ''
-    },
-    validate: (formValues: { password: string; passwordConfirm: string }) =>
-      schema.validate(formValues)
-  })
+  const { register, handleSubmit, setErrors, setValue, values, errors } =
+    useForm({
+      initialValues: {
+        password: '',
+        passwordConfirm: ''
+      },
+      validate: (formValues: { password: string; passwordConfirm: string }) =>
+        schema.validate(formValues)
+    })
 
   const passwordStrength = values.password
     ? checkPasswordStrength(values.password)
@@ -96,7 +99,7 @@ export const CardCreateMasterPassword = () => {
     password: string
     passwordConfirm: string
   }) => {
-    if (isLoading) return
+    if (submitInFlightRef.current || isLoading) return
 
     const strength = checkPasswordStrength(formValues.password)
     if (strength.strengthType !== 'success') {
@@ -114,20 +117,65 @@ export const CardCreateMasterPassword = () => {
 
     const createBuffer = stringToBuffer(formValues.password)
     const loginBuffer = stringToBuffer(formValues.password)
+    const CREATE_TIMEOUT_MS = 12_000
+    const withTimeout = <T,>(promise: Promise<T>, label: string) =>
+      new Promise<T>((resolve, reject) => {
+        const timer = setTimeout(
+          () => reject(new Error(`${label} timed out`)),
+          CREATE_TIMEOUT_MS
+        )
+        promise.then(
+          (value) => {
+            clearTimeout(timer)
+            resolve(value)
+          },
+          (err) => {
+            clearTimeout(timer)
+            reject(err)
+          }
+        )
+      })
+
+    const runStep = async <T,>(label: string, fn: () => Promise<T>) => {
+      logger.log('CardCreateMasterPassword', `start ${label}`)
+      try {
+        const result = await withTimeout(fn(), label)
+        logger.log('CardCreateMasterPassword', `ok ${label}`)
+        return result
+      } catch (err) {
+        logger.error('CardCreateMasterPassword', `fail ${label}`, err)
+        throw err
+      }
+    }
+
+    submitInFlightRef.current = true
     try {
       setIsLoading(true)
       localStorage.setItem(LOCAL_STORAGE_KEYS.TOU_ACCEPTED, 'true')
-      await clearStaleVaultsDir()
-      await createMasterPassword(createBuffer)
-      await logIn({ password: loginBuffer })
-      await initVaults({ password: loginBuffer })
-      await createVault({ name: t('Personal') })
-      await addDevice()
+      await runStep('clearStaleVaultsDir', () => clearStaleVaultsDir())
+      await runStep('createMasterPassword', () =>
+        createMasterPassword(createBuffer)
+      )
+      await runStep('logIn', () => logIn({ password: loginBuffer }))
+      await runStep('initVaults', () => initVaults({ password: loginBuffer }))
+      await runStep('createVault', () => createVault({ name: t('Personal') }))
+      await runStep('addDevice', () => addDevice())
       navigate('vault', { recordType: 'all' })
       setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
-      setErrors({ password: t('Error creating master password') })
+      const message = error instanceof Error ? error.message : String(error)
+      if (/already exists/i.test(message)) {
+        // Existing encryption store — send user to unlock instead of spinning.
+        navigate('welcome', { state: NAVIGATION_ROUTES.MASTER_PASSWORD })
+        return
+      }
+      // Surface the real failure so local packaging issues are diagnosable.
+      setErrors({
+        password: /timed out/i.test(message)
+          ? t('Creating your vault timed out. Please try again.') + ` (${message})`
+          : `${t('Error creating master password')}: ${message}`
+      })
       logger.error(
         'CardCreateMasterPassword',
         'Error creating master password:',
@@ -135,6 +183,7 @@ export const CardCreateMasterPassword = () => {
       )
     } finally {
       clearBuffer(loginBuffer)
+      submitInFlightRef.current = false
     }
   }
 
@@ -156,6 +205,7 @@ export const CardCreateMasterPassword = () => {
               value={values.password}
               onChangeText={handlePasswordChange}
               passwordIndicator={passwordIndicator}
+              error={errors.password || undefined}
               testID="master-password-field"
             />
             {showInfoToast && (
@@ -178,10 +228,21 @@ export const CardCreateMasterPassword = () => {
             value={values.passwordConfirm}
             onChangeText={handleConfirmChange}
             passwordIndicator={passwordsMatch ? 'match' : undefined}
+            error={errors.passwordConfirm || undefined}
             testID="confirm-password-field"
           />
 
-          {isFormValid && (
+          {errors.password && /Error creating|timed out/i.test(errors.password) && (
+            <AlertMessage
+              variant="error"
+              size="small"
+              title={t('Could not create vault')}
+              description={errors.password}
+              testID="create-master-password-error"
+            />
+          )}
+
+          {isFormValid && !errors.password && (
             <AlertMessage
               variant="warning"
               size="small"
@@ -212,11 +273,11 @@ export const CardCreateMasterPassword = () => {
             <Text as="span">.</Text>
           </div>
           <Button
+            type="submit"
             variant="primary"
             size="small"
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoading}
             isLoading={isLoading}
-            onClick={() => handleSubmit(onSubmit)()}
             iconAfter={<KeyboardArrowRightFilled width={16} height={16} />}
           >
             {t('Continue')}

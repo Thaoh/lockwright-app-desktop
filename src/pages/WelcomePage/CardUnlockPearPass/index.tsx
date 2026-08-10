@@ -1,34 +1,37 @@
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useRef, useState } from 'react'
+
 import {
   Button,
+  Form,
   PasswordField,
   Text,
   Title,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
+import { KeyboardArrowRightFilled } from '@tetherto/pearpass-lib-ui-kit/icons'
 import {
-  KeyboardArrowRightRound
-} from '@tetherto/pearpass-lib-ui-kit/icons'
-import { useCreateVault, useUserData, useVault, useVaults } from '@tetherto/pearpass-lib-vault'
-import { clearBuffer, stringToBuffer } from '@tetherto/pearpass-lib-vault/src/utils/buffer'
+  useCreateVault,
+  useUserData,
+  useVault,
+  useVaults
+} from '@tetherto/pearpass-lib-vault'
+import {
+  clearBuffer,
+  stringToBuffer
+} from '@tetherto/pearpass-lib-vault/src/utils/buffer'
 
-import { OnboardingShell } from '../../../components/OnboardingShell'
+import { createStyles } from './styles'
 import { NAVIGATION_ROUTES } from '../../../constants/navigation'
 import { useGlobalLoading } from '../../../context/LoadingContext'
 import { useRouter } from '../../../context/RouterContext'
 import { useTranslation } from '../../../hooks/useTranslation'
 import { logger } from '../../../utils/logger'
 import { sortByName } from '../../../utils/sortByName'
-import {
-  ButtonIconWrapper,
-  Footer,
-  Header,
-  Shell
-} from './styles'
 
 export const CardUnlockPearPass = (): React.ReactElement => {
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const styles = createStyles(theme.colors)
   const { currentPage, navigate } = useRouter()
   const { initVaults, refetch: refetchVaults } = useVaults()
   const { isVaultProtected, addDevice, refetch: refetchVault } = useVault()
@@ -38,6 +41,9 @@ export const CardUnlockPearPass = (): React.ReactElement => {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  // Sync guard — React state alone cannot prevent double submit from
+  // form onSubmit + button click racing in the same tick.
+  const submitInFlightRef = useRef(false)
 
   useGlobalLoading({ isLoading })
 
@@ -49,10 +55,10 @@ export const CardUnlockPearPass = (): React.ReactElement => {
     }
   }
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const handleSubmit = async (event?: FormEvent<HTMLFormElement>) => {
+    event?.preventDefault()
 
-    if (isLoading) {
+    if (submitInFlightRef.current || isLoading) {
       return
     }
 
@@ -62,6 +68,7 @@ export const CardUnlockPearPass = (): React.ReactElement => {
     }
 
     const passwordBuffer = stringToBuffer(password)
+    submitInFlightRef.current = true
 
     try {
       setIsLoading(true)
@@ -77,7 +84,10 @@ export const CardUnlockPearPass = (): React.ReactElement => {
         const isProtected = await isVaultProtected(firstVault.id)
 
         if (isProtected) {
-          navigate(currentPage, { state: 'vaultPassword', vaultId: firstVault.id })
+          navigate(currentPage, {
+            state: 'vaultPassword',
+            vaultId: firstVault.id
+          })
         } else {
           await refetchVault(firstVault.id)
           navigate('vault', { recordType: 'all' })
@@ -99,15 +109,26 @@ export const CardUnlockPearPass = (): React.ReactElement => {
         typeof status?.remainingAttempts === 'number'
           ? status.remainingAttempts
           : null
+      const rawMessage =
+        submitError instanceof Error
+          ? submitError.message
+          : typeof submitError === 'string'
+            ? submitError
+            : ''
+
+      // Only show the attempts copy for real credential failures; surface
+      // other unlock errors so packaging/storage bugs are not mislabeled.
+      const isCredentialFailure =
+        /incorrect|invalid password|decrypting vault key|do not match|credentials/i.test(
+          rawMessage
+        )
 
       setError(
-        typeof submitError === 'string'
-          ? submitError
-          : attemptsLeft !== null
-            ? t(
+        isCredentialFailure && attemptsLeft !== null
+          ? t(
               `Incorrect password. You have ${attemptsLeft} ${attemptsLeft === 1 ? 'attempt' : 'attempts'} before the app will be temporarily locked`
             )
-            : t('Invalid password')
+          : rawMessage || t('Invalid password')
       )
 
       logger.error(
@@ -117,51 +138,47 @@ export const CardUnlockPearPass = (): React.ReactElement => {
       )
     } finally {
       clearBuffer(passwordBuffer)
+      submitInFlightRef.current = false
       setIsLoading(false)
     }
   }
 
   return (
-    <OnboardingShell background="solid">
-      <Shell onSubmit={handleSubmit}>
-        <Header>
-          <Title>Enter Your Master Password</Title>
-          <Text
-            as="p"
-            variant="label"
-            color={theme.colors.colorTextSecondary}
-          >
+    <div style={styles.card}>
+      {/* @ts-ignore - plain CSS objects passed to react-strict-dom components */}
+      <Form onSubmit={handleSubmit} style={styles.container}>
+        <div style={styles.header}>
+          <Title as="h2">{t('Enter Your Master Password')}</Title>
+          <Text as="p" variant="label" color={theme.colors.colorTextSecondary}>
             {t('Please enter your master password to continue')}
           </Text>
-        </Header>
+        </div>
 
-        <PasswordField
-          label={t('Password')}
-          value={password}
-          placeholderText={t('Enter Master Password')}
-          onChangeText={handlePasswordChange}
-          variant={error ? 'error' : 'default'}
-          errorMessage={error || undefined}
-          testID="login-password-input"
-        />
+        <div style={styles.fieldsWrapper}>
+          <PasswordField
+            label={t('Password')}
+            value={password}
+            placeholderText={t('Enter Master Password')}
+            onChangeText={handlePasswordChange}
+            error={error || undefined}
+            testID="login-password-input"
+          />
+        </div>
 
-        <Footer>
+        <div style={styles.footerRow}>
           <Button
             type="submit"
             variant="primary"
             size="small"
             isLoading={isLoading}
+            disabled={isLoading}
             data-testid="login-continue-button"
-            iconAfter={
-              <ButtonIconWrapper>
-                <KeyboardArrowRightRound />
-              </ButtonIconWrapper>
-            }
+            iconAfter={<KeyboardArrowRightFilled width={16} height={16} />}
           >
             {t('Continue')}
           </Button>
-        </Footer>
-      </Shell>
-    </OnboardingShell>
+        </div>
+      </Form>
+    </div>
   )
 }
