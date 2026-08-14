@@ -114,7 +114,40 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => {
           )
         )
       ),
-    Slider: () => React.createElement('input', { type: 'range' }),
+    Slider: ({
+      onValueChange,
+      testID,
+      'aria-label': ariaLabel
+    }: {
+      onValueChange?: (value: number) => void
+      testID?: string
+      'aria-label'?: string
+    }) =>
+      React.createElement('input', {
+        type: 'range',
+        'data-testid': testID,
+        'aria-label': ariaLabel,
+        onChange: (e: { target: { value: string } }) =>
+          onValueChange?.(Number(e.target.value))
+      }),
+    InputField: ({
+      value,
+      onChange,
+      onBlur,
+      testID
+    }: {
+      value?: string
+      onChange?: (e: { target: { value: string } }) => void
+      onBlur?: () => void
+      testID?: string
+    }) =>
+      React.createElement('input', {
+        type: 'text',
+        'data-testid': testID,
+        value: value ?? '',
+        onChange,
+        onBlur
+      }),
     ToggleSwitch: ({
       checked,
       onChange,
@@ -176,6 +209,17 @@ describe('PasswordGenerator', () => {
     expect(await screen.findByText('old-labeled')).toBeInTheDocument()
     expect(screen.getByText('example.com')).toBeInTheDocument()
     expect(screen.getByText('old-unlabeled')).toBeInTheDocument()
+  })
+
+  it('formats history timestamps as yyyy.mm.dd 24h time', async () => {
+    const createdAt = new Date(2026, 7, 14, 14, 53, 3).getTime()
+    mockAppendHistory.mockResolvedValue([
+      { id: 'dated', value: 'DatedPw1!', createdAt }
+    ])
+
+    render(<PasswordGenerator />)
+
+    expect(await screen.findByText('2026.08.14 14:53:03')).toBeInTheDocument()
   })
 
   it('clears history when Clear history is clicked', async () => {
@@ -260,5 +304,109 @@ describe('PasswordGenerator', () => {
 
     expect(screen.getByLabelText('Special character (!&*)')).toBeChecked()
     expect(mockGeneratePassword).not.toHaveBeenCalled()
+  })
+
+  it('commits typed character length into generatePassword on blur', () => {
+    render(<PasswordGenerator />)
+    mockGeneratePassword.mockClear()
+
+    const lengthInput = screen.getByTestId('password-generator-length-input')
+    fireEvent.change(lengthInput, { target: { value: '48' } })
+    expect(mockGeneratePassword).not.toHaveBeenCalled()
+
+    fireEvent.blur(lengthInput)
+
+    expect(mockGeneratePassword).toHaveBeenLastCalledWith(
+      48,
+      expect.objectContaining({
+        upperCase: true,
+        lowerCase: true,
+        numbers: true,
+        includeSpecialChars: true
+      })
+    )
+  })
+
+  it('allows typed length above the slider-era cap of 50', () => {
+    render(<PasswordGenerator />)
+    mockGeneratePassword.mockClear()
+
+    const lengthInput = screen.getByTestId('password-generator-length-input')
+    fireEvent.change(lengthInput, { target: { value: '128' } })
+    fireEvent.blur(lengthInput)
+
+    expect(mockGeneratePassword).toHaveBeenLastCalledWith(
+      128,
+      expect.objectContaining({
+        upperCase: true,
+        lowerCase: true,
+        numbers: true,
+        includeSpecialChars: true
+      })
+    )
+  })
+
+  it('clamps typed length to 128 and restores empty input to the current length', () => {
+    render(<PasswordGenerator />)
+    mockGeneratePassword.mockClear()
+
+    const lengthInput = screen.getByTestId('password-generator-length-input')
+    fireEvent.change(lengthInput, { target: { value: '999' } })
+    fireEvent.blur(lengthInput)
+
+    expect(mockGeneratePassword).toHaveBeenLastCalledWith(
+      128,
+      expect.objectContaining({
+        upperCase: true,
+        lowerCase: true,
+        numbers: true,
+        includeSpecialChars: true
+      })
+    )
+
+    mockGeneratePassword.mockClear()
+    fireEvent.change(lengthInput, { target: { value: '' } })
+    fireEvent.blur(lengthInput)
+
+    expect(lengthInput).toHaveValue('128')
+    expect(mockGeneratePassword).not.toHaveBeenCalled()
+  })
+
+  it('does not append history until the length slider is released', async () => {
+    mockGeneratePassword.mockImplementation(
+      (length?: number) => `pw-${length}`
+    )
+
+    render(<PasswordGenerator />)
+
+    await waitFor(() => {
+      expect(mockAppendHistory).toHaveBeenCalledWith('pw-20')
+    })
+    mockAppendHistory.mockClear()
+
+    const slider = screen.getByTestId('password-generator-length-slider')
+    fireEvent.pointerDown(slider)
+    fireEvent.change(slider, { target: { value: '24' } })
+    fireEvent.change(slider, { target: { value: '36' } })
+
+    await waitFor(() => {
+      expect(mockGeneratePassword).toHaveBeenCalledWith(
+        36,
+        expect.objectContaining({
+          upperCase: true,
+          lowerCase: true,
+          numbers: true,
+          includeSpecialChars: true
+        })
+      )
+    })
+    expect(mockAppendHistory).not.toHaveBeenCalled()
+
+    fireEvent.pointerUp(window)
+
+    await waitFor(() => {
+      expect(mockAppendHistory).toHaveBeenCalledTimes(1)
+    })
+    expect(mockAppendHistory).toHaveBeenCalledWith('pw-36')
   })
 })

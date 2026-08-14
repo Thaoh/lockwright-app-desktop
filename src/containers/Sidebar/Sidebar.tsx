@@ -405,8 +405,8 @@ export const Sidebar = () => {
         <div style={styles.fadeGradient} aria-hidden="true" />
       </div>
 
-      {AUTHENTICATOR_ENABLED && (
-        <div style={styles.footerSection}>
+      <div style={styles.footerSection}>
+        {AUTHENTICATOR_ENABLED && (
           <NavbarListItem
             testID="sidebar-authenticator"
             label={t('Authenticator')}
@@ -428,10 +428,7 @@ export const Sidebar = () => {
             }
             onClick={() => navigate('vault', { recordType: RECORD_TYPES.OTP })}
           />
-        </div>
-      )}
-
-      <div style={styles.footerSection}>
+        )}
         <NavbarListItem
           testID="sidebar-generator"
           label={t('Generator')}
@@ -449,6 +446,9 @@ export const Sidebar = () => {
           }
           onClick={handleGeneratorClick}
         />
+      </div>
+
+      <div style={styles.footerSection}>
         <NavbarListItem
           testID="sidebar-settings-button"
           label={t('Settings')}

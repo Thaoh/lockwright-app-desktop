@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   checkPassphraseStrength,
@@ -10,6 +10,7 @@ import {
 } from '@tetherto/pearpass-utils-password-generator'
 import {
   Button,
+  InputField,
   PasswordIndicator,
   Radio,
   Slider,
@@ -20,6 +21,8 @@ import {
 } from '@tetherto/pearpass-lib-ui-kit'
 import type { PasswordIndicatorVariant } from '@tetherto/pearpass-lib-ui-kit'
 import { ContentCopy } from '@tetherto/pearpass-lib-ui-kit/icons'
+
+import { formatDate } from '@tetherto/pear-apps-utils-date'
 
 import { createStyles } from './PasswordGenerator.styles'
 import { useTranslation } from '../../hooks/useTranslation'
@@ -73,6 +76,15 @@ type HistoryEntry = {
 }
 
 const HISTORY_DISPLAY_LIMIT = 20
+const PASSWORD_LENGTH_MIN = 4
+const PASSWORD_LENGTH_MAX = 128
+const PASSPHRASE_WORDS_MIN = 6
+const PASSPHRASE_WORDS_MAX = 36
+
+const formatHistoryCreatedAt = (createdAt: number) => {
+  const date = new Date(createdAt)
+  return `${formatDate(date, 'yyyy-mm-dd', '.')} ${formatDate(date, 'hh-mi-ss', ':')}`
+}
 
 const STRENGTH_TO_INDICATOR: Record<string, PasswordIndicatorVariant> = {
   vulnerable: 'vulnerable',
@@ -145,6 +157,24 @@ export const PasswordGenerator = ({
   })
   const [history, setHistory] = useState<HistoryEntry[]>([])
 
+  const lengthValue =
+    selectedOption === PASSWORD_OPTIONS.passphrase
+      ? selectedRules.passphrase.words
+      : selectedRules.password.characters
+  const lengthMin =
+    selectedOption === PASSWORD_OPTIONS.passphrase
+      ? PASSPHRASE_WORDS_MIN
+      : PASSWORD_LENGTH_MIN
+  const lengthMax =
+    selectedOption === PASSWORD_OPTIONS.passphrase
+      ? PASSPHRASE_WORDS_MAX
+      : PASSWORD_LENGTH_MAX
+  const [lengthDraft, setLengthDraft] = useState(String(lengthValue))
+
+  useEffect(() => {
+    setLengthDraft(String(lengthValue))
+  }, [lengthValue])
+
   const generatedValue = useMemo(() => {
     if (selectedOption === PASSWORD_OPTIONS.passphrase) {
       return (
@@ -172,13 +202,33 @@ export const PasswordGenerator = ({
 
   const onGeneratedChangeRef = useRef(onGeneratedChange)
   onGeneratedChangeRef.current = onGeneratedChange
+  const generatedValueRef = useRef(generatedValue)
+  generatedValueRef.current = generatedValue
+  const slidingRef = useRef(false)
+
+  const persistGeneratedHistory = useCallback((value: string) => {
+    if (!value) return
+    void appendHistory(value)
+      .then((entries) => {
+        setHistory(entries as HistoryEntry[])
+      })
+      .catch(() => {
+        void loadHistory()
+          .then((entries) => {
+            setHistory(entries as HistoryEntry[])
+          })
+          .catch(() => {
+            setHistory([])
+          })
+      })
+  }, [])
 
   useEffect(() => {
     onGeneratedChangeRef.current?.(generatedValue, passType)
   }, [generatedValue, passType])
 
   useEffect(() => {
-    if (!generatedValue) return
+    if (!generatedValue || slidingRef.current) return
     let cancelled = false
     void appendHistory(generatedValue)
       .then((entries) => {
@@ -199,6 +249,20 @@ export const PasswordGenerator = ({
       cancelled = true
     }
   }, [generatedValue])
+
+  useEffect(() => {
+    const endSlide = () => {
+      if (!slidingRef.current) return
+      slidingRef.current = false
+      persistGeneratedHistory(generatedValueRef.current)
+    }
+    window.addEventListener('pointerup', endSlide)
+    window.addEventListener('pointercancel', endSlide)
+    return () => {
+      window.removeEventListener('pointerup', endSlide)
+      window.removeEventListener('pointercancel', endSlide)
+    }
+  }, [persistGeneratedHistory])
 
   const strength = useMemo(() => {
     if (selectedOption === PASSWORD_OPTIONS.passphrase) {
@@ -245,6 +309,21 @@ export const PasswordGenerator = ({
       ...prev,
       passphrase: { ...prev.passphrase, [key]: value }
     }))
+  }
+
+  const commitLengthDraft = () => {
+    const parsed = parseInt(lengthDraft, 10)
+    if (Number.isNaN(parsed)) {
+      setLengthDraft(String(lengthValue))
+      return
+    }
+    const clamped = Math.min(lengthMax, Math.max(lengthMin, parsed))
+    if (selectedOption === PASSWORD_OPTIONS.passphrase) {
+      handlePassphraseRuleChange('words', clamped)
+    } else {
+      handlePasswordRuleChange('characters', clamped)
+    }
+    setLengthDraft(String(clamped))
   }
 
   const setAllPassphraseToggles = (on: boolean) => {
@@ -393,34 +472,55 @@ export const PasswordGenerator = ({
 
         <div style={styles.singleRowCard}>
           <div style={styles.sliderRow}>
-            <div style={styles.sliderLabel}>
-              <Text variant="labelEmphasized">
+            <div
+              style={styles.sliderLabel}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  commitLengthDraft()
+                  ;(event.target as HTMLElement).blur?.()
+                }
+              }}
+            >
+              <div style={styles.lengthInput}>
+                <InputField
+                  value={lengthDraft}
+                  onChange={(event) => {
+                    const next = event.target.value
+                    if (next === '' || /^\d+$/.test(next)) {
+                      setLengthDraft(next)
+                    }
+                  }}
+                  onBlur={commitLengthDraft}
+                  testID="password-generator-length-input"
+                />
+              </div>
+              <Text as="span" variant="labelEmphasized">
                 {selectedOption === PASSWORD_OPTIONS.passphrase
-                  ? `${selectedRules.passphrase.words} ${t('Words')}`
-                  : `${selectedRules.password.characters} ${t('Chars')}`}
+                  ? t('Words')
+                  : t('Chars')}
               </Text>
             </div>
 
-            <div style={styles.slider}>
+            <div
+              style={styles.slider}
+              onPointerDownCapture={() => {
+                slidingRef.current = true
+              }}
+            >
               <Slider
-                minimumValue={
-                  selectedOption === PASSWORD_OPTIONS.passphrase ? 6 : 4
-                }
-                maximumValue={
-                  selectedOption === PASSWORD_OPTIONS.passphrase ? 36 : 50
-                }
+                testID="password-generator-length-slider"
+                minimumValue={lengthMin}
+                maximumValue={lengthMax}
                 step={1}
-                value={
-                  selectedOption === PASSWORD_OPTIONS.passphrase
-                    ? selectedRules.passphrase.words
-                    : selectedRules.password.characters
-                }
+                value={lengthValue}
                 onValueChange={(value: number) => {
+                  const next = Math.round(value)
                   if (selectedOption === PASSWORD_OPTIONS.passphrase) {
-                    handlePassphraseRuleChange('words', Math.round(value))
+                    handlePassphraseRuleChange('words', next)
                     return
                   }
-                  handlePasswordRuleChange('characters', Math.round(value))
+                  handlePasswordRuleChange('characters', next)
                 }}
                 aria-label={
                   selectedOption === PASSWORD_OPTIONS.passphrase
@@ -525,7 +625,7 @@ export const PasswordGenerator = ({
                     variant="caption"
                     color={theme.colors.colorTextTertiary}
                   >
-                    {new Date(entry.createdAt).toLocaleString()}
+                    {formatHistoryCreatedAt(entry.createdAt)}
                   </Text>
                   {entry.contextLabel ? (
                     <div style={styles.historyContext}>

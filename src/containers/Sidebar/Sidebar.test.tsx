@@ -22,7 +22,7 @@ let mockFoldersData: {
 } = { customFolders: {}, favorites: { records: [] } }
 
 jest.mock('@tetherto/pearpass-lib-constants', () => ({
-  AUTHENTICATOR_ENABLED: false
+  AUTHENTICATOR_ENABLED: true
 }))
 
 jest.mock('@tetherto/pearpass-lib-vault', () => ({
@@ -33,7 +33,8 @@ jest.mock('@tetherto/pearpass-lib-vault', () => ({
     NOTE: 'note',
     CUSTOM: 'custom',
     WIFI_PASSWORD: 'wifi_password',
-    PASS_PHRASE: 'pass_phrase'
+    PASS_PHRASE: 'pass_phrase',
+    OTP: 'otp'
   },
   closeAllInstances: (...args: unknown[]) => mockCloseAllInstances(...args),
   useFolders: () => ({
@@ -246,6 +247,17 @@ describe('Sidebar — lock app flow', () => {
     fireEvent.click(screen.getByTestId('sidebar-generator'))
 
     expect(mockNavigate).toHaveBeenCalledWith('generator', {})
+  })
+
+  it('groups Generator with Authenticator, not Settings', () => {
+    render(<Sidebar />)
+
+    const authenticator = screen.getByTestId('sidebar-authenticator')
+    const generator = screen.getByTestId('sidebar-generator')
+    const settings = screen.getByTestId('sidebar-settings-button')
+
+    expect(generator.parentElement).toBe(authenticator.parentElement)
+    expect(generator.parentElement).not.toBe(settings.parentElement)
   })
 })
 

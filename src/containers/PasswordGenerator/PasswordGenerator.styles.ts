@@ -55,6 +55,13 @@ export const createStyles = (colors: ThemeColors) => ({
     width: '100%'
   },
   sliderLabel: {
+    display: 'flex' as const,
+    alignItems: 'center' as const,
+    gap: `${rawTokens.spacing8}px`,
+    flexShrink: 0
+  },
+  lengthInput: {
+    width: 64,
     flexShrink: 0
   },
   slider: {
