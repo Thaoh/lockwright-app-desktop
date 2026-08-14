@@ -7,6 +7,9 @@ blockExoticSubdeps: false
 allowBuilds:
   "@tetherto/pearpass-lib-data-import@https://codeload.github.com/tetherto/pearpass-lib-data-import/tar.gz/1647d841c56e84e4a20fc59ec9d76305037229cf": true
   "@tetherto/pearpass-lib-data-export@https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1": true
+  "@tetherto/pearpass-utils-password-check": true
+  "@tetherto/pearpass-utils-password-check@https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/4705b7937691a446412b27df7f7c644d8915aba9": true
+  "@tetherto/pearpass-utils-password-check@https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/5175d97c3c560221a6f1a36d4c3c8be9c45daf81": true
   "@tetherto/pearpass-lib-vault-core@file:../pearpass-lib-vault-core": true
   "@tetherto/pearpass-lib-vault@file:../pearpass-lib-vault": true
   electron: set this to true or false

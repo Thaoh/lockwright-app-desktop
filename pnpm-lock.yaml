@@ -2392,6 +2392,10 @@ packages:
       react: '>=18.3.1'
       react-dom: '>=18.3.1'
 
+  '@tetherto/pearpass-utils-password-check@https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/4705b7937691a446412b27df7f7c644d8915aba9':
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/4705b7937691a446412b27df7f7c644d8915aba9}
+    version: 0.0.14
+
   '@tetherto/pearpass-utils-password-check@https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/5175d97c3c560221a6f1a36d4c3c8be9c45daf81':
     resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/5175d97c3c560221a6f1a36d4c3c8be9c45daf81}
     version: 0.0.14
@@ -9913,7 +9917,7 @@ snapshots:
     dependencies:
       '@noble/ciphers': 2.2.0
       '@noble/hashes': 2.3.0
-      '@tetherto/pearpass-utils-password-check': https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/5175d97c3c560221a6f1a36d4c3c8be9c45daf81
+      '@tetherto/pearpass-utils-password-check': https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/4705b7937691a446412b27df7f7c644d8915aba9
       autopass: 3.3.0(bare-buffer@3.6.2)(bare-events@2.9.1)(bare-url@2.4.7)
       b4a: 1.8.1
       bare-buffer: 3.6.2
@@ -9956,6 +9960,8 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
       - redux
+
+  '@tetherto/pearpass-utils-password-check@https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/4705b7937691a446412b27df7f7c644d8915aba9': {}
 
   '@tetherto/pearpass-utils-password-check@https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/5175d97c3c560221a6f1a36d4c3c8be9c45daf81': {}
 
