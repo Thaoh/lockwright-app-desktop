@@ -71,6 +71,23 @@ describe('useCreateOrEditRecord', () => {
     expect(setModalMock.mock.calls[0][1]).toBeUndefined()
   })
 
+  it('passes contextLabel and contextKind through to the generate password modal', () => {
+    const { result } = renderHook(() => useCreateOrEditRecord())
+    const setValue = jest.fn()
+
+    result.current.handleCreateOrEditRecord({
+      recordType: 'password',
+      setValue,
+      contextLabel: 'example.com',
+      contextKind: 'site'
+    })
+
+    const element = setModalMock.mock.calls[0][0]
+    expect(element.props.contextLabel).toBe('example.com')
+    expect(element.props.contextKind).toBe('site')
+    expect(element.props.onPasswordInsert).toBe(setValue)
+  })
+
   it('should call setModal with category wrapper content for non-password record types', () => {
     const { result } = renderHook(() => useCreateOrEditRecord())
 

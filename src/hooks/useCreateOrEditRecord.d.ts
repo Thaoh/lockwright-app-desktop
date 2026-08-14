@@ -6,6 +6,8 @@ export type CreateOrEditRecordParams = {
   selectedFolder?: string
   isFavorite?: boolean
   setValue?: (value: string, type: PassType) => void
+  contextLabel?: string
+  contextKind?: 'site' | 'entry'
 }
 
 export function useCreateOrEditRecord(): {

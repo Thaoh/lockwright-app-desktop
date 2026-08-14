@@ -30,6 +30,7 @@ import {
   SettingsOutlined,
   StarBorder,
   StarFilled,
+  SyncLock,
   TrashOutlined,
   TwoFactorAuthenticationOutlined
 } from '@tetherto/pearpass-lib-ui-kit/icons'
@@ -60,7 +61,7 @@ export const Sidebar = () => {
   const [openFolderMenu, setOpenFolderMenu] = useState<string | null>(null)
   const styles = createStyles(theme.colors, isCollapsed)
 
-  const { navigate, data: routerData } = useRouter()
+  const { navigate, data: routerData, currentPage } = useRouter()
   const { data: vaultData } = useVault()
   const { data: foldersData, deleteFolder } = useFolders()
   const { data: recordCounts } = useRecordCountsByType()
@@ -73,12 +74,17 @@ export const Sidebar = () => {
   const { categoriesItems } = useRecordMenuItems()
 
   const isAuthenticatorActive = routerData?.recordType === RECORD_TYPES.OTP
-  const activeCategory = isAuthenticatorActive
+  const isGeneratorActive = currentPage === 'generator'
+  const clearsVaultSelection = isAuthenticatorActive || isGeneratorActive
+  const activeCategory = clearsVaultSelection
     ? null
     : (routerData?.recordType ?? null)
-  const isFavoritesActive = routerData?.folder === FAVORITES_FOLDER_ID
+  const isFavoritesActive =
+    !clearsVaultSelection && routerData?.folder === FAVORITES_FOLDER_ID
   const selectedFolderName =
-    routerData?.folder && !isFavoritesActive ? routerData.folder : null
+    !clearsVaultSelection && routerData?.folder && !isFavoritesActive
+      ? routerData.folder
+      : null
 
   const customFolders = useMemo(() => {
     const raw = Object.values(foldersData?.customFolders ?? {}) as Array<{
@@ -157,6 +163,10 @@ export const Sidebar = () => {
     )
   }
 
+  const handleGeneratorClick = () => {
+    navigate('generator', {})
+  }
+
   const handleSettingsClick = () => {
     navigate('settings', {})
   }
@@ -174,7 +184,7 @@ export const Sidebar = () => {
     }
   }
 
-  const isAllFoldersActive = !isAuthenticatorActive && !routerData?.folder
+  const isAllFoldersActive = !clearsVaultSelection && !routerData?.folder
 
   const iconTextPrimary = { color: theme.colors.colorTextPrimary }
   const iconTextSecondary = { color: theme.colors.colorTextSecondary }
@@ -422,6 +432,23 @@ export const Sidebar = () => {
       )}
 
       <div style={styles.footerSection}>
+        <NavbarListItem
+          testID="sidebar-generator"
+          label={t('Generator')}
+          size="small"
+          selected={isGeneratorActive}
+          variant={isGeneratorActive ? 'default' : 'secondary'}
+          icon={
+            <SyncLock
+              color={
+                isGeneratorActive
+                  ? theme.colors.colorTextPrimary
+                  : theme.colors.colorTextSecondary
+              }
+            />
+          }
+          onClick={handleGeneratorClick}
+        />
         <NavbarListItem
           testID="sidebar-settings-button"
           label={t('Settings')}

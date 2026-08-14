@@ -6,6 +6,7 @@ import { LayoutWithSidebar } from '../../containers/LayoutWithSidebar'
 import { RecordDetails } from '../../containers/RecordDetails/RecordDetails'
 import { useRouter } from '../../context/RouterContext'
 import { AuthenticatorView } from '../../pages/AuthenticatorView'
+import { GeneratorView } from '../../pages/GeneratorView/GeneratorView'
 import { Intro } from '../../pages/Intro/Intro'
 import { LoadingPage } from '../../pages/LoadingPage/LoadingPage'
 import { MainView } from '../../pages/MainView/MainView'
@@ -36,6 +37,16 @@ export const Routes = ({ isDataLoading, onLoadingComplete }) => {
 
   if (currentPage === 'settings') {
     return <SettingsView />
+  }
+
+  if (currentPage === 'generator') {
+    return html`
+      <${LayoutWithSidebar}
+        mainView=${html`<${GeneratorView} />`}
+        sideView=${null}
+        isSideViewOpen=${false}
+      />
+    `
   }
 
   if (currentPage === 'vault') {

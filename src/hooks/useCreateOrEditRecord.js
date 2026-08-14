@@ -21,8 +21,16 @@ export const useCreateOrEditRecord = () => {
     />
   `
 
-  const getGeneratePasswordV2Content = ({ setValue }) => html`
-    <${GeneratePasswordModalContent} onPasswordInsert=${setValue} />
+  const getGeneratePasswordV2Content = ({
+    setValue,
+    contextLabel,
+    contextKind
+  }) => html`
+    <${GeneratePasswordModalContent}
+      onPasswordInsert=${setValue}
+      contextLabel=${contextLabel}
+      contextKind=${contextKind}
+    />
   `
 
   /**
@@ -31,15 +39,26 @@ export const useCreateOrEditRecord = () => {
    *   initialRecord?: unknown,
    *   selectedFolder?: string,
    *   isFavorite?: boolean,
-   *   setValue?: (value: string, type: import('../shared/types').PassType) => void
+   *   setValue?: (value: string, type: import('../shared/types').PassType) => void,
+   *   contextLabel?: string,
+   *   contextKind?: 'site'|'entry'
    * }} options
    */
   const handleCreateOrEditRecord = (options) => {
-    const { recordType, initialRecord, selectedFolder, isFavorite, setValue } =
-      options
+    const {
+      recordType,
+      initialRecord,
+      selectedFolder,
+      isFavorite,
+      setValue,
+      contextLabel,
+      contextKind
+    } = options
 
     if (recordType === 'password') {
-      setModal(getGeneratePasswordV2Content({ setValue }))
+      setModal(
+        getGeneratePasswordV2Content({ setValue, contextLabel, contextKind })
+      )
       return
     }
 

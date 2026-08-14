@@ -12,6 +12,7 @@ const mockSetModal = jest.fn()
 const mockCloseModal = jest.fn()
 
 let mockRouterData: Record<string, unknown> = {}
+let mockCurrentPage = 'vault'
 let mockFoldersData: {
   customFolders: Record<
     string,
@@ -138,6 +139,7 @@ jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
   SettingsOutlined: iconStub,
   StarBorder: iconStub,
   StarFilled: iconStub,
+  SyncLock: iconStub,
   TrashOutlined: iconStub,
   TwoFactorAuthenticationOutlined: iconStub,
   AccountCircleFilled: iconStub,
@@ -152,7 +154,11 @@ jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
 }))
 
 jest.mock('../../context/RouterContext', () => ({
-  useRouter: () => ({ navigate: mockNavigate, data: mockRouterData })
+  useRouter: () => ({
+    navigate: mockNavigate,
+    data: mockRouterData,
+    currentPage: mockCurrentPage
+  })
 }))
 
 jest.mock('../../context/ModalContext', () => ({
@@ -204,6 +210,7 @@ describe('Sidebar — lock app flow', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockRouterData = {}
+    mockCurrentPage = 'vault'
     mockFoldersData = { customFolders: {}, favorites: { records: [] } }
   })
 
@@ -232,12 +239,21 @@ describe('Sidebar — lock app flow', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith('settings', {})
   })
+
+  it('navigates to generator when Generator is clicked', () => {
+    render(<Sidebar />)
+
+    fireEvent.click(screen.getByTestId('sidebar-generator'))
+
+    expect(mockNavigate).toHaveBeenCalledWith('generator', {})
+  })
 })
 
 describe('Sidebar — folder context menu', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockRouterData = {}
+    mockCurrentPage = 'vault'
     mockFoldersData = {
       customFolders: {
         work: makeFolder('work', 2),

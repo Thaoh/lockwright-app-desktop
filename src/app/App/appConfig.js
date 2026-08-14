@@ -1,3 +1,3 @@
 export const appConfig = {
-  headerWithLogo: ['settings', 'welcome', 'intro']
+  headerWithLogo: ['settings', 'welcome', 'intro', 'generator']
 }

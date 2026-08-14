@@ -87,7 +87,9 @@ export const App = () => {
   const showLoadingPage =
     isDataLoading ||
     !isLoadingPageComplete ||
-    (currentPage === 'vault' && !!activeVault?.id && !isMigrationReady)
+    ((currentPage === 'vault' || currentPage === 'generator') &&
+      !!activeVault?.id &&
+      !isMigrationReady)
 
   const useLogoTitleBar = appConfig.headerWithLogo.includes(currentPage)
   return html`

@@ -45,6 +45,7 @@ import { addHttps } from '../../../../utils/addHttps'
 import { formatPasskeyDate } from '../../../../utils/formatPasskeyDate'
 import { getFilteredAttachmentsById } from '../../../../utils/getFilteredAttachmentsById'
 import { handleFileSelect } from '../../../../utils/handleFileSelect'
+import { resolveHistoryContext } from '../../../../utils/passwordGeneratorHistoryContext'
 import { UploadFilesModalContent } from '../../UploadFilesModalContent'
 import { FolderDropdown } from '../../../../components/FolderDropdown/FolderDropdown'
 import {
@@ -332,7 +333,14 @@ export const CreateOrEditLoginModalContent = ({
               size='small'
               type='button'
               iconBefore={<SyncLock width={16} height={16} />}
-              onClick={() =>
+              onClick={() => {
+                const firstWebsite = websitesList[0]
+                  ? String(registerWebsiteItem('website', 0).value || '')
+                  : ''
+                const historyContext = resolveHistoryContext({
+                  title: titleField.value,
+                  websiteUrl: firstWebsite
+                })
                 handleCreateOrEditRecord({
                   recordType: 'password',
                   setValue: (value: string, type: PassType) => {
@@ -342,9 +350,11 @@ export const CreateOrEditLoginModalContent = ({
                         ? PassType.PassPhrase
                         : PassType.Password
                     )
-                  }
+                  },
+                  contextLabel: historyContext?.contextLabel,
+                  contextKind: historyContext?.contextKind
                 })
-              }
+              }}
               data-testid='createoredit-button-generatepassword'
             >
               {t('Generate Password')}

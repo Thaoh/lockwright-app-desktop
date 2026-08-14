@@ -34,6 +34,7 @@ import { useCreateOrEditRecord } from '../../../../hooks/useCreateOrEditRecord'
 import { useGetMultipleFiles } from '../../../../hooks/useGetMultipleFiles'
 import { getFilteredAttachmentsById } from '../../../../utils/getFilteredAttachmentsById'
 import { handleFileSelect } from '../../../../utils/handleFileSelect'
+import { resolveHistoryContext } from '../../../../utils/passwordGeneratorHistoryContext'
 import { UploadFilesModalContent } from '../../UploadFilesModalContent'
 import { PasswordFieldStrengthIndicator } from '../../../../components/PasswordFieldStrengthIndicator'
 import { PassType } from '../../../../shared/types'
@@ -239,15 +240,20 @@ export const CreateOrEditWifiModalContent = ({
               size="small"
               type="button"
               iconBefore={<SyncLock width={16} height={16} />}
-              onClick={() =>
+              onClick={() => {
+                const historyContext = resolveHistoryContext({
+                  title: titleField.value
+                })
                 handleCreateOrEditRecord({
                   recordType: 'password',
                   setValue: (value: string, type: PassType) => {
                     setValue('password', value)
                     setPasswordType(type === PassType.PassPhrase ? PassType.PassPhrase : PassType.Password)
-                  }
+                  },
+                  contextLabel: historyContext?.contextLabel,
+                  contextKind: historyContext?.contextKind
                 })
-              }
+              }}
               data-testid="createoredit-wifi-button-generatepassword"
             >
               {t('Generate Password')}
