@@ -2,6 +2,9 @@
   <img src="assets/images/logo.png" alt="Pearpass logo" width="264"/>
 </p>
 
+> [!WARNING]
+> 🍐 PearPass is currently paused from active development, so please use at your own caution until further notice.
+
 # PearPass Desktop
 
 > The desktop app for PearPass, an open-source, end-to-end encrypted password and identity manager built on Pear Runtime.
