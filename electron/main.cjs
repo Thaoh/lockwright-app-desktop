@@ -21,6 +21,10 @@ const getPearRuntimeLegacyStorage = require('pear-runtime-legacy-storage')
 const { isLinux, isWindows, isMac } = require('which-runtime')
 
 const { clearStaleVaultsDir } = require('./clearStaleVaultsDir.cjs')
+const {
+  legacyUserDataDirs,
+  migratePearPassUserData
+} = require('./migrateUserData.cjs')
 // eslint-disable-next-line import/order
 const { scheduleClipboardCleanup } = require('./clipboardCleanup.cjs')
 
@@ -42,6 +46,9 @@ const pkg = require('../package.json')
 if (isWindows) {
   app.setAppUserModelId(pkg.build?.appId ?? 'works.dexterity.lockwright')
 }
+
+// userData follows the process name. Set it before any getPath('userData').
+app.setName(pkg.productName)
 
 const {
   getSandboxSafePath,
@@ -65,9 +72,28 @@ const { logger, loggingForced, enableWorkletFileLogging } = setupLogging({
   getVaultClient: () => vaultClient
 })
 
-// Effective logging state. Initialized in app.whenReady (after setName, so
-// getStorageDir() resolves correctly). Mutable so the in-app toggle can flip
-// it at runtime via the vault:setLogging IPC.
+if (process.env.PEARPASS_DEV_RESET !== '1') {
+  try {
+    const destDir = getStorageDir()
+    const result = migratePearPassUserData({
+      destDir,
+      sourceDirs: legacyUserDataDirs(destDir),
+      logger
+    })
+    if (result.migrated) {
+      emitStartupMarker('USERDATA_MIGRATED', result.from)
+    }
+  } catch (err) {
+    logger.warn(
+      'MAIN',
+      'PearPass userData migrate failed:',
+      err && err.message ? err.message : err
+    )
+  }
+}
+
+// Effective logging state. Initialized in app.whenReady. Mutable so the
+// in-app toggle can flip it at runtime via the vault:setLogging IPC.
 let loggingActive = false
 
 /**
@@ -843,7 +869,6 @@ function registerIPC() {
 
 app.whenReady().then(async () => {
   emitStartupMarker('PEARPASS_MAIN_READY')
-  app.setName(pkg.productName)
   const { loggingEnabled } = devicePreferences.read(getStorageDir())
   loggingActive = loggingForced || loggingEnabled
   if (loggingActive) {
