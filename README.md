@@ -6,7 +6,9 @@
 
 > The desktop app for Lockwright, an open-source, end-to-end encrypted password and identity manager built on Pear Runtime.
 
-Community fork of PearPass (Apache 2.0). Not affiliated with or endorsed by Tether Data or the Pears project.
+Site: [lockwright.dexterity.works](https://lockwright.dexterity.works)
+
+Community fork of PearPass (Apache 2.0). Not affiliated with or endorsed by Tether Data or the Pears project. This GitHub repo stays a fork of `tetherto/pearpass-app-desktop` on purpose. Do not open pull requests against Tether.
 
 Package names, store listings, and shipped binaries still say PearPass until identity `works.dexterity.lockwright` lands.
 
@@ -87,6 +89,8 @@ In the Lockwright superproject, run `./scripts/fetch-packages.sh --layout` so `f
 ---
 
 ## Usage Examples
+
+[lockwright.dexterity.works](https://lockwright.dexterity.works) is the Lockwright site.
 
 PearPass docs at [docs.pass.pears.com](https://docs.pass.pears.com) still describe setup, vault management, syncing, browser extension usage, and the rest of the product at the fork point. They are not Lockwright docs.
 
@@ -191,7 +195,7 @@ The following sibling modules must be present in the workspace (they are not dec
 
 ## Contributing
 
-We welcome contributions. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the development workflow and coding conventions.
+Open issues and pull requests on this repo (`Thaoh/lockwright-app-desktop`). Do not open PRs against `tetherto/pearpass-app-desktop`. See [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ---
 
