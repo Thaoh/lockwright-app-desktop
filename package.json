@@ -1,7 +1,7 @@
 {
   "name": "pearpass-app-desktop",
   "productName": "Lockwright",
-  "version": "2.2.0",
+  "version": "0.0.1",
   "description": "Lockwright password manager",
   "author": "Lockwright",
   "main": "electron/main.cjs",
@@ -104,7 +104,7 @@
     "lint:fix": "eslint --fix ./src",
     "lint": "eslint ./src",
     "build:worklet": "node scripts/build.worklet.mjs",
-    "build": "node scripts/build.worklet.mjs && pnpm run build:app && node scripts/bundle-renderer.mjs && node scripts/bundle-bridge.mjs",
+    "build": "node scripts/write-git-sha.cjs && node scripts/build.worklet.mjs && pnpm run build:app && node scripts/bundle-renderer.mjs && node scripts/bundle-bridge.mjs",
     "build:prod": "cross-env NODE_ENV=production pnpm run build",
     "bundle:renderer": "node scripts/bundle-renderer.mjs",
     "bundle:bridge": "node scripts/bundle-bridge.mjs",

@@ -4,6 +4,7 @@
 const fs = require('fs')
 const path = require('path')
 
+const { formatDisplayVersion, readGitSha6 } = require('./formatDisplayVersion.cjs')
 const pkg = require('../package.json')
 
 function readDesignVersion() {
@@ -26,7 +27,7 @@ function readDesignVersion() {
 }
 module.exports = {
   upgrade: pkg.upgrade || null,
-  version: pkg.version ?? 0,
+  version: formatDisplayVersion(pkg.version ?? '', readGitSha6()),
   productName: pkg.productName ?? pkg.name ?? 'Lockwright',
   legacyChannelLink: pkg.legacyChannelLink || null,
   designVersion: readDesignVersion()

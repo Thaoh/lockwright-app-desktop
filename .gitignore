@@ -1,5 +1,8 @@
 node_modules
 
+# Baked at pack time so AppImage/NSIS can show X.Y.Z-{sha6} without .git
+electron/generated-git-sha.json
+
 src/locales
 
 .yalc
