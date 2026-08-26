@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Lockwright</title>
+  <!-- Hatch plate. 2px corners. Brass is the edge, not a fill. -->
+  <rect x="4" y="4" width="56" height="56" rx="2" ry="2"
+        fill="#14161b" stroke="#b08d57" stroke-width="1.5"/>
+  <!-- Inset well -->
+  <rect x="14" y="14" width="36" height="36" rx="2" ry="2"
+        fill="#08090b" stroke="#2a2e36" stroke-width="1"/>
+  <!-- Mortise: rectilinear bore + slot. A lockwright's faceplate, not a toy padlock. -->
+  <rect x="25" y="20" width="14" height="14" rx="2" ry="2" fill="#d4af77"/>
+  <rect x="29" y="32" width="6" height="14" rx="1" ry="1" fill="#d4af77"/>
+</svg>
