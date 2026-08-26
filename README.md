@@ -4,11 +4,11 @@
 
 # Lockwright Desktop
 
-Desktop app for Lockwright. Peer-to-peer password manager. Vaults stay on the device. Sync is device to device.
+> The desktop app for Lockwright, an open-source, end-to-end encrypted password and identity manager built on Pear Runtime.
 
 Community fork of PearPass (Apache 2.0). Not affiliated with or endorsed by Tether Data or the Pears project.
 
-npm names, store listings, and shipped binaries still say PearPass until identity `works.dexterity.lockwright` lands.
+Package names, store listings, and shipped binaries still say PearPass until identity `works.dexterity.lockwright` lands.
 
 ---
 
@@ -17,7 +17,7 @@ npm names, store listings, and shipped binaries still say PearPass until identit
 - [Introduction](#introduction)
 - [Features](#features)
 - [Installation](#installation)
-- [Usage](#usage)
+- [Usage Examples](#usage-examples)
 - [Logging](#logging)
 - [Testing](#testing)
 - [Staging to Dev](#staging-to-dev)
@@ -31,7 +31,9 @@ npm names, store listings, and shipped binaries still say PearPass until identit
 
 ## Introduction
 
-Lockwright encrypts and stores credentials on the device. Sync uses Pear Runtime peer-to-peer transport. No cloud account.
+Lockwright is an open-source, privacy-first password and identity manager. It encrypts and stores all data locally on your device.
+
+Unlike traditional password managers that rely on centralized servers, Lockwright is built on [Pear Runtime](https://pears.com/) and uses peer-to-peer technology to sync your credentials directly between your devices. No cloud account. The credentials stay under your control.
 
 The on-disk vault at the fork point is PearPass's. Vault work in this tree aims to open those vaults in place. Test that on a copy.
 
@@ -39,11 +41,12 @@ The on-disk vault at the fork point is PearPass's. Vault work in this tree aims 
 
 ## Features
 
-- Encrypted-at-rest storage for passwords, cards, notes, and custom fields
-- Direct device-to-device sync, no central server
-- Offline access
-- Password health and a random password generator
-- macOS, Linux, and Windows. Also [mobile](https://github.com/Thaoh/lockwright-app-mobile) and a [browser extension](https://github.com/Thaoh/lockwright-app-browser-extension)
+- **Encrypted-at-rest storage.** Lockwright encrypts passwords, credit cards, secure notes, and custom fields before writing them to disk.
+- **Cross-device sync.** Credentials sync directly between your devices using Pear Runtime, with no central server.
+- **Offline access.** Access your vault anytime, even without a network connection.
+- **Password health.** Analyse password strength and identify weak passwords.
+- **Random password generator.** Generate strong, unique passwords.
+- **Multi-platform.** Runs on macOS, Linux, and Windows. Lockwright is also available on [mobile](https://github.com/Thaoh/lockwright-app-mobile) and as a [browser extension](https://github.com/Thaoh/lockwright-app-browser-extension).
 
 ---
 
@@ -51,15 +54,31 @@ The on-disk vault at the fork point is PearPass's. Vault work in this tree aims 
 
 ### Prerequisites
 
-- **Node.js** — version in `.nvmrc`
-- **pnpm** `11.10.0` (`packageManager` in `package.json`)
-- **Pear Runtime** — [installation guide](https://docs.pears.com/guide/getting-started.html)
+- **Node.js.** Check the required version in `.nvmrc` and verify with:
 
 ```bash
+node --version
+```
+
+- **pnpm** `11.10.0` (`packageManager` in `package.json`)
+- **Pear Runtime.** [Installation guide](https://docs.pears.com/guide/getting-started.html).
+
+### Steps
+
+```bash
+# 1. Clone the repository
 git clone git@github.com:Thaoh/lockwright-app-desktop.git
+
+# 2. Go to the cloned directory
 cd lockwright-app-desktop
+
+# 3. Install dependencies
 pnpm install
+
+# 4. Generate translation keys
 pnpm run build
+
+# 5. Start the development app
 pnpm run dev
 ```
 
@@ -67,29 +86,33 @@ In the Lockwright superproject, run `./scripts/fetch-packages.sh --layout` so `f
 
 ---
 
-## Usage
+## Usage Examples
 
-PearPass docs at [docs.pass.pears.com](https://docs.pass.pears.com) describe the product at the fork point. They are not Lockwright docs.
+PearPass docs at [docs.pass.pears.com](https://docs.pass.pears.com) still describe setup, vault management, syncing, browser extension usage, and the rest of the product at the fork point. They are not Lockwright docs.
 
-Intel Mac builds are deprecated. No official support. Open a ticket if you still run them.
+Intel-based Mac builds are deprecated and provided without official support or active testing. They stay available for now. Use them at your own risk. Open a ticket if you hit issues. A fix is not guaranteed, but it helps to know whether these builds are still in use.
 
 ---
 
 ## Logging
 
-Off by default. When enabled, logs go under `<userData>/logs/`: `main.log` from the host process, `core.log` from the vault worker. The worker sink redacts known sensitive fields before writing `core.log`. The host logger does not redact. Treat anything passed to `logger.*` in `main.cjs` as visible on disk in `main.log`.
+Off by default. When enabled, logs are written under `<userData>/logs/`: `main.log` from the host process and `core.log` from the vault worker. The worker's sink redacts known sensitive fields (passwords, keys, tokens, etc.) before writing to `core.log`. The host process logger does not redact, so treat anything passed to `logger.*` in `main.cjs` as on-disk-visible in `main.log`.
 
 Three ways to enable:
 
-- In-app: Settings → Diagnostics → **Enable logs**. Persists. Turning on clears previous log files. Turning off stops writes and keeps the files.
-- Launch flag `--enable-logging`. Forces logging on.
-- Nightly builds (`PearPass-nightly`): logging on, toggle locked. Channel name is still PearPass until identity lands.
+- **In-app toggle** (Settings → Diagnostics → **Enable logs**). Persists across launches; toggling **on** clears any previous log files to start a clean session. Toggling **off** stops writing but preserves the existing files so you can share them.
+- **Launch flag:** pass `--enable-logging` at startup. Forces logging on regardless of the toggle.
+- **Nightly builds** (`PearPass-nightly`): logging is on automatically and the in-app toggle is locked. Channel name is still PearPass until identity lands.
 
-**Open logs folder** on that screen reveals the directory.
+When logging is on, **Open logs folder** in the same screen reveals the directory.
 
 ---
 
 ## Testing
+
+### Unit Testing
+
+Run unit tests with Jest:
 
 ```bash
 pnpm test
@@ -99,16 +122,20 @@ pnpm test
 
 ## Staging to Dev
 
-Confirm `pnpm run dev` works, then for example `pear stage dev` and `pear run pear://GENERATED_URL`.
+Ensure the app runs correctly using `pnpm run dev`.
 
-Pear serves files from `dist/`:
+If successful, stage it, for example: `pear stage dev`.
+
+Then run the app: `pear run pear://GENERATED_URL`.
+
+Pear serves files from the `dist/` folder:
 
 ```html
 <!-- index.html -->
 <script type="module" src="./dist/app.js"></script>
 ```
 
-`src/` is development-only. `package.json` ignores it:
+The `src/` folder is for development and it's ignored in `package.json`:
 
 ```json
 "ignore": [".github", "appling", ".git", ".gitignore", "packages", "src"]
@@ -118,7 +145,7 @@ Pear serves files from `dist/`:
 
 ## Workspace Dependencies
 
-Sibling modules expected in the workspace (not all declared as npm dependencies). npm names are still `@tetherto/pearpass-*`. Git clones for vault, vault-core, and constants are the Lockwright repos.
+The following sibling modules must be present in the workspace (they are not declared as npm dependencies). npm names are still `@tetherto/pearpass-*`. Git clones for vault, vault-core, and constants are the Lockwright repos.
 
 - [`@tetherto/tether-dev-docs`](../tether-dev-docs)
 - [`@tetherto/pear-apps-lib-feedback`](../pear-apps-lib-feedback)
@@ -153,24 +180,21 @@ Sibling modules expected in the workspace (not all declared as npm dependencies)
 
 | Project | Description |
 | --- | --- |
-| [`lockwright-app-mobile`](https://github.com/Thaoh/lockwright-app-mobile) | Mobile |
-| [`lockwright-app-browser-extension`](https://github.com/Thaoh/lockwright-app-browser-extension) | Browser extension |
-| [`lockwright-lib-vault`](https://github.com/Thaoh/lockwright-lib-vault) | Vault |
-| [`lockwright-lib-vault-core`](https://github.com/Thaoh/lockwright-lib-vault-core) | Vault core |
+| [`lockwright-app-mobile`](https://github.com/Thaoh/lockwright-app-mobile) | Mobile app for Lockwright |
+| [`lockwright-app-browser-extension`](https://github.com/Thaoh/lockwright-app-browser-extension) | Browser extension for Lockwright |
+| [`lockwright-lib-vault`](https://github.com/Thaoh/lockwright-lib-vault) | Vault management library |
+| [`lockwright-lib-vault-core`](https://github.com/Thaoh/lockwright-lib-vault-core) | Bare worker and client for Lockwright vaults |
 | [`lockwright-lib-constants`](https://github.com/Thaoh/lockwright-lib-constants) | Shared constants |
-
-Umbrella and CI: the Lockwright superproject.
+| [`@tetherto/pearpass-lib-ui-kit`](https://github.com/tetherto/pearpass-lib-ui-kit) | UI kit (still upstream) |
 
 ---
 
 ## Contributing
 
-See [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+We welcome contributions. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the development workflow and coding conventions.
 
 ---
 
 ## License
 
 Apache License 2.0. See `LICENSE.md` and `NOTICE.md`.
-
-`NOTICE.md` keeps the PearPass / Tether Inc copyright for the original Work and adds Lockwright Contributors for Modifications.
