@@ -23,4 +23,13 @@ describe('Lockwright app id', () => {
       expect(cfg.appId).toBe(APP_ID)
     }
   })
+
+  it('pins @tetherto/pearpass-lib-constants to Thaoh git, not Tether or file:', () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+    )
+    expect(pkg.dependencies['@tetherto/pearpass-lib-constants']).toBe(
+      'git+https://github.com/Thaoh/lockwright-lib-constants.git'
+    )
+  })
 })
