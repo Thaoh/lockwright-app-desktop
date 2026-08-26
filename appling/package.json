@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "PearPass",
+  "name": "Lockwright",
   "version": "1.0.0",
-  "description": "Pear Appling for PearPass",
+  "description": "Pear Appling for Lockwright",
   "engines": {
     "node": ">=22.0.0"
   },

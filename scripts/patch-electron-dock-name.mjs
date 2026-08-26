@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /* eslint-disable no-underscore-dangle */
 /**
- * On macOS, make the dock show "PearPass" when running `electron .` in development.
+ * On macOS, make the dock show "Lockwright" when running `electron .` in development.
  * The dock uses the .app bundle *folder name*, not Info.plist. So we:
- * 1. Rename Electron.app -> PearPass.app
- * 2. Update electron's path.txt so it launches PearPass.app
+ * 1. Rename Electron.app -> Lockwright.app
+ * 2. Update electron's path.txt so it launches Lockwright.app
  * 3. Patch Info.plist in the renamed bundle and clear quarantine (avoid translocation)
  * Run automatically after npm install (postinstall) on darwin only.
  */
@@ -23,7 +23,7 @@ if (process.platform !== 'darwin') {
   process.exit(0)
 }
 
-let appName = 'PearPass'
+let appName = 'Lockwright'
 try {
   const pkg = JSON.parse(
     fs.readFileSync(path.join(root, 'package.json'), 'utf8')
@@ -46,7 +46,7 @@ if (!fs.existsSync(electronApp)) {
 }
 
 try {
-  // 1. Rename Electron.app -> PearPass.app (dock uses .app folder name)
+  // 1. Rename Electron.app -> Lockwright.app (dock uses .app folder name)
   fs.renameSync(electronApp, renamedApp)
   console.log(
     `[patch-electron-dock-name] Renamed Electron.app -> ${appFolderName}`

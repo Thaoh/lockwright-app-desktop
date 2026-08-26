@@ -1,7 +1,7 @@
 const AUTO_LAUNCH = true
 const SLOW_TIMEOUT = 180000 // 3 minutes
 
-// Simple inline SVG for splash - can be replaced with actual PearPass logo
+// Simple inline SVG for splash - can be replaced with actual Lockwright logo
 const splashSvg = require('./images/logo.svg', { with: { type: 'text' } })
 
 // Pear logo SVG
@@ -310,12 +310,12 @@ module.exports = html`
   <main>
     <header>${splashSvg}</header>
     <article>
-      <h1 id="title">Welcome to PearPass</h1>
+      <h1 id="title">Welcome to Lockwright</h1>
       <p id="message">
         Ready to start the installation. This will only take a moment.
       </p>
 
-      <button id="installBtn">Install PearPass</button>
+      <button id="installBtn">Install Lockwright</button>
 
       <div id="status" class="status hidden">
         <div
@@ -346,7 +346,7 @@ module.exports = html`
           class="hidden"
           style="margin-top: 1.125rem; margin-bottom: 0;"
         >
-          Launch PearPass
+          Launch Lockwright
         </button>
       </div>
     </article>
@@ -464,18 +464,18 @@ module.exports = html`
 
       switch (state) {
         case 'installing':
-          title.textContent = 'Welcome to PearPass'
+          title.textContent = 'Welcome to Lockwright'
           message.textContent = 'It will launch once it is done.'
           break
         case 'slow':
-          title.textContent = 'Welcome to PearPass'
+          title.textContent = 'Welcome to Lockwright'
           message.textContent = 'It will launch once it is done.'
           warning.textContent =
             "It's taking a bit of time, please check your connection."
           warning.classList.remove('hidden')
           break
         case 'error':
-          title.textContent = 'Welcome to PearPass'
+          title.textContent = 'Welcome to Lockwright'
           message.textContent = 'It will launch once it is done.'
           progress.classList.add('red')
           warning.textContent = "Installation didn't complete."
@@ -487,10 +487,10 @@ module.exports = html`
           title.textContent = 'Installation complete!'
           progress.classList.add('complete')
           if (AUTO_LAUNCH) {
-            message.textContent = 'PearPass will launch shortly'
+            message.textContent = 'Lockwright will launch shortly'
             setTimeout(() => bridge.postMessage('launch'), 500)
           } else {
-            message.textContent = 'PearPass is ready to launch.'
+            message.textContent = 'Lockwright is ready to launch.'
             launchBtn.classList.remove('hidden')
           }
           break

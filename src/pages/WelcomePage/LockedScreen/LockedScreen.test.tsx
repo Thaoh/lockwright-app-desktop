@@ -100,7 +100,7 @@ describe('LockedScreen', () => {
     expect(screen.getByTestId('locked-screen')).toBeInTheDocument()
     expect(screen.getByTestId('onboarding-shell-mock')).toBeInTheDocument()
     expect(screen.getByTestId('locked-screen-headline').textContent).toBe(
-      'PearPass locked'
+      'Lockwright locked'
     )
     expect(screen.getByTestId('locked-screen-desc-line1').textContent).toBe(
       'Too many failed attempts.'

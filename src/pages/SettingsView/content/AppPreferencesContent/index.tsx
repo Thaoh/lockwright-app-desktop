@@ -110,7 +110,7 @@ export const AppPreferencesContent = () => {
       <PageHeader
         as="h1"
         title={t('App Preferences')}
-        subtitle={t('Control how PearPass works and keep your vault secure.')}
+        subtitle={t('Control how Lockwright works and keep your vault secure.')}
       />
 
       <div style={styles.sectionHeading}>

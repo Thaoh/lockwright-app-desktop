@@ -1,9 +1,9 @@
 name: pearpass
 adopt-info: pearpass
-title: PearPass
+title: Lockwright
 summary: A secure, decentralized and fully local password manager
 description: |
-  PearPass is a privacy-focused password manager. Vaults sync peer-to-peer
+  Lockwright is a privacy-focused password manager. Vaults sync peer-to-peer
   between your devices via the Pear runtime — no cloud, no servers, no
   account.
 license: Apache-2.0
@@ -82,10 +82,10 @@ parts:
       craftctl set version="$(jq -r .version "${CRAFT_PROJECT_DIR}/package.json")"
 
       # build-snap.sh stages the Electron payload as either snap/local/unpacked/
-      # (preferred, pre-extracted from electron-builder) or snap/local/PearPass.AppImage
+      # (preferred, pre-extracted from electron-builder) or snap/local/Lockwright.AppImage
       # (fallback, extracted here via AppRun).
       UNPACKED="${CRAFT_PART_SRC}/unpacked"
-      APPIMAGE="${CRAFT_PART_SRC}/PearPass.AppImage"
+      APPIMAGE="${CRAFT_PART_SRC}/Lockwright.AppImage"
 
       install -d "${CRAFT_PART_INSTALL}/lib/pearpass"
 
@@ -93,10 +93,10 @@ parts:
         cp -a "${UNPACKED}/." "${CRAFT_PART_INSTALL}/lib/pearpass/"
       elif [ -f "${APPIMAGE}" ]; then
         WORKDIR="$(mktemp -d)"
-        cp "${APPIMAGE}" "${WORKDIR}/PearPass.AppImage"
-        chmod +x "${WORKDIR}/PearPass.AppImage"
+        cp "${APPIMAGE}" "${WORKDIR}/Lockwright.AppImage"
+        chmod +x "${WORKDIR}/Lockwright.AppImage"
         cd "${WORKDIR}"
-        ./PearPass.AppImage --appimage-extract >/dev/null
+        ./Lockwright.AppImage --appimage-extract >/dev/null
         cp -a squashfs-root/. "${CRAFT_PART_INSTALL}/lib/pearpass/"
         cd -
       else

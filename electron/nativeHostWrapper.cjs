@@ -16,7 +16,7 @@ function buildWrapperContent({
     // Chrome runs outside the flatpak sandbox; the wrapper re-enters via
     // `flatpak run` so the in-sandbox /app/* paths resolve correctly.
     return `#!/bin/bash
-# PearPass Native Messaging Host (flatpak)
+# Lockwright Native Messaging Host (flatpak)
 # Chrome launches this on the host; re-enter the sandbox to run the bridge.
 set -u
 
@@ -40,7 +40,7 @@ exec "\${FLATPAK_BIN}" run --command=${FLATPAK_NATIVE_HOST_COMMAND} ${FLATPAK_AP
 
   if (platform === 'darwin' || platform === 'linux') {
     return `#!/bin/bash
-# PearPass Native Messaging Host
+# Lockwright Native Messaging Host
 # Runs the native messaging bridge via Electron's embedded Node.js
 
 export ELECTRON_RUN_AS_NODE=1
@@ -50,7 +50,7 @@ exec "${electronExecPath}" "${bridgeScriptPath}"
 
   if (platform === 'win32') {
     return `@echo off
-REM PearPass Native Messaging Host
+REM Lockwright Native Messaging Host
 REM Runs the native messaging bridge via Electron's embedded Node.js
 
 set ELECTRON_RUN_AS_NODE=1

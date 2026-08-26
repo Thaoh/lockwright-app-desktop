@@ -24,8 +24,8 @@ modules:
     buildsystem: simple
     build-commands:
       # ── Extract AppImage ──────────────────────────────────────────────
-      - chmod +x PearPass.AppImage
-      - ./PearPass.AppImage --appimage-extract
+      - chmod +x Lockwright.AppImage
+      - ./Lockwright.AppImage --appimage-extract
 
       # ── Install extracted AppImage payload ────────────────────────────
       - mkdir -p /app/lib/pearpass
@@ -83,7 +83,7 @@ modules:
 
     sources:
       - type: file
-        path: appimage/PearPass.AppImage
+        path: appimage/Lockwright.AppImage
       - type: file
         path: works.dexterity.lockwright.desktop
       - type: file

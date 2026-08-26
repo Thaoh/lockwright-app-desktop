@@ -88,7 +88,7 @@ async function init() {
     teardown: () => {}
   }
 
-  // Seed shared PearPass client singleton so code that calls
+  // Seed shared Lockwright client singleton so code that calls
   // createOrGetPearpassClient() without arguments (e.g. extension pairing)
   // can reuse this Electron vault client instance and storage path.
   createOrGetPearpassClient(client as any, config.storage, {

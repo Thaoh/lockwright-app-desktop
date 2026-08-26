@@ -49,7 +49,7 @@ export const LoadingPage = ({
         </ArtFrame>
 
         <TextBlock>
-          <Title>Welcome to PearPass</Title>
+          <Title>Welcome to Lockwright</Title>
           <Text as="p" variant="label">
             Your items are stored locally, not on our servers.
             <br />

@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=PearPass
+Name=Lockwright
 GenericName=Password Manager
 Comment=A secure, decentralized and fully local password manager
 Exec=pearpass %U
@@ -9,6 +9,6 @@ Type=Application
 Categories=Utility;Security;
 Keywords=password;manager;vault;security;credentials;encryption;sync;
 StartupNotify=true
-StartupWMClass=PearPass
+StartupWMClass=Lockwright
 MimeType=x-scheme-handler/pearpass;
 

@@ -368,7 +368,7 @@ export const BlindPeersContent = () => {
         value: BLIND_PEER_TYPE.DEFAULT,
         label: t('Automatic Blind Peers'),
         description: t(
-          'Let PearPass allocate blind peers for you to handle syncing'
+          'Let Lockwright allocate blind peers for you to handle syncing'
         )
       }
     ],

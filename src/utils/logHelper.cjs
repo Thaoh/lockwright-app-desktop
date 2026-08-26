@@ -191,7 +191,7 @@ function createMainProcessLogger(options = {}) {
  * stable boot wiring lives here.
  */
 function setupLogging({ app, pkg, debugMode, getStorageDir, getVaultClient }) {
-  const isNightlyBuild = pkg.productName === 'PearPass-nightly'
+  const isNightlyBuild = pkg.productName === 'Lockwright-nightly'
   const loggingForced =
     process.argv.includes('--enable-logging') || isNightlyBuild
   const workletLogLevel = 'debug'

@@ -128,7 +128,7 @@ export const YourDevicesContent = () => {
               <Text>{t('Browser Extension')}</Text>
               <Text color={theme.colors.colorTextSecondary}>
                 {t(
-                  'Create a unique pairing code to link your PearPass extension and enable autofill.'
+                  'Create a unique pairing code to link your Lockwright extension and enable autofill.'
                 )}
               </Text>
             </div>

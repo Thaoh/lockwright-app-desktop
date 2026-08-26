@@ -248,7 +248,7 @@ export const getNativeMessagingLocations = () => {
         home,
         'AppData',
         'Local',
-        'PearPass',
+        'Lockwright',
         'NativeMessaging'
       )
       const manifestPath = path.join(nativeMessagingDir, manifestFile)
@@ -575,7 +575,7 @@ export const setupNativeMessaging = async ({
     // Create Chromium native messaging manifest (Chrome / Edge / Brave / Vivaldi / …)
     const chromiumManifest = {
       name: MANIFEST_NAME,
-      description: 'PearPass Native Messaging Host',
+      description: 'Lockwright Native Messaging Host',
       path: manifestExecPath,
       type: 'stdio',
       allowed_origins: chromiumExtensionIds.map(
@@ -586,7 +586,7 @@ export const setupNativeMessaging = async ({
     // Create Firefox native messaging manifest
     const firefoxManifest = {
       name: MANIFEST_NAME,
-      description: 'PearPass Native Messaging Host',
+      description: 'Lockwright Native Messaging Host',
       path: manifestExecPath,
       type: 'stdio',
       allowed_extensions: [FIREFOX_EXTENSION_ID, FIREFOX_NIGHTLY_EXTENSION_ID]

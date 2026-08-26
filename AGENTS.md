@@ -1,6 +1,6 @@
 # UI conventions for pearpass-app-desktop-tether
 
-This is the Electron desktop app for PearPass. It's written in React + TypeScript. UI is built on the shared component library `@tetherto/pearpass-lib-ui-kit`.
+This is the Electron desktop app for Lockwright. It's written in React + TypeScript. UI is built on the shared component library `@tetherto/pearpass-lib-ui-kit`.
 
 This document is for **anyone contributing UI** to the repo — new hires, current engineers, and AI coding assistants (Claude Code, Cursor, Codex, etc.). It captures the component catalog, styling conventions, file-naming rules, and patterns we use when building UI in this app. Read it once before your first UI change; keep it open when you're in doubt.
 

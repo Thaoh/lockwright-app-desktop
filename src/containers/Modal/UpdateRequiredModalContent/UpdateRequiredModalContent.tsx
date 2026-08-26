@@ -52,7 +52,7 @@ export const UpdateRequiredModalContent = ({
       <div style={styles.body}>
         <Text as="p" variant="label" color={theme.colors.colorTextSecondary} data-testid="updaterequired-description">
           {t(
-            'A newer version of PearPass is available. Please update to the latest version to continue using the app.'
+            'A newer version of Lockwright is available. Please update to the latest version to continue using the app.'
           )}
         </Text>
         <div style={styles.timerRow}>

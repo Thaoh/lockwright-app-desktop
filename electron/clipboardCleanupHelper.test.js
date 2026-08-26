@@ -142,7 +142,7 @@ describe('clipboardCleanupHelper', () => {
 
     expect(linuxX11Clipboard.readClipboard).toHaveBeenCalled()
     expect(stderrSpy).toHaveBeenCalledWith(
-      expect.stringContaining('PearPass clipboard cleanup skipped:')
+      expect.stringContaining('Lockwright clipboard cleanup skipped:')
     )
     expect(fs.unlinkSync).toHaveBeenCalledWith('/tmp/secret.txt')
     expect(fs.unlinkSync).toHaveBeenCalledWith('/tmp/state.token')

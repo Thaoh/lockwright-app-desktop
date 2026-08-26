@@ -16,6 +16,7 @@ allowBuilds:
   "@tetherto/pearpass-lib-constants": true
   "@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/e8ea95e7456ea9ffc7057bbb97093d6a9563d859": true
   "@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/12c63099acf78947e0ce01af279211a2b2eea372": true
+  "@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/1f3338f06101e409255402e5ac6a4d696540d02b": true
   "@tetherto/pearpass-lib-vault-core@file:../pearpass-lib-vault-core": true
   "@tetherto/pearpass-lib-vault@file:../pearpass-lib-vault": true
   electron: set this to true or false

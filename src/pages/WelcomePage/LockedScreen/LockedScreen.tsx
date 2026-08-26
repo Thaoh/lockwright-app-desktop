@@ -69,7 +69,7 @@ export const LockedScreen = (): React.ReactElement => {
           <div style={styles.pageHeaderWrap}>
             <PageHeader
               as="h1"
-              title={t('PearPass locked')}
+              title={t('Lockwright locked')}
               testID="locked-screen-headline"
             />
           </div>

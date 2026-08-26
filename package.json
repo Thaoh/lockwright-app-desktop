@@ -1,9 +1,9 @@
 {
   "name": "pearpass-app-desktop",
-  "productName": "PearPass",
+  "productName": "Lockwright",
   "version": "2.2.0",
-  "description": "PearPass password manager",
-  "author": "PearPass",
+  "description": "Lockwright password manager",
+  "author": "Lockwright",
   "main": "electron/main.cjs",
   "upgrade": "pear://dbkezmhetxwo95ab1kcojfraw1eryzf7kex5cahykf6b9c3amd6o",
   "legacyChannelLink": "pear://tywsat7gz8m65ejx4zjn3773pbdc4j8m66tukis8dgzekraymtzo",
@@ -53,8 +53,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "tetherto",
-        "repo": "pearpass-app-desktop"
+        "owner": "Thaoh",
+        "repo": "lockwright-app-desktop"
       }
     ]
   },
@@ -134,12 +134,12 @@
     "dist:snap:arm64": "pnpm run build:prod && pnpm exec electron-builder --linux snap --arm64 --publish never",
     "dist:snap:x64:dev": "pnpm run dist:prepare:dev && pnpm run dist:snap:x64 && npm install",
     "dist:snap:arm64:dev": "pnpm run dist:prepare:dev && pnpm run dist:snap:arm64 && npm install",
-    "pear:build:darwin:arm64": "npx pear-build --package=./package.json --darwin-arm64-app ./out/mac-arm64/PearPass.app --target ../pearpass-app-desktop-$npm_package_version",
-    "pear:build:darwin:x64": "npx pear-build --package=./package.json --darwin-x64-app ./out/mac/PearPass.app --target ../pearpass-app-desktop-$npm_package_version",
-    "pear:build:linux:x64": "npx pear-build --package=./package.json --linux-x64-app ./out/PearPass.AppImage --target ../pearpass-app-desktop-$npm_package_version",
-    "pear:build:linux:arm64": "npx pear-build --package=./package.json --linux-arm64-app ./out/PearPass.AppImage --target ../pearpass-app-desktop-$npm_package_version",
-    "pear:build:win:x64": "npx pear-build --package=./package.json --win32-x64-app ./out/PearPass/PearPass.msix --target ../pearpass-app-desktop-%npm_package_version%",
-    "pear:build:win:arm64": "npx pear-build --package=./package.json --win32-arm64-app ./out/PearPass/PearPass.msix --target ../pearpass-app-desktop-%npm_package_version%",
+    "pear:build:darwin:arm64": "npx pear-build --package=./package.json --darwin-arm64-app ./out/mac-arm64/Lockwright.app --target ../pearpass-app-desktop-$npm_package_version",
+    "pear:build:darwin:x64": "npx pear-build --package=./package.json --darwin-x64-app ./out/mac/Lockwright.app --target ../pearpass-app-desktop-$npm_package_version",
+    "pear:build:linux:x64": "npx pear-build --package=./package.json --linux-x64-app ./out/Lockwright.AppImage --target ../pearpass-app-desktop-$npm_package_version",
+    "pear:build:linux:arm64": "npx pear-build --package=./package.json --linux-arm64-app ./out/Lockwright.AppImage --target ../pearpass-app-desktop-$npm_package_version",
+    "pear:build:win:x64": "npx pear-build --package=./package.json --win32-x64-app ./out/Lockwright/Lockwright.msix --target ../pearpass-app-desktop-%npm_package_version%",
+    "pear:build:win:arm64": "npx pear-build --package=./package.json --win32-arm64-app ./out/Lockwright/Lockwright.msix --target ../pearpass-app-desktop-%npm_package_version%",
     "knip": "knip",
     "preinstall": "node scripts/ensure-pnpm.mjs"
   },

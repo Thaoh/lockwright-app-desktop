@@ -3,7 +3,7 @@
 <component type="desktop-application">
   <id>works.dexterity.lockwright</id>
 
-  <name>PearPass</name>
+  <name>Lockwright</name>
   <summary>A secure, decentralized and fully local password manager</summary>
 
   <developer id="io.tether">
@@ -13,13 +13,13 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>Apache-2.0</project_license>
 
-  <url type="homepage">https://pearpass.io</url>
-  <url type="bugtracker">https://github.com/tetherto/pearpass-app-desktop/issues</url>
-  <url type="vcs-browser">https://github.com/tetherto/pearpass-app-desktop</url>
+  <url type="homepage">https://lockwright.dexterity.works</url>
+  <url type="bugtracker">https://github.com/Thaoh/lockwright-app-desktop/issues</url>
+  <url type="vcs-browser">https://github.com/Thaoh/lockwright-app-desktop</url>
 
   <description>
     <p>
-      PearPass is a distributed password manager powered by Pear Runtime. It provides
+      Lockwright is a distributed password manager. It provides
       secure storage of passwords, credit card details, and secure notes, with the
       ability to distribute and synchronize data across multiple devices.
     </p>
@@ -71,12 +71,12 @@
     -->
     <release version="1.0.1" date="2024-12-19">
       <description>
-        <p>Latest stable release of PearPass.</p>
+        <p>Latest stable release of Lockwright.</p>
       </description>
     </release>
     <release version="1.0.0" date="2024-01-01">
       <description>
-        <p>Initial release of PearPass password manager.</p>
+        <p>Initial release of Lockwright password manager.</p>
         <ul>
           <li>Secure password storage with encryption</li>
           <li>Credit card and secure notes support</li>

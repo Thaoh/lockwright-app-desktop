@@ -87,7 +87,7 @@ export const EmptyCollectionView = ({
     return {
       title: t('No item saved'),
       descriptionParagraphs: [
-        t('Start using PearPass by creating your first item'),
+        t('Start using Lockwright by creating your first item'),
         t('or import your items from a different password manager')
       ]
     }

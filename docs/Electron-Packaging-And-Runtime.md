@@ -1,6 +1,6 @@
 # Electron packaging and runtime
 
-This document describes how the PearPass desktop app is built, packaged, and how the main process, worklet (vault), and renderer communicate.
+This document describes how the Lockwright desktop app is built, packaged, and how the main process, worklet (vault), and renderer communicate.
 
 ---
 
@@ -90,9 +90,9 @@ The vault worklet lives in `@tetherto/pearpass-lib-vault-core` (Git dependency) 
 - **Build commands:** `npm run dist:mac` (local) and `npm run dist:mac:ci` (CI).
 - **Pipeline:**
   - `npm run build` → worklet bundle + `tsc` + renderer bundle (`dist/renderer.bundle.js`).
-  - `npx electron-builder --mac` → `dist/mac-arm64/PearPass.app` + DMG.
+  - `npx electron-builder --mac` → `dist/mac-arm64/Lockwright.app` + DMG.
   - CI uses `scripts/notarize.cjs` as an `afterSign` hook (`@electron/notarize` + `notarytool`) to sign and notarize the app.
-  - After that, `PearPass.app` is copied into `out/darwin-arm64/` and `pear:build:darwin` produces the Pear drive layout (`by-arch/darwin-arm64/app/PearPass.app/...`).
+  - After that, `Lockwright.app` is copied into `out/darwin-arm64/` and `pear:build:darwin` produces the Pear drive layout (`by-arch/darwin-arm64/app/Lockwright.app/...`).
 
 ### 5.2 Windows (electron-forge, MSIX)
 

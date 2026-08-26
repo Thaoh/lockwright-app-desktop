@@ -23,12 +23,12 @@ if (flavor !== 'nightly') {
   process.exit(1)
 }
 
-const STABLE_NAME = 'PearPass'
-const NIGHTLY_NAME = 'PearPass-nightly'
+const STABLE_NAME = 'Lockwright'
+const NIGHTLY_NAME = 'Lockwright-nightly'
 const STABLE_APP_ID = 'works.dexterity.lockwright'
 const NIGHTLY_APP_ID = 'works.dexterity.lockwright.nightly'
-const MSIX_STABLE_IDENTITY = 'PearPass'
-const MSIX_NIGHTLY_IDENTITY = 'PearPass-Nightly'
+const MSIX_STABLE_IDENTITY = 'Lockwright'
+const MSIX_NIGHTLY_IDENTITY = 'Lockwright-Nightly'
 
 const iconSwaps = [
   ['assets/darwin/icon-nightly.png', 'assets/darwin/icon.png'],
@@ -81,7 +81,7 @@ rewriteJson('electron-builder.win.json', (cfg) => {
 
 const manifestPath = path.join(root, 'build-assets/win/AppxManifest.xml')
 let manifest = fs.readFileSync(manifestPath, 'utf8')
-// Order matters: Name="PearPass" is a substring of DisplayName="PearPass", so
+// Order matters: Name="Lockwright" is a substring of DisplayName="Lockwright", so
 // swap the more specific tokens first to avoid collateral rewrites.
 const manifestSwaps = [
   [`DisplayName="${MSIX_STABLE_IDENTITY}"`, `DisplayName="${NIGHTLY_NAME}"`],
@@ -90,7 +90,7 @@ const manifestSwaps = [
     `<DisplayName>${NIGHTLY_NAME}</DisplayName>`
   ],
   // electron-packager derives the .exe name from productName, so the manifest
-  // must point at PearPass-nightly.exe once productName is rewritten.
+  // must point at Lockwright-nightly.exe once productName is rewritten.
   [`app\\${STABLE_NAME}.exe`, `app\\${NIGHTLY_NAME}.exe`],
   [`Alias="${STABLE_NAME}.exe"`, `Alias="${NIGHTLY_NAME}.exe"`],
   [`Name="${MSIX_STABLE_IDENTITY}"`, `Name="${MSIX_NIGHTLY_IDENTITY}"`]

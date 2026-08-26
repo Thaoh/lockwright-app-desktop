@@ -44,7 +44,7 @@ function describeLinuxSession() {
 
 function logLinuxClipboardSkip(sessionLabel) {
   process.stderr.write(
-    `PearPass clipboard cleanup skipped: ${sessionLabel} clipboard command unavailable or failed. (${describeLinuxSession()})\n`
+    `Lockwright clipboard cleanup skipped: ${sessionLabel} clipboard command unavailable or failed. (${describeLinuxSession()})\n`
   )
 }
 
@@ -156,7 +156,7 @@ async function main(argv = process.argv) {
     })
   } catch (err) {
     process.stderr.write(
-      `PearPass clipboard cleanup failed: ${err && err.message ? err.message : err}\n`
+      `Lockwright clipboard cleanup failed: ${err && err.message ? err.message : err}\n`
     )
     process.exitCode = 1
   }

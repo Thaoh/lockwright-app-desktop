@@ -62,7 +62,7 @@ export const LanguageContent = (): React.ReactElement => {
             {t('App Language')}
           </Text>
           <Text variant="caption" color={theme.colors.colorTextSecondary}>
-            {t('Select the language used throughout PearPass.')}
+            {t('Select the language used throughout Lockwright.')}
           </Text>
         </div>
 

@@ -168,7 +168,7 @@ describe('YourDevicesContent', () => {
     expect(screen.getByText('Browser Extension')).toBeInTheDocument()
     expect(
       screen.getByText(
-        'Create a unique pairing code to link your PearPass extension and enable autofill.'
+        'Create a unique pairing code to link your Lockwright extension and enable autofill.'
       )
     ).toBeInTheDocument()
     expect(

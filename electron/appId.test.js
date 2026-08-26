@@ -32,4 +32,21 @@ describe('Lockwright app id', () => {
       'git+https://github.com/Thaoh/lockwright-lib-constants.git'
     )
   })
+
+  it('ships productName Lockwright, not PearPass', () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+    )
+    expect(pkg.productName).toBe('Lockwright')
+    expect(pkg.description).toMatch(/Lockwright/)
+    expect(pkg.author).toBe('Lockwright')
+    expect(pkg.productName).not.toMatch(/PearPass/)
+
+    const win = JSON.parse(
+      fs.readFileSync(path.join(root, 'electron-builder.win.json'), 'utf8')
+    )
+    expect(win.productName).toBe('Lockwright')
+    expect(win.nsis.shortcutName).toBe('Lockwright')
+    expect(win.nsis.uninstallDisplayName).toBe('Lockwright')
+  })
 })

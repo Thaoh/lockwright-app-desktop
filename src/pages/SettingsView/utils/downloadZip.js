@@ -8,7 +8,7 @@ export const downloadZip = async (files) => {
   const content = await zip.generateAsync({ type: 'blob' })
   const link = document.createElement('a')
   link.href = URL.createObjectURL(content)
-  link.download = `PearPass_Export_${new Date().toISOString().replace(/[:.-]/g, '_')}.zip`
+  link.download = `Lockwright_Export_${new Date().toISOString().replace(/[:.-]/g, '_')}.zip`
   link.click()
   URL.revokeObjectURL(link.href)
 }

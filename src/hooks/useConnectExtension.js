@@ -69,7 +69,7 @@ export const useConnectExtension = () => {
       setNativeMessagingEnabled(true)
       setIsBrowserExtensionEnabled(true)
       setToast({
-        message: t('PearPass ready for extension connection.')
+        message: t('Lockwright ready for extension connection.')
       })
     } else {
       const errorMessage = result.message || t('Setup failed')

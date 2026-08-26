@@ -268,7 +268,7 @@ export const CardCreateMasterPassword = () => {
               href={TERMS_OF_USE}
               isExternal
             >
-              {t('PearPass Application Terms of Use')}
+              {t('Lockwright Application Terms of Use')}
             </Link>
             <Text as="span">.</Text>
           </div>

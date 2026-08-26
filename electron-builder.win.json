@@ -1,6 +1,6 @@
 {
   "appId": "works.dexterity.lockwright",
-  "productName": "PearPass",
+  "productName": "Lockwright",
   "icon": "assets/win32/icon.png",
   "asar": false,
   "electronDownload": {
@@ -48,8 +48,8 @@
     "allowElevation": true,
     "createDesktopShortcut": true,
     "createStartMenuShortcut": true,
-    "shortcutName": "PearPass",
-    "uninstallDisplayName": "PearPass",
+    "shortcutName": "Lockwright",
+    "uninstallDisplayName": "Lockwright",
     "deleteAppDataOnUninstall": false,
     "runAfterFinish": true,
     "differentialPackage": false

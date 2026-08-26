@@ -32,10 +32,10 @@ describe('flatpak path helpers', () => {
   it('maps host-side flatpak config paths into sandbox-safe paths', () => {
     expect(
       mapFlatpakPathToSandbox(
-        '/home/alvaro/.var/app/works.dexterity.lockwright/config/PearPass',
+        '/home/alvaro/.var/app/works.dexterity.lockwright/config/Lockwright',
         { env }
       )
-    ).toBe('/home/alvaro/.config/PearPass')
+    ).toBe('/home/alvaro/.config/Lockwright')
   })
 
   it('detects snap via SNAP_NAME', () => {
@@ -60,13 +60,13 @@ describe('flatpak path helpers', () => {
   })
 
   it('returns sandbox-safe path only when running inside flatpak', () => {
-    const targetPath = '/home/alvaro/.var/app/works.dexterity.lockwright/data/PearPass'
+    const targetPath = '/home/alvaro/.var/app/works.dexterity.lockwright/data/Lockwright'
 
     expect(
       getSandboxSafePath(targetPath, {
         env: { ...env, FLATPAK_ID: 'works.dexterity.lockwright' }
       })
-    ).toBe('/home/alvaro/.config/pearpass-flatpak-data/PearPass')
+    ).toBe('/home/alvaro/.config/pearpass-flatpak-data/Lockwright')
     expect(
       getSandboxSafePath(targetPath, { env, existsSync: () => false })
     ).toBe(targetPath)

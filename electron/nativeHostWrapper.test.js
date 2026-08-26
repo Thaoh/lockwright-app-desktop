@@ -15,7 +15,7 @@ const {
   refreshNativeHostWrapperIfPresent
 } = require('./nativeHostWrapper.cjs')
 
-const EXEC_PATH = '/mock/electron/PearPass'
+const EXEC_PATH = '/mock/electron/Lockwright'
 const BRIDGE_PATH = '/mock/dist/native-messaging-bridge.bundle.cjs'
 const WRAPPER_PATH = '/mock/userData/native-messaging/pearpass-native-host.sh'
 

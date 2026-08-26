@@ -51,7 +51,7 @@ describe('detectIsEncrypted', () => {
     ).toBe(false)
   })
 
-  describe('PearPass-encrypted exports', () => {
+  describe('Lockwright-encrypted exports', () => {
     it('treats a single encrypted:true flag as encrypted', () => {
       expect(
         detectIsEncrypted(ImportOptionType.Encrypted, 'json', {

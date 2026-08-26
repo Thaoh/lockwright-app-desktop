@@ -36,7 +36,7 @@ jest.mock('./logger', () => ({
 }))
 
 const MOCK_USER_DATA_PATH = '/mock/userData'
-const MOCK_EXEC_PATH = '/mock/electron/PearPass'
+const MOCK_EXEC_PATH = '/mock/electron/Lockwright'
 const MOCK_BRIDGE_PATH = '/mock/dist/native-messaging-bridge.bundle.cjs'
 
 // Helper to reset mocks
@@ -228,7 +228,7 @@ describe('getNativeMessagingLocations', () => {
     const { browsers } = getNativeMessagingLocations()
     expect(browsers).toHaveLength(6)
     expect(browsers[0].browserDir).toBeNull()
-    expect(browsers[0].manifestPath).toContain('PearPass/NativeMessaging')
+    expect(browsers[0].manifestPath).toContain('Lockwright/NativeMessaging')
     expect(browsers[0].registryKey).toContain('Google\\Chrome')
     expect(browsers[1].registryKey).toContain('Microsoft\\Edge')
     expect(browsers[2].registryKey).toContain('Chromium')

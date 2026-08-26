@@ -38,7 +38,7 @@ let debugMode = false
 const pkg = require('../package.json')
 
 // Windows Task Manager / taskbar group by AppUserModelID + exe FileDescription.
-// Must be set before ready; keeps packaged PearPass from grouping under "Electron".
+// Must be set before ready; keeps packaged Lockwright from grouping under "Electron".
 if (isWindows) {
   app.setAppUserModelId(pkg.build?.appId ?? 'works.dexterity.lockwright')
 }

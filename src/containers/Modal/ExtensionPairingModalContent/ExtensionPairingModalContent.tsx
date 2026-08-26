@@ -103,7 +103,7 @@ export const ExtensionPairingModalContent = ({
             />
             {/* @ts-ignore */}
             <Text as="span" variant="label" color={theme.colors.colorPrimary}>
-              {t('PearPass')}
+              {t('Lockwright')}
             </Text>
             <Text as="span" variant="label">
               {t('in the extensions list')}
