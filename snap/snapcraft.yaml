@@ -19,8 +19,8 @@ architectures:
 apps:
   pearpass:
     command: usr/bin/pearpass
-    common-id: com.pears.pass
-    desktop: usr/share/applications/com.pears.pass.desktop
+    common-id: works.dexterity.lockwright
+    desktop: usr/share/applications/works.dexterity.lockwright.desktop
     extensions: [gnome]
     plugs:
       - home
@@ -49,7 +49,7 @@ apps:
 # Directory-scoped (not file-scoped): file scope's AppArmor expansion
 # `<file>{,/,/**}` blocks mkdir of the parent, and browsers don't create
 # NativeMessagingHosts/ themselves (verified for host + snap Firefox 150).
-# Snap only writes com.pears.pass.json inside each granted dir.
+# Snap only writes works.dexterity.lockwright.json inside each granted dir.
 # brave/current resolves via snap-Brave's revision symlink — smoke-tested
 # with Firefox, retest under snap-Brave.
 plugs:
@@ -144,14 +144,14 @@ parts:
 
       # Reuse flatpak desktop entry + metainfo + icon; sed below patches
       # Exec/Icon for snap-resolved paths.
-      install -Dm644 "${CRAFT_PROJECT_DIR}/flatpak/com.pears.pass.desktop" \
-        "${CRAFT_PART_INSTALL}/usr/share/applications/com.pears.pass.desktop"
-      install -Dm644 "${CRAFT_PROJECT_DIR}/flatpak/com.pears.pass.metainfo.xml" \
-        "${CRAFT_PART_INSTALL}/usr/share/metainfo/com.pears.pass.metainfo.xml"
+      install -Dm644 "${CRAFT_PROJECT_DIR}/flatpak/works.dexterity.lockwright.desktop" \
+        "${CRAFT_PART_INSTALL}/usr/share/applications/works.dexterity.lockwright.desktop"
+      install -Dm644 "${CRAFT_PROJECT_DIR}/flatpak/works.dexterity.lockwright.metainfo.xml" \
+        "${CRAFT_PART_INSTALL}/usr/share/metainfo/works.dexterity.lockwright.metainfo.xml"
       install -Dm644 "${CRAFT_PROJECT_DIR}/assets/linux/icon.png" \
         "${CRAFT_PART_INSTALL}/meta/gui/pearpass.png"
 
       sed -i 's|^Exec=.*|Exec=pearpass %U|' \
-        "${CRAFT_PART_INSTALL}/usr/share/applications/com.pears.pass.desktop"
+        "${CRAFT_PART_INSTALL}/usr/share/applications/works.dexterity.lockwright.desktop"
       sed -i 's|^Icon=.*|Icon=${SNAP}/meta/gui/pearpass.png|' \
-        "${CRAFT_PART_INSTALL}/usr/share/applications/com.pears.pass.desktop"
+        "${CRAFT_PART_INSTALL}/usr/share/applications/works.dexterity.lockwright.desktop"

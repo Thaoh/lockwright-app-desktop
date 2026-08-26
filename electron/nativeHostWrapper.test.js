@@ -53,7 +53,7 @@ describe('buildWrapperContent', () => {
       bridgeScriptPath: BRIDGE_PATH
     })
     expect(content).toContain('flatpak')
-    expect(content).toContain('com.pears.pass')
+    expect(content).toContain('works.dexterity.lockwright')
     expect(content).toContain('--command=pearpass-native-host')
     // In-sandbox paths are resolved by `flatpak run`, not baked into the wrapper.
     expect(content).not.toContain(EXEC_PATH)

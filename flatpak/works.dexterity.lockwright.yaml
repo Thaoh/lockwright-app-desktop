@@ -1,4 +1,4 @@
-app-id: com.pears.pass
+app-id: works.dexterity.lockwright
 runtime: org.gnome.Platform
 runtime-version: '49'
 sdk: org.gnome.Sdk
@@ -55,7 +55,7 @@ modules:
       - chmod +x /app/bin/pearpass
 
       # ── Native messaging host entry point ────────────────────────────
-      # Invoked via `flatpak run --command=pearpass-native-host com.pears.pass`
+      # Invoked via `flatpak run --command=pearpass-native-host works.dexterity.lockwright`
       # by the host-side wrapper script that Chrome's Native Messaging API
       # launches. Runs the bridge bundle through Electron's embedded Node.
       - |
@@ -75,19 +75,19 @@ modules:
       - chmod +x /app/bin/pearpass-native-host
 
       # ── Desktop integration ───────────────────────────────────────────
-      - install -Dm644 com.pears.pass.desktop /app/share/applications/com.pears.pass.desktop
-      - install -Dm644 com.pears.pass.metainfo.xml /app/share/metainfo/com.pears.pass.metainfo.xml
+      - install -Dm644 works.dexterity.lockwright.desktop /app/share/applications/works.dexterity.lockwright.desktop
+      - install -Dm644 works.dexterity.lockwright.metainfo.xml /app/share/metainfo/works.dexterity.lockwright.metainfo.xml
 
       # ── Install icon (pre-resized to 512x512 by build script) ────────
-      - install -Dm644 icon-512.png /app/share/icons/hicolor/512x512/apps/com.pears.pass.png
+      - install -Dm644 icon-512.png /app/share/icons/hicolor/512x512/apps/works.dexterity.lockwright.png
 
     sources:
       - type: file
         path: appimage/PearPass.AppImage
       - type: file
-        path: com.pears.pass.desktop
+        path: works.dexterity.lockwright.desktop
       - type: file
-        path: com.pears.pass.metainfo.xml
+        path: works.dexterity.lockwright.metainfo.xml
       - type: file
         path: icon-512.png
 

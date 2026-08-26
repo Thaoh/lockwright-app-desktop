@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2024 Tether Data S.A. de C.V. -->
 <component type="desktop-application">
-  <id>com.pears.pass</id>
+  <id>works.dexterity.lockwright</id>
 
   <name>PearPass</name>
   <summary>A secure, decentralized and fully local password manager</summary>
@@ -36,7 +36,7 @@
     </ul>
   </description>
 
-  <launchable type="desktop-id">com.pears.pass.desktop</launchable>
+  <launchable type="desktop-id">works.dexterity.lockwright.desktop</launchable>
 
   <branding>
     <color type="primary" scheme_preference="light">#4CAF50</color>

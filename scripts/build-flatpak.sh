@@ -164,7 +164,7 @@ build_flatpak() {
     flatpak-builder --force-clean \
         --repo="$BUILD_DIR/repo" \
         "$BUILD_DIR/build-dir" \
-        "$FLATPAK_DIR/com.pears.pass.yaml"
+        "$FLATPAK_DIR/works.dexterity.lockwright.yaml"
 
     log_ok "Build complete. Creating bundle ..."
 
@@ -172,7 +172,7 @@ build_flatpak() {
     flatpak build-bundle \
         "$BUILD_DIR/repo" \
         "$BUILD_DIR/$bundle_name" \
-        com.pears.pass
+        works.dexterity.lockwright
 
     log_ok "Flatpak bundle: $BUILD_DIR/$bundle_name"
     ls -lh "$BUILD_DIR/$bundle_name"

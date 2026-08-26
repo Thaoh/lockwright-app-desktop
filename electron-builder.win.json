@@ -1,5 +1,5 @@
 {
-  "appId": "com.pears.pass",
+  "appId": "works.dexterity.lockwright",
   "productName": "PearPass",
   "icon": "assets/win32/icon.png",
   "asar": false,

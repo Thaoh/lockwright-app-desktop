@@ -25,8 +25,8 @@ if (flavor !== 'nightly') {
 
 const STABLE_NAME = 'PearPass'
 const NIGHTLY_NAME = 'PearPass-nightly'
-const STABLE_APP_ID = 'com.pears.pass'
-const NIGHTLY_APP_ID = 'com.pears.pass.nightly'
+const STABLE_APP_ID = 'works.dexterity.lockwright'
+const NIGHTLY_APP_ID = 'works.dexterity.lockwright.nightly'
 const MSIX_STABLE_IDENTITY = 'PearPass'
 const MSIX_NIGHTLY_IDENTITY = 'PearPass-Nightly'
 
@@ -73,6 +73,9 @@ rewriteJson('electron-builder.mac.json', (cfg) => {
   if (cfg.appId === STABLE_APP_ID) cfg.appId = NIGHTLY_APP_ID
 })
 rewriteJson('electron-builder.linux.json', (cfg) => {
+  if (cfg.appId === STABLE_APP_ID) cfg.appId = NIGHTLY_APP_ID
+})
+rewriteJson('electron-builder.win.json', (cfg) => {
   if (cfg.appId === STABLE_APP_ID) cfg.appId = NIGHTLY_APP_ID
 })
 

@@ -10,13 +10,13 @@ const {
 describe('flatpak path helpers', () => {
   const env = {
     HOME: '/home/alvaro',
-    XDG_CONFIG_HOME: '/home/alvaro/.var/app/com.pears.pass/config',
-    XDG_DATA_HOME: '/home/alvaro/.var/app/com.pears.pass/data',
-    XDG_CACHE_HOME: '/home/alvaro/.var/app/com.pears.pass/cache'
+    XDG_CONFIG_HOME: '/home/alvaro/.var/app/works.dexterity.lockwright/config',
+    XDG_DATA_HOME: '/home/alvaro/.var/app/works.dexterity.lockwright/data',
+    XDG_CACHE_HOME: '/home/alvaro/.var/app/works.dexterity.lockwright/cache'
   }
 
   it('detects flatpak via FLATPAK_ID', () => {
-    expect(isFlatpakRuntime({ env: { FLATPAK_ID: 'com.pears.pass' } })).toBe(
+    expect(isFlatpakRuntime({ env: { FLATPAK_ID: 'works.dexterity.lockwright' } })).toBe(
       true
     )
   })
@@ -32,7 +32,7 @@ describe('flatpak path helpers', () => {
   it('maps host-side flatpak config paths into sandbox-safe paths', () => {
     expect(
       mapFlatpakPathToSandbox(
-        '/home/alvaro/.var/app/com.pears.pass/config/PearPass',
+        '/home/alvaro/.var/app/works.dexterity.lockwright/config/PearPass',
         { env }
       )
     ).toBe('/home/alvaro/.config/PearPass')
@@ -60,11 +60,11 @@ describe('flatpak path helpers', () => {
   })
 
   it('returns sandbox-safe path only when running inside flatpak', () => {
-    const targetPath = '/home/alvaro/.var/app/com.pears.pass/data/PearPass'
+    const targetPath = '/home/alvaro/.var/app/works.dexterity.lockwright/data/PearPass'
 
     expect(
       getSandboxSafePath(targetPath, {
-        env: { ...env, FLATPAK_ID: 'com.pears.pass' }
+        env: { ...env, FLATPAK_ID: 'works.dexterity.lockwright' }
       })
     ).toBe('/home/alvaro/.config/pearpass-flatpak-data/PearPass')
     expect(

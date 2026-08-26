@@ -1,5 +1,5 @@
 {
-  "appId": "com.pears.pass",
+  "appId": "works.dexterity.lockwright",
   "icon": "assets/linux/icon.png",
   "asar": false,
   "directories": {

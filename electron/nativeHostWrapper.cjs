@@ -1,6 +1,6 @@
 const fsp = require('fs/promises')
 
-const FLATPAK_APP_ID = 'com.pears.pass'
+const FLATPAK_APP_ID = 'works.dexterity.lockwright'
 const FLATPAK_NATIVE_HOST_COMMAND = 'pearpass-native-host'
 
 // Wrappers emit diagnostics to stderr only: Chrome reads stdout as framed

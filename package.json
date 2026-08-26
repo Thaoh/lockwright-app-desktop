@@ -8,7 +8,7 @@
   "upgrade": "pear://dbkezmhetxwo95ab1kcojfraw1eryzf7kex5cahykf6b9c3amd6o",
   "legacyChannelLink": "pear://tywsat7gz8m65ejx4zjn3773pbdc4j8m66tukis8dgzekraymtzo",
   "build": {
-    "appId": "com.pears.pass",
+    "appId": "works.dexterity.lockwright",
     "icon": "assets/darwin/icon.png",
     "asar": false,
     "files": [

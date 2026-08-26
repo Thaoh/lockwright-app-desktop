@@ -40,7 +40,7 @@ const pkg = require('../package.json')
 // Windows Task Manager / taskbar group by AppUserModelID + exe FileDescription.
 // Must be set before ready; keeps packaged PearPass from grouping under "Electron".
 if (isWindows) {
-  app.setAppUserModelId(pkg.build?.appId ?? 'com.pears.pass')
+  app.setAppUserModelId(pkg.build?.appId ?? 'works.dexterity.lockwright')
 }
 
 const {
