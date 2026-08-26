@@ -61,7 +61,7 @@ export const createStyles = (colors: ThemeColors) => ({
     flexShrink: 0
   },
   lengthInput: {
-    width: 64,
+    width: 72,
     flexShrink: 0
   },
   slider: {

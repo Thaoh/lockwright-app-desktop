@@ -327,16 +327,16 @@ describe('PasswordGenerator', () => {
     )
   })
 
-  it('allows typed length above the slider-era cap of 50', () => {
+  it('allows typed length above the slider cap of 128', () => {
     render(<PasswordGenerator />)
     mockGeneratePassword.mockClear()
 
     const lengthInput = screen.getByTestId('password-generator-length-input')
-    fireEvent.change(lengthInput, { target: { value: '128' } })
+    fireEvent.change(lengthInput, { target: { value: '512' } })
     fireEvent.blur(lengthInput)
 
     expect(mockGeneratePassword).toHaveBeenLastCalledWith(
-      128,
+      512,
       expect.objectContaining({
         upperCase: true,
         lowerCase: true,
@@ -346,16 +346,16 @@ describe('PasswordGenerator', () => {
     )
   })
 
-  it('clamps typed length to 128 and restores empty input to the current length', () => {
+  it('clamps typed length to 4096 and restores empty input to the current length', () => {
     render(<PasswordGenerator />)
     mockGeneratePassword.mockClear()
 
     const lengthInput = screen.getByTestId('password-generator-length-input')
-    fireEvent.change(lengthInput, { target: { value: '999' } })
+    fireEvent.change(lengthInput, { target: { value: '99999' } })
     fireEvent.blur(lengthInput)
 
     expect(mockGeneratePassword).toHaveBeenLastCalledWith(
-      128,
+      4096,
       expect.objectContaining({
         upperCase: true,
         lowerCase: true,
@@ -368,7 +368,7 @@ describe('PasswordGenerator', () => {
     fireEvent.change(lengthInput, { target: { value: '' } })
     fireEvent.blur(lengthInput)
 
-    expect(lengthInput).toHaveValue('128')
+    expect(lengthInput).toHaveValue('4096')
     expect(mockGeneratePassword).not.toHaveBeenCalled()
   })
 

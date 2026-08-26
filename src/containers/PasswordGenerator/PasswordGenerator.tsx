@@ -77,7 +77,8 @@ type HistoryEntry = {
 
 const HISTORY_DISPLAY_LIMIT = 20
 const PASSWORD_LENGTH_MIN = 4
-const PASSWORD_LENGTH_MAX = 128
+const PASSWORD_SLIDER_MAX = 128
+const PASSWORD_LENGTH_MAX = 4096
 const PASSPHRASE_WORDS_MIN = 6
 const PASSPHRASE_WORDS_MAX = 36
 
@@ -165,7 +166,11 @@ export const PasswordGenerator = ({
     selectedOption === PASSWORD_OPTIONS.passphrase
       ? PASSPHRASE_WORDS_MIN
       : PASSWORD_LENGTH_MIN
-  const lengthMax =
+  const sliderMax =
+    selectedOption === PASSWORD_OPTIONS.passphrase
+      ? PASSPHRASE_WORDS_MAX
+      : PASSWORD_SLIDER_MAX
+  const typedMax =
     selectedOption === PASSWORD_OPTIONS.passphrase
       ? PASSPHRASE_WORDS_MAX
       : PASSWORD_LENGTH_MAX
@@ -317,7 +322,7 @@ export const PasswordGenerator = ({
       setLengthDraft(String(lengthValue))
       return
     }
-    const clamped = Math.min(lengthMax, Math.max(lengthMin, parsed))
+    const clamped = Math.min(typedMax, Math.max(lengthMin, parsed))
     if (selectedOption === PASSWORD_OPTIONS.passphrase) {
       handlePassphraseRuleChange('words', clamped)
     } else {
@@ -511,9 +516,9 @@ export const PasswordGenerator = ({
               <Slider
                 testID="password-generator-length-slider"
                 minimumValue={lengthMin}
-                maximumValue={lengthMax}
+                maximumValue={sliderMax}
                 step={1}
-                value={lengthValue}
+                value={Math.min(lengthValue, sliderMax)}
                 onValueChange={(value: number) => {
                   const next = Math.round(value)
                   if (selectedOption === PASSWORD_OPTIONS.passphrase) {
