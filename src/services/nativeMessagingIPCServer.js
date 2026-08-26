@@ -116,6 +116,11 @@ export class NativeMessagingIPCServer {
       'encryptionGetStatus',
       encryptionHandlers.encryptionGetStatus.bind(encryptionHandlers)
     )
+    // Read-only lockout status — needed before secure session (wrong-password UX)
+    this.methodRegistry.register(
+      'getMasterPasswordStatus',
+      encryptionHandlers.getMasterPasswordStatus.bind(encryptionHandlers)
+    )
 
     // Register secure channel handler
     const secureRequestHandler = new SecureRequestHandler(
