@@ -15,6 +15,7 @@ allowBuilds:
   "@tetherto/pearpass-utils-password-check@https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/5175d97c3c560221a6f1a36d4c3c8be9c45daf81": true
   "@tetherto/pearpass-lib-constants": true
   "@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/e8ea95e7456ea9ffc7057bbb97093d6a9563d859": true
+  "@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/12c63099acf78947e0ce01af279211a2b2eea372": true
   "@tetherto/pearpass-lib-vault-core@file:../pearpass-lib-vault-core": true
   "@tetherto/pearpass-lib-vault@file:../pearpass-lib-vault": true
   electron: set this to true or false
@@ -24,5 +25,3 @@ allowBuilds:
   "electron@33.4.11": true
   "esbuild@0.21.5": true
   "esbuild@0.24.2": true
-  '@tetherto/pearpass-lib-constants@file:../lockwright-lib-constants': set this to true or false
-  '@tetherto/pearpass-lib-constants@https://codeload.github.com/tetherto/pearpass-lib-constants/tar.gz/5109f46bbec876dd2fed24cfd0bfd9e01f563cdc': set this to true or false
