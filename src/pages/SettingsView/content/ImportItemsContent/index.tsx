@@ -2,7 +2,10 @@ import { useState } from 'react'
 
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
-import { MAX_IMPORT_RECORDS } from '@tetherto/pearpass-lib-constants'
+import {
+  MAX_IMPORT_RECORDS,
+  PEARPASS_WEBSITE
+} from '@tetherto/pearpass-lib-constants'
 import {
   parse1PasswordData,
   parseBitwardenData,
@@ -147,8 +150,7 @@ export const ImportItemsContent = () => {
         'Upload a Lockwright-encrypted JSON export file. You will need the password used to encrypt the file.'
       ),
       accepts: ['.json'],
-      supportLink:
-        'https://docs.pass.pears.com/how-to-guides/how-to-export-your-vault/'
+      supportLink: PEARPASS_WEBSITE
     },
     {
       title: 'Lockwright Unencrypted File',
@@ -158,8 +160,7 @@ export const ImportItemsContent = () => {
       ),
       testId: 'settings-import-unencrypted',
       accepts: ['.json', '.csv'],
-      supportLink:
-        'https://docs.pass.pears.com/how-to-guides/how-to-export-your-vault/'
+      supportLink: PEARPASS_WEBSITE
     }
   ]
 

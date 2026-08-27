@@ -49,7 +49,8 @@ jest.mock('@tetherto/pearpass-lib-vault/src/instances', () => ({
 }))
 
 jest.mock('@tetherto/pearpass-lib-constants', () => ({
-  MAX_IMPORT_RECORDS: 1000
+  MAX_IMPORT_RECORDS: 1000,
+  PEARPASS_WEBSITE: 'https://lockwright.dexterity.works'
 }))
 
 jest.mock('@tetherto/pearpass-lib-data-import', () => ({
