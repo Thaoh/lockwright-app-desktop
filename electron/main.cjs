@@ -25,6 +25,7 @@ const {
   legacyUserDataDirs,
   migratePearPassUserData
 } = require('./migrateUserData.cjs')
+const { adoptInheritedVault } = require('./pickRuntimeStorage.cjs')
 // eslint-disable-next-line import/order
 const { scheduleClipboardCleanup } = require('./clipboardCleanup.cjs')
 
@@ -183,6 +184,19 @@ async function resolveRuntimeStorageDir() {
   const { legacyChannelLink, upgrade } = runtimeConfig || {}
 
   let storageDir = getStorageDir()
+
+  // Classic PearPass stores the vault at userData/app-storage/by-dkey/{id}.
+  // Copy+open that folder when Lockwright userData is empty or only has a
+  // new per-link store. Do this before the local / upgrade-id fallbacks.
+  const inherited = adoptInheritedVault({
+    destDir: storageDir,
+    sourceDirs: legacyUserDataDirs(storageDir),
+    upgrade
+  })
+  if (inherited) {
+    logger.info('[MAIN]', 'Using inherited vault storage:', inherited)
+    return inherited
+  }
 
   // Local/NSIS builds may omit the pear upgrade channel. Keep vault data under
   // a stable folder and never call String methods on a null upgrade link.
