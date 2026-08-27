@@ -49,4 +49,36 @@ describe('Lockwright app id', () => {
     expect(win.nsis.shortcutName).toBe('Lockwright')
     expect(win.nsis.uninstallDisplayName).toBe('Lockwright')
   })
+
+  it('points Lockwright import help at lockwright.dexterity.works, not PearPass docs', () => {
+    const src = fs.readFileSync(
+      path.join(
+        root,
+        'src/pages/SettingsView/content/ImportItemsContent/index.tsx'
+      ),
+      'utf8'
+    )
+    expect(src).not.toMatch(/docs\.pass\.pears\.com/)
+    expect(src).toMatch(/PEARPASS_WEBSITE/)
+  })
+
+  it('report-a-problem opens the Lockwright contact form, not Tether Slack or Google Form', () => {
+    const src = fs.readFileSync(
+      path.join(
+        root,
+        'src/pages/SettingsView/content/ReportAProblemContent/index.tsx'
+      ),
+      'utf8'
+    )
+    expect(src).not.toMatch(/sendSlackFeedback|sendGoogleFormFeedback/)
+    expect(src).toMatch(/PEARPASS_WEBSITE/)
+    expect(src).toMatch(/\/contact\//)
+
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+    )
+    const links = (pkg.pear.links || []).join('\n')
+    expect(links).not.toMatch(/slack\.com/)
+    expect(links).not.toMatch(/docs\.google\.com\/forms/)
+  })
 })

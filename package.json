@@ -70,10 +70,7 @@
       "width": "1440",
       "minWidth": "816"
     },
-    "links": [
-      "https://hooks.slack.com/services/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",
-      "https://docs.google.com/forms/d/e/1FAIpQLScLltvRe64VzMDRzOVjGtHWZ3KafLC2zzvkEoJfTzJkFd67OA/*"
-    ],
+    "links": [],
     "stage": {
       "entrypoints": [],
       "prefetch": [

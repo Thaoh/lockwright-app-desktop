@@ -425,6 +425,7 @@ declare module '@tetherto/pearpass-lib-constants' {
   export const NATIVE_MESSAGING_BRIDGE_PEAR_LINK_STAGING: string
   export const UNSUPPORTED: boolean
   export const PEARPASS_WEBSITE: string
+  export const FEEDBACK_URL: string
   export const PRIVACY_POLICY: string
   export const TERMS_OF_USE: string
   export const BLIND_PEERS_LEARN_MORE: string
