@@ -2,7 +2,8 @@ import {
   buildLoginUris,
   fromVaultUriMatch,
   resolveUriMatchType,
-  toVaultUriMatch
+  toVaultUriMatch,
+  websiteRowsFromRecord
 } from './uriMatchSetting'
 import { URI_MATCH_TYPES } from '../constants/uriMatch'
 
@@ -111,6 +112,56 @@ describe('uriMatchSetting', () => {
     it('returns empty array for non-array input', () => {
       expect(buildLoginUris(null)).toEqual([])
       expect(buildLoginUris(undefined)).toEqual([])
+    })
+
+    it('keeps stored match when the form row omitted matchType', () => {
+      expect(
+        buildLoginUris(
+          [{ website: 'https://example.com' }],
+          [{ uri: 'https://example.com', match: 'exact' }]
+        )
+      ).toEqual([{ uri: 'https://example.com', match: 'exact' }])
+    })
+  })
+
+  describe('websiteRowsFromRecord', () => {
+    it('keeps stored match type on each website row', () => {
+      expect(
+        websiteRowsFromRecord({
+          data: {
+            websites: ['https://example.com', 'https://other.com'],
+            uris: [
+              { uri: 'https://example.com', match: 'host' },
+              { uri: 'https://other.com', match: 'baseDomain' }
+            ]
+          }
+        })
+      ).toEqual([
+        { website: 'https://example.com', matchType: URI_MATCH_TYPES.HOST },
+        { website: 'https://other.com', matchType: URI_MATCH_TYPES.DOMAIN }
+      ])
+    })
+
+    it('falls back to uris when websites is empty', () => {
+      expect(
+        websiteRowsFromRecord({
+          data: {
+            websites: [],
+            uris: [{ uri: 'https://dashboard.stripe.com', match: 'exact' }]
+          }
+        })
+      ).toEqual([
+        {
+          website: 'https://dashboard.stripe.com',
+          matchType: URI_MATCH_TYPES.EXACT
+        }
+      ])
+    })
+
+    it('returns one empty domain row when the record has no sites', () => {
+      expect(websiteRowsFromRecord(null)).toEqual([
+        { website: '', matchType: URI_MATCH_TYPES.DOMAIN }
+      ])
     })
   })
 })

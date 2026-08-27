@@ -55,7 +55,7 @@ import {
 import { PassType } from '../../../../shared/types'
 import {
   buildLoginUris,
-  resolveUriMatchType
+  websiteRowsFromRecord
 } from '../../../../shared/utils/uriMatchSetting'
 import { PasswordFieldStrengthIndicator } from '../../../../components/PasswordFieldStrengthIndicator'
 
@@ -169,12 +169,7 @@ export const CreateOrEditLoginModalContent = ({
       otpSecret:
         initialRecord?.data?.otpInput ?? initialRecord?.data?.otp?.secret ?? '',
       note: initialRecord?.data?.note ?? '',
-      websites: initialRecord?.data?.websites?.length
-        ? initialRecord.data.websites.map((website: string) => ({
-            website,
-            matchType: resolveUriMatchType(initialRecord, website) as UriMatchType
-          }))
-        : [{ name: 'website', website: '', matchType: URI_MATCH_TYPES.DOMAIN }],
+      websites: websiteRowsFromRecord(initialRecord),
       customFields: initialRecord?.data?.customFields?.length
         ? initialRecord.data.customFields
         : [{ type: 'note', name: 'note', note: '' }],
@@ -216,7 +211,7 @@ export const CreateOrEditLoginModalContent = ({
       (website) => !!website?.website?.trim().length
     )
     const websites = websiteRows.map((website) => addHttps(website.website!))
-    const uris = buildLoginUris(websiteRows)
+    const uris = buildLoginUris(websiteRows, initialRecord?.data?.uris)
 
     const data = {
       type: RECORD_TYPES.LOGIN,

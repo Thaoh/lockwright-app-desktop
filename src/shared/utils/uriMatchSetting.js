@@ -86,20 +86,84 @@ export const resolveUriMatchType = (recordOrId, website) => {
  * @param {Array<{ website?: string, matchType?: string }>} websiteRows
  * @returns {Array<{ uri: string, match: string }>}
  */
-export const buildLoginUris = (websiteRows) => {
+export const buildLoginUris = (websiteRows, existingUris) => {
   /** @type {Array<{ uri: string, match: string }>} */
   const uris = []
   if (!Array.isArray(websiteRows)) return uris
+  const previous = new Map()
+  if (Array.isArray(existingUris)) {
+    for (const entry of existingUris) {
+      if (!entry || typeof entry.uri !== 'string') continue
+      const key = normalizeWebsiteKey(entry.uri)
+      if (key) previous.set(key, entry)
+    }
+  }
   for (const row of websiteRows) {
     const trimmed = typeof row?.website === 'string' ? row.website.trim() : ''
     if (!trimmed) continue
     const uri = addHttps(trimmed)
     if (!uri) continue
-    const matchType =
-      row.matchType && isValidMatchType(row.matchType)
-        ? row.matchType
-        : URI_MATCH_TYPES.DOMAIN
-    uris.push({ uri, match: toVaultUriMatch(matchType) })
+    if (row.matchType && isValidMatchType(row.matchType)) {
+      uris.push({ uri, match: toVaultUriMatch(row.matchType) })
+      continue
+    }
+    const prev = previous.get(uri)
+    if (prev && typeof prev.match === 'string' && prev.match.length > 0) {
+      uris.push({ uri, match: prev.match })
+      continue
+    }
+    uris.push({ uri, match: toVaultUriMatch(URI_MATCH_TYPES.DOMAIN) })
   }
   return uris
+}
+
+/**
+ * Website strings for form rows. Prefer websites, include uris-only hosts.
+ * @param {{ data?: { websites?: string[]|null, uris?: Array<{ uri?: string }>|null } }|null|undefined} record
+ * @returns {string[]}
+ */
+export const getRecordWebsiteValues = (record) => {
+  const websites = Array.isArray(record?.data?.websites)
+    ? record.data.websites.filter(
+        (website) => typeof website === 'string' && website.trim() !== ''
+      )
+    : []
+  const fromUris = Array.isArray(record?.data?.uris)
+    ? record.data.uris
+        .map((entry) =>
+          entry && typeof entry.uri === 'string' && entry.uri.trim() !== ''
+            ? entry.uri
+            : null
+        )
+        .filter((uri) => uri !== null)
+    : []
+
+  if (fromUris.length === 0) return websites
+  if (websites.length === 0) return fromUris
+
+  const seen = new Set()
+  const merged = []
+  for (const website of [...websites, ...fromUris]) {
+    const key = normalizeWebsiteKey(website)
+    if (!key || seen.has(key)) continue
+    seen.add(key)
+    merged.push(website)
+  }
+  return merged
+}
+
+/**
+ * Form rows for create/edit login: website + UI match type.
+ * @param {{ data?: { websites?: string[], uris?: Array<{ uri?: string, match?: string }> } }|null|undefined} record
+ * @returns {Array<{ website: string, matchType: string }>}
+ */
+export const websiteRowsFromRecord = (record) => {
+  const websites = getRecordWebsiteValues(record)
+  if (websites.length === 0) {
+    return [{ website: '', matchType: URI_MATCH_TYPES.DOMAIN }]
+  }
+  return websites.map((website) => ({
+    website,
+    matchType: resolveUriMatchType(record, website)
+  }))
 }
