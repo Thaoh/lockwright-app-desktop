@@ -81,4 +81,17 @@ describe('Lockwright app id', () => {
     expect(links).not.toMatch(/slack\.com/)
     expect(links).not.toMatch(/docs\.google\.com\/forms/)
   })
+
+  it('nulls the pear upgrade link for Linux AppImage like Windows', () => {
+    const linux = JSON.parse(
+      fs.readFileSync(path.join(root, 'electron-builder.linux.json'), 'utf8')
+    )
+    expect(linux.extraMetadata.upgrade).toBeNull()
+
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+    )
+    expect(pkg.scripts['dist:linux:x64']).toMatch(/PEARPASS_DISABLE_UPGRADE=1/)
+    expect(pkg.scripts['dist:linux:arm64']).toMatch(/PEARPASS_DISABLE_UPGRADE=1/)
+  })
 })

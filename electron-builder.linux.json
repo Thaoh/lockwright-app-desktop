@@ -36,5 +36,8 @@
   "toolsets": {
     "appimage": "1.0.2"
   },
-  "afterPack": "scripts/afterPack.cjs"
+  "afterPack": "scripts/afterPack.cjs",
+  "extraMetadata": {
+    "upgrade": null
+  }
 }
