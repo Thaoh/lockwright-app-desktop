@@ -159,6 +159,11 @@ jest.mock('./handlers/VaultHandlers', () => ({
     this.closeAllInstances = jest.fn().mockResolvedValue({ success: true })
     this.cancelPairActiveVault = jest.fn().mockResolvedValue({ success: true })
     this.activeVaultRemoveFile = jest.fn().mockResolvedValue({ success: true })
+    this.activeVaultGetFile = jest.fn().mockResolvedValue({
+      encoding: 'base64',
+      data: 'aGk='
+    })
+    this.activeVaultAddFile = jest.fn().mockResolvedValue({ success: true })
     this.fetchFavicon = jest.fn().mockResolvedValue({ favicon: 'mock-favicon' })
     this.generateOtpCodesByIds = jest.fn().mockResolvedValue({ codes: [] })
     this.generateHotpNext = jest.fn().mockResolvedValue({ code: '123456' })

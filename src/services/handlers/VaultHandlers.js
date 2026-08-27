@@ -225,6 +225,25 @@ export class VaultHandlers {
     return { success: true }
   }
 
+  async activeVaultGetFile(params) {
+    const buffer = await this.client.activeVaultGetFile(params.key)
+    const bytes = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer)
+    return { encoding: 'base64', data: bytes.toString('base64') }
+  }
+
+  async activeVaultAddFile(params) {
+    const raw = params?.data ?? params?.buffer
+    if (!raw || raw.encoding !== 'base64' || typeof raw.data !== 'string') {
+      throw new Error('File data is required')
+    }
+    await this.client.activeVaultAddFile(
+      params.key,
+      Buffer.from(raw.data, 'base64'),
+      params.name
+    )
+    return { success: true }
+  }
+
   async fetchFavicon(params) {
     return await this.client.fetchFavicon(params.url)
   }

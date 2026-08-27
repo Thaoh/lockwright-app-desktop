@@ -63,6 +63,8 @@ const COMMAND_DEFINITIONS = [
   { id: 1030, name: 'getMasterPasswordStatus' },
 
   { id: 1031, name: 'activeVaultRemoveFile' },
+  { id: 1049, name: 'activeVaultGetFile' },
+  { id: 1050, name: 'activeVaultAddFile' },
   { id: 1032, name: 'resetFailedAttempts' },
 
   // Extension pairing

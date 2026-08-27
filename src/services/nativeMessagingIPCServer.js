@@ -311,6 +311,16 @@ export class NativeMessagingIPCServer {
       vaultHandlers.activeVaultRemoveFile.bind(vaultHandlers)
     )
     this.secureMethodRegistry.register(
+      'activeVaultGetFile',
+      vaultHandlers.activeVaultGetFile.bind(vaultHandlers),
+      { requiresStatus: ['encryption', 'vaults', 'activeVault'] }
+    )
+    this.secureMethodRegistry.register(
+      'activeVaultAddFile',
+      vaultHandlers.activeVaultAddFile.bind(vaultHandlers),
+      { requiresStatus: ['encryption', 'vaults', 'activeVault'] }
+    )
+    this.secureMethodRegistry.register(
       'fetchFavicon',
       vaultHandlers.fetchFavicon.bind(vaultHandlers),
       {
