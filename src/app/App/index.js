@@ -33,7 +33,7 @@ export const App = () => {
   useOnExtensionLockOut()
 
   useVaultAccessRevoked()
-  const { isMigrationReady } = useVaultSchemaBoot()
+  const { isMigrationReady, migrationProgress } = useVaultSchemaBoot()
   const { data: vaultsForDevTrigger, refetch: refetchVaults } = useVaults()
   const { data: activeVault } = useVault()
   const { switchVault } = useVaultSwitch()
@@ -105,6 +105,7 @@ export const App = () => {
           isSplashScreenShown=${false}
           isDataLoading=${showLoadingPage}
           onLoadingComplete=${handleLoadingComplete}
+          migrationProgress=${migrationProgress}
         />
       <//>
     <//>

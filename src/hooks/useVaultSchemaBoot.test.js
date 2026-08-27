@@ -118,6 +118,37 @@ describe('useVaultSchemaBoot', () => {
     })
   })
 
+  it('exposes live migrate progress while waiting', async () => {
+    mockGetVaultMigrationStatus
+      .mockResolvedValueOnce({
+        ready: false,
+        inProgress: true,
+        migratedToSchema: null,
+        error: null,
+        progress: { done: 12, total: 400 }
+      })
+      .mockResolvedValue({
+        ready: true,
+        inProgress: false,
+        migratedToSchema: 2,
+        error: null,
+        progress: { done: 400, total: 400 }
+      })
+
+    const { result } = renderHook(() => useVaultSchemaBoot())
+
+    await waitFor(() => {
+      expect(result.current.migrationProgress).toEqual({
+        done: 12,
+        total: 400
+      })
+    })
+
+    await waitFor(() => {
+      expect(result.current.isMigrationReady).toBe(true)
+    })
+  })
+
   it('fail-opens when migration status RPC hangs past timeout', async () => {
     jest.useFakeTimers()
     mockGetVaultMigrationStatus.mockImplementation(() => new Promise(() => {}))

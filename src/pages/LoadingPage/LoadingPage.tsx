@@ -15,11 +15,13 @@ import { OnboardingLock } from '../../svgs/OnboardingLock'
 interface LoadingPageProps {
   onLoadingComplete?: () => void
   duration?: number
+  migrationProgress?: { done: number; total: number } | null
 }
 
 export const LoadingPage = ({
   onLoadingComplete,
-  duration = 3000
+  duration = 3000,
+  migrationProgress
 }: LoadingPageProps): React.ReactElement => {
   const { theme } = useTheme()
   const [progress, setProgress] = useState(0)
@@ -62,9 +64,18 @@ export const LoadingPage = ({
             <ProgressTrack $trackColor={theme.colors.colorSurfaceHover}>
               <ProgressFill
                 $fillColor={theme.colors.colorPrimary}
-                $progress={progress}
+                $progress={
+                  migrationProgress && migrationProgress.total > 0
+                    ? (migrationProgress.done / migrationProgress.total) * 100
+                    : progress
+                }
               />
             </ProgressTrack>
+            {migrationProgress && migrationProgress.total > 0 ? (
+              <Text as="p" variant="caption">
+                {`${migrationProgress.done} / ${migrationProgress.total}`}
+              </Text>
+            ) : null}
           </ProgressSection>
         </Footer>
       </MainContent>

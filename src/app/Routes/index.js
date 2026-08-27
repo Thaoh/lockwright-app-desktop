@@ -18,13 +18,23 @@ import { WelcomePage } from '../../pages/WelcomePage'
  * @param {boolean} props.isSplashScreenShown - Shows LoadingPage at progress 0 (unused, kept for API compat)
  * @param {boolean} props.isDataLoading - Shows LoadingPage with progress bar
  * @param {() => void} [props.onLoadingComplete] - Callback when LoadingPage finishes
+ * @param {{ done: number, total: number }|null} [props.migrationProgress]
  * @returns {import('react').ReactNode}
  */
-export const Routes = ({ isDataLoading, onLoadingComplete }) => {
+export const Routes = ({
+  isDataLoading,
+  onLoadingComplete,
+  migrationProgress
+}) => {
   const { currentPage, data } = useRouter()
 
   if (isDataLoading || currentPage === 'loading') {
-    return html` <${LoadingPage} onLoadingComplete=${onLoadingComplete} /> `
+    return html`
+      <${LoadingPage}
+        onLoadingComplete=${onLoadingComplete}
+        migrationProgress=${migrationProgress}
+      />
+    `
   }
 
   if (currentPage === 'intro') {

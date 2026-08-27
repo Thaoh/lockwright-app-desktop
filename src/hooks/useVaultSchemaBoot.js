@@ -46,12 +46,13 @@ const withTimeout = (promise, ms, message) =>
  * warning emission run after the gate opens so a hung addDevice cannot pin
  * the UI on the loading screen.
  *
- * @returns {{ isMigrationReady: boolean }}
+ * @returns {{ isMigrationReady: boolean, migrationProgress: { done: number, total: number }|null }}
  */
 export const useVaultSchemaBoot = () => {
   const { data: activeVault, addDevice } = useVault()
   const vaultId = activeVault?.id
   const [isMigrationReady, setIsMigrationReady] = useState(!vaultId)
+  const [migrationProgress, setMigrationProgress] = useState(null)
   const ranForVaultRef = useRef(null)
   // useVault().addDevice is not referentially stable — keep a ref.
   const addDeviceRef = useRef(addDevice)
@@ -60,6 +61,7 @@ export const useVaultSchemaBoot = () => {
   useEffect(() => {
     if (!vaultId) {
       setIsMigrationReady(true)
+      setMigrationProgress(null)
       ranForVaultRef.current = null
       return
     }
@@ -82,6 +84,12 @@ export const useVaultSchemaBoot = () => {
       const poll = async () => {
         while (!cancelled) {
           const status = await client.getVaultMigrationStatus()
+          if (status?.progress && Number(status.progress.total) > 0) {
+            setMigrationProgress({
+              done: Number(status.progress.done) || 0,
+              total: Number(status.progress.total)
+            })
+          }
           if (
             status?.ready === true &&
             Number(status?.migratedToSchema) >= SCHEMA_V2
@@ -158,5 +166,5 @@ export const useVaultSchemaBoot = () => {
     }
   }, [vaultId])
 
-  return { isMigrationReady }
+  return { isMigrationReady, migrationProgress }
 }
