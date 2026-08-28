@@ -47,8 +47,35 @@ Logger.createMessage = function createMessage(message, fields, level, color, pad
   )
 }
 
-module.exports = { LOG_CAP, capValue, capFields, forceTraversalCollector }
+const HEARTBEAT_MS = 60_000
+
+function startHeartbeat({
+  write = (s) => process.stderr.write(s),
+  now = Date.now,
+  intervalMs = HEARTBEAT_MS,
+  setIntervalFn = setInterval,
+  clearIntervalFn = clearInterval
+} = {}) {
+  const started = now()
+  write(`electron-builder: start ${new Date(started).toISOString()}\n`)
+  const id = setIntervalFn(() => {
+    const elapsedSec = Math.floor((now() - started) / 1000)
+    write(`electron-builder: still running ${elapsedSec}s\n`)
+  }, intervalMs)
+  if (id && typeof id.unref === 'function') id.unref()
+  return () => clearIntervalFn(id)
+}
+
+module.exports = {
+  LOG_CAP,
+  HEARTBEAT_MS,
+  capValue,
+  capFields,
+  forceTraversalCollector,
+  startHeartbeat
+}
 
 if (require.main === module) {
+  startHeartbeat()
   require('electron-builder/cli')
 }

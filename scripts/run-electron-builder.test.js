@@ -33,3 +33,27 @@ describe('run-electron-builder log cap', () => {
     expect(got.detectionMethod).toBe('forced-traversal')
   })
 })
+
+describe('run-electron-builder heartbeat', () => {
+  it('prints start then still-running once the interval fires', () => {
+    const { startHeartbeat } = require('./run-electron-builder.cjs')
+    const lines = []
+    let t = Date.parse('2026-08-29T00:00:00Z')
+    let tick
+    const stop = startHeartbeat({
+      write: (s) => lines.push(s),
+      now: () => t,
+      intervalMs: 60_000,
+      setIntervalFn: (fn) => {
+        tick = fn
+        return 1
+      },
+      clearIntervalFn: () => {}
+    })
+    expect(lines).toEqual(['electron-builder: start 2026-08-29T00:00:00.000Z\n'])
+    t += 60_000
+    tick()
+    expect(lines[1]).toBe('electron-builder: still running 60s\n')
+    stop()
+  })
+})
