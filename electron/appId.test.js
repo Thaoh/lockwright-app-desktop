@@ -94,4 +94,19 @@ describe('Lockwright app id', () => {
     expect(pkg.scripts['dist:linux:x64']).toMatch(/PEARPASS_DISABLE_UPGRADE=1/)
     expect(pkg.scripts['dist:linux:arm64']).toMatch(/PEARPASS_DISABLE_UPGRADE=1/)
   })
+
+  it('runs electron-builder through the stack-capping wrapper', () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+    )
+    expect(pkg.scripts['dist:linux:x64']).toMatch(
+      /scripts\/run-electron-builder\.cjs/
+    )
+    expect(pkg.scripts['dist:linux:arm64']).toMatch(
+      /scripts\/run-electron-builder\.cjs/
+    )
+    expect(pkg.scripts['dist:win:nsis:x64']).toMatch(
+      /scripts\/run-electron-builder\.cjs/
+    )
+  })
 })
