@@ -187,7 +187,7 @@ The following sibling modules must be present in the workspace (they are not dec
 | [`lockwright-lib-vault`](https://github.com/Thaoh/lockwright-lib-vault) | Vault management library |
 | [`lockwright-lib-vault-core`](https://github.com/Thaoh/lockwright-lib-vault-core) | Bare worker and client for Lockwright vaults |
 | [`lockwright-lib-constants`](https://github.com/Thaoh/lockwright-lib-constants) | Shared constants |
-| [`@tetherto/pearpass-lib-ui-kit`](https://github.com/tetherto/pearpass-lib-ui-kit) | UI kit (still upstream) |
+| [`lockwright-lib-ui-react-native-components`](https://github.com/Thaoh/lockwright-lib-ui-react-native-components) | UI kit |
 
 ---
 

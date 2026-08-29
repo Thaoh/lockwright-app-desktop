@@ -199,7 +199,7 @@
     "@tetherto/pearpass-lib-data-export": "git+https://github.com/tetherto/pearpass-lib-data-export.git",
     "@tetherto/pearpass-lib-data-import": "git+https://github.com/tetherto/pearpass-lib-data-import.git",
     "@tetherto/pearpass-lib-native-messaging-bridge": "git+https://github.com/tetherto/pearpass-lib-native-messaging-bridge.git",
-    "@tetherto/pearpass-lib-ui-kit": "github:tetherto/pearpass-lib-ui-react-native-components#design-system-v2",
+    "@tetherto/pearpass-lib-ui-kit": "git+https://github.com/Thaoh/lockwright-lib-ui-react-native-components.git#design-system-v2",
     "@tetherto/pearpass-lib-vault": "file:../pearpass-lib-vault",
     "@tetherto/pearpass-lib-vault-core": "file:../pearpass-lib-vault-core",
     "@tetherto/pearpass-utils-password-check": "git+https://github.com/tetherto/pearpass-utils-password-check.git",

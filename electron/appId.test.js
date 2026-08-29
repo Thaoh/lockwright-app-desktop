@@ -33,6 +33,15 @@ describe('Lockwright app id', () => {
     )
   })
 
+  it('pins @tetherto/pearpass-lib-ui-kit to Thaoh git, not Tether', () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+    )
+    expect(pkg.dependencies['@tetherto/pearpass-lib-ui-kit']).toBe(
+      'git+https://github.com/Thaoh/lockwright-lib-ui-react-native-components.git#design-system-v2'
+    )
+  })
+
   it('ships productName Lockwright, not PearPass', () => {
     const pkg = JSON.parse(
       fs.readFileSync(path.join(root, 'package.json'), 'utf8')

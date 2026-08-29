@@ -205,6 +205,7 @@ settings:
 
 overrides:
   '@tetherto/pearpass-lib-constants': git+https://github.com/Thaoh/lockwright-lib-constants.git
+  '@tetherto/pearpass-lib-ui-kit': git+https://github.com/Thaoh/lockwright-lib-ui-react-native-components.git#design-system-v2
 
 importers:
 
@@ -262,8 +263,8 @@ importers:
         specifier: git+https://github.com/tetherto/pearpass-lib-native-messaging-bridge.git
         version: https://codeload.github.com/tetherto/pearpass-lib-native-messaging-bridge/tar.gz/a1a3f4e71ce3e8d98172b13a6a9daa285f98eeae(bare-buffer@3.6.2)
       '@tetherto/pearpass-lib-ui-kit':
-        specifier: github:tetherto/pearpass-lib-ui-react-native-components#design-system-v2
-        version: '@tetherto/pearpass-lib-ui-react-native-components@https://codeload.github.com/tetherto/pearpass-lib-ui-react-native-components/tar.gz/5f175a543476cf21a30057d1b580a06d37b358bf(postcss@8.4.49)(react-dom@19.1.0(react@19.1.0))(react-native@0.79.5(@babel/core@7.26.10(supports-color@5.5.0))(@types/react@19.2.7)(react@19.1.0))(react@19.1.0)'
+        specifier: git+https://github.com/Thaoh/lockwright-lib-ui-react-native-components.git#design-system-v2
+        version: '@tetherto/pearpass-lib-ui-react-native-components@https://codeload.github.com/Thaoh/lockwright-lib-ui-react-native-components/tar.gz/4b254fff341c791a27a45f3e1488a3860f2b1987(postcss@8.4.49)(react-dom@19.1.0(react@19.1.0))(react-native@0.79.5(@babel/core@7.26.10(supports-color@5.5.0))(@types/react@19.2.7)(react@19.1.0))(react@19.1.0)'
       '@tetherto/pearpass-lib-vault':
         specifier: file:../pearpass-lib-vault
         version: file:../pearpass-lib-vault(@types/react@19.2.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(redux@5.0.1)
@@ -2353,8 +2354,8 @@ packages:
     resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-lib-native-messaging-bridge/tar.gz/a1a3f4e71ce3e8d98172b13a6a9daa285f98eeae}
     version: 0.0.2
 
-  '@tetherto/pearpass-lib-ui-react-native-components@https://codeload.github.com/tetherto/pearpass-lib-ui-react-native-components/tar.gz/5f175a543476cf21a30057d1b580a06d37b358bf':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-lib-ui-react-native-components/tar.gz/5f175a543476cf21a30057d1b580a06d37b358bf}
+  '@tetherto/pearpass-lib-ui-react-native-components@https://codeload.github.com/Thaoh/lockwright-lib-ui-react-native-components/tar.gz/4b254fff341c791a27a45f3e1488a3860f2b1987':
+    resolution: {gitHosted: true, integrity: sha512-FPySBanatgon2u0auS1LE8wkYlvwo3GkpLCwZcRmKka6840Oi18bU5KoUPrGFD2DvpUFNqqg5lbe+lHjK5PXVg==, tarball: https://codeload.github.com/Thaoh/lockwright-lib-ui-react-native-components/tar.gz/4b254fff341c791a27a45f3e1488a3860f2b1987}
     version: 0.0.40
     peerDependencies:
       '@gorhom/bottom-sheet': ^5.1.1
@@ -9908,7 +9909,7 @@ snapshots:
       - bare-buffer
       - react-native-b4a
 
-  '@tetherto/pearpass-lib-ui-react-native-components@https://codeload.github.com/tetherto/pearpass-lib-ui-react-native-components/tar.gz/5f175a543476cf21a30057d1b580a06d37b358bf(postcss@8.4.49)(react-dom@19.1.0(react@19.1.0))(react-native@0.79.5(@babel/core@7.26.10(supports-color@5.5.0))(@types/react@19.2.7)(react@19.1.0))(react@19.1.0)':
+  '@tetherto/pearpass-lib-ui-react-native-components@https://codeload.github.com/Thaoh/lockwright-lib-ui-react-native-components/tar.gz/4b254fff341c791a27a45f3e1488a3860f2b1987(postcss@8.4.49)(react-dom@19.1.0(react@19.1.0))(react-native@0.79.5(@babel/core@7.26.10(supports-color@5.5.0))(@types/react@19.2.7)(react@19.1.0))(react@19.1.0)':
     dependencies:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)

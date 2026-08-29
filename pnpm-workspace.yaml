@@ -6,6 +6,7 @@ blockExoticSubdeps: false
 
 overrides:
   "@tetherto/pearpass-lib-constants": "git+https://github.com/Thaoh/lockwright-lib-constants.git"
+  "@tetherto/pearpass-lib-ui-kit": "git+https://github.com/Thaoh/lockwright-lib-ui-react-native-components.git#design-system-v2"
 
 allowBuilds:
   "@electron/node-gyp@https://codeload.github.com/electron/node-gyp/tar.gz/06b29aafb7708acef8b3669835c8a7857ebc92d2": true
@@ -21,6 +22,7 @@ allowBuilds:
   "@tetherto/pearpass-lib-data-export@https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1": true
   "@tetherto/pearpass-lib-native-messaging-bridge@https://codeload.github.com/tetherto/pearpass-lib-native-messaging-bridge/tar.gz/a1a3f4e71ce3e8d98172b13a6a9daa285f98eeae": true
   "@tetherto/pearpass-lib-ui-react-native-components@https://codeload.github.com/tetherto/pearpass-lib-ui-react-native-components/tar.gz/5f175a543476cf21a30057d1b580a06d37b358bf": true
+  "@tetherto/pearpass-lib-ui-react-native-components@https://codeload.github.com/Thaoh/lockwright-lib-ui-react-native-components/tar.gz/4b254fff341c791a27a45f3e1488a3860f2b1987": true
   "@tetherto/pearpass-utils-password-generator@https://codeload.github.com/tetherto/pearpass-utils-password-generator/tar.gz/a29d6fcd0d0191fc6e7647f9cea6ece42514e977": true
   "@tetherto/tether-dev-docs@https://codeload.github.com/tetherto/tether-dev-docs/tar.gz/cb82786f04714a56577df1555db947969ec90aeb": true
   "@tetherto/pearpass-utils-password-check": true
