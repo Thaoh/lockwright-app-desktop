@@ -5,6 +5,7 @@ declare global {
     electronAPI?: {
       getConfig: () => Promise<{
         storage: string
+        hasVault?: boolean
         key: string | null
         upgrade: string | null
         version: string | number

@@ -45,6 +45,12 @@ export const useRedirect = () => {
     let cancelled = false
 
     ;(async () => {
+      const diskHasVault = await Promise.resolve(
+        window.electronAPI?.getConfig?.()
+      )
+        .then((config) => !!config?.hasVault)
+        .catch(() => false)
+
       try {
         setIsLoading(true)
         const userData = await withTimeout(
@@ -61,22 +67,28 @@ export const useRedirect = () => {
           return
         }
 
-        if (!userData?.hasPasswordSet) {
-          navigate('intro')
+        if (userData?.hasPasswordSet || diskHasVault) {
+          navigate('welcome', {
+            state: NAVIGATION_ROUTES.MASTER_PASSWORD
+          })
           return
         }
 
-        navigate('welcome', {
-          state: NAVIGATION_ROUTES.MASTER_PASSWORD
-        })
+        navigate('intro')
       } catch (error) {
         logger.error('Error fetching user data:', error)
         // Router defaults to currentPage 'loading'. Always leave that page,
         // or Routes will keep rendering LoadingPage forever.
-        // Fail open to intro (first-run). Unlock is wrong after a storage wipe
-        // when initializeUser still times out — it looks like a password exists.
+        // Empty storage: intro. Copied/existing vault: unlock, even if
+        // initializeUser timed out — create-password would fork the store.
         if (!cancelled) {
-          navigate('intro')
+          if (diskHasVault) {
+            navigate('welcome', {
+              state: NAVIGATION_ROUTES.MASTER_PASSWORD
+            })
+          } else {
+            navigate('intro')
+          }
         }
       } finally {
         if (!cancelled) {

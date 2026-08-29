@@ -40,6 +40,10 @@ describe('useRedirect', () => {
       },
       writable: true
     })
+
+    window.electronAPI = {
+      getConfig: jest.fn().mockResolvedValue({ hasVault: false })
+    }
   })
 
   it('should return isLoading as true when user data is loading', () => {
@@ -104,10 +108,42 @@ describe('useRedirect', () => {
     renderHook(() => useRedirect())
 
     await act(async () => {
-      jest.advanceTimersByTime(5_000)
+      await jest.advanceTimersByTimeAsync(5_000)
     })
 
     expect(mockNavigate).toHaveBeenCalledWith('intro')
     jest.useRealTimers()
+  })
+
+  it('unlocks when a vault is on disk even if initializeUser times out', async () => {
+    jest.useFakeTimers()
+    window.electronAPI.getConfig.mockResolvedValue({ hasVault: true })
+    mockRefetchUser.mockImplementation(() => new Promise(() => {}))
+
+    renderHook(() => useRedirect())
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(5_000)
+    })
+
+    expect(mockNavigate).toHaveBeenCalledWith('welcome', {
+      state: 'masterPassword'
+    })
+    expect(mockNavigate).not.toHaveBeenCalledWith('intro')
+    jest.useRealTimers()
+  })
+
+  it('unlocks when a vault is on disk even if hasPasswordSet is still false', async () => {
+    window.electronAPI.getConfig.mockResolvedValue({ hasVault: true })
+    mockRefetchUser.mockResolvedValue({ hasPasswordSet: false })
+
+    renderHook(() => useRedirect())
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('welcome', {
+        state: 'masterPassword'
+      })
+    })
+    expect(mockNavigate).not.toHaveBeenCalledWith('intro')
   })
 })

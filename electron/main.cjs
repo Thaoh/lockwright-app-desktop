@@ -25,7 +25,7 @@ const {
   legacyUserDataDirs,
   migratePearPassUserData
 } = require('./migrateUserData.cjs')
-const { adoptInheritedVault } = require('./pickRuntimeStorage.cjs')
+const { adoptInheritedVault, hasVault } = require('./pickRuntimeStorage.cjs')
 // eslint-disable-next-line import/order
 const { scheduleClipboardCleanup } = require('./clipboardCleanup.cjs')
 
@@ -749,6 +749,7 @@ function registerIPC() {
     const storage = await resolveRuntimeStorageDir()
     return {
       storage,
+      hasVault: hasVault(storage),
       key: runtimeConfig.upgrade || null,
       upgrade: runtimeConfig.upgrade,
       version: runtimeConfig.version,

@@ -133,6 +133,11 @@ describe('adoptInheritedVault', () => {
 })
 
 describe('desktop main process wiring', () => {
+  it('tells the renderer when the opened storage already has a vault', () => {
+    const main = fs.readFileSync(path.join(__dirname, 'main.cjs'), 'utf8')
+    expect(main).toMatch(/hasVault:\s*hasVault\(/)
+  })
+
   it('adopts an inherited PearPass by-dkey vault before opening storage', () => {
     const main = fs.readFileSync(path.join(__dirname, 'main.cjs'), 'utf8')
     expect(main).toMatch(/pickRuntimeStorage/)
