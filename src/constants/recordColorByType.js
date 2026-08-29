@@ -1,5 +1,5 @@
 export const RECORD_COLOR_BY_TYPE = {
-  all: '#B0D944',
+  all: '#b08d57',
   login: '#E6AA68',
   identity: '#E9BCB7',
   creditCard: '#BEBEBE',

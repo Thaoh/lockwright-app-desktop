@@ -11,7 +11,7 @@ export const NoticeTextComponent = styled.div`
   color: ${({ type }) => {
     switch (type) {
       case 'success':
-        return '#BADE5B'
+        return '#d4af77'
       case 'error':
         return '#D65C5E'
       case 'warning':

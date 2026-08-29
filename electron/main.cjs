@@ -655,7 +655,7 @@ function createWindow() {
           trafficLightPosition: { x: 18, y: 12 }
         }
       : {}),
-    backgroundColor: '#1F2430',
+    backgroundColor: '#08090b',
     icon: iconPath && iconImage && !iconImage.isEmpty() ? iconPath : undefined,
     autoHideMenuBar: true,
     webPreferences: {

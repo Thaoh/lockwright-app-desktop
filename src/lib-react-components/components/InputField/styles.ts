@@ -102,7 +102,7 @@ const getInputColor = (params: {
     }
 
     if (type === 'url') {
-        return "#BADE5B"
+        return "#d4af77"
     }
 
     return "#F6F6F6"

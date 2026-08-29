@@ -7,11 +7,9 @@ import {
   Text,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
-import {
-  ContentCopy,
-  Extension,
-  PearpassLogo
-} from '@tetherto/pearpass-lib-ui-kit/icons'
+import { ContentCopy, Extension } from '@tetherto/pearpass-lib-ui-kit/icons'
+
+import { LockwrightMark } from '../../../svgs/PearpassLogo'
 
 import { createStyles } from './ExtensionPairingModalContent.styles'
 import { useModal } from '../../../context/ModalContext'
@@ -96,9 +94,9 @@ export const ExtensionPairingModalContent = ({
             <Text as="span" variant="label">
               {t('3. Find and click')}
             </Text>
-            <PearpassLogo
-              width={16}
-              height={16}
+            <LockwrightMark
+              width="16"
+              height="16"
               color={theme.colors.colorPrimary}
             />
             {/* @ts-ignore */}

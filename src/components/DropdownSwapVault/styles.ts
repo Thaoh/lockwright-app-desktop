@@ -28,7 +28,7 @@ const BaseRow = styled.div`
 export const HeaderContainer = styled(BaseRow)<{ isOpen: boolean }>`
   border: 1px solid
     ${({ isOpen }) =>
-      isOpen ? "#BADE5B" : 'transparent'};
+      isOpen ? "#d4af77" : 'transparent'};
   cursor: pointer;
   user-select: none;
 `

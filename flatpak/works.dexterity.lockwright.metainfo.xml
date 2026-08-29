@@ -40,7 +40,7 @@
 
   <branding>
     <color type="primary" scheme_preference="light">#4CAF50</color>
-    <color type="primary" scheme_preference="dark">#1F2430</color>
+    <color type="primary" scheme_preference="dark">#08090b</color>
   </branding>
 
   <screenshots>
