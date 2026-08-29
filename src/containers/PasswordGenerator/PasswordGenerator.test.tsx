@@ -175,6 +175,7 @@ import { PasswordGenerator } from './PasswordGenerator'
 
 describe('PasswordGenerator', () => {
   beforeEach(() => {
+    localStorage.clear()
     jest.clearAllMocks()
     mockAppendHistory.mockResolvedValue([
       { id: 'gen-1', value: 'Abcdef1!', createdAt: 2000 },
@@ -408,5 +409,31 @@ describe('PasswordGenerator', () => {
       expect(mockAppendHistory).toHaveBeenCalledTimes(1)
     })
     expect(mockAppendHistory).toHaveBeenCalledWith('pw-36')
+  })
+
+  it('starts generatePassword with the last stored character count', () => {
+    localStorage.setItem('password-generator-characters', '48')
+
+    render(<PasswordGenerator />)
+
+    expect(mockGeneratePassword).toHaveBeenCalledWith(
+      48,
+      expect.objectContaining({
+        upperCase: true,
+        lowerCase: true,
+        numbers: true,
+        includeSpecialChars: true
+      })
+    )
+  })
+
+  it('remembers the last character count on this device', () => {
+    render(<PasswordGenerator />)
+
+    fireEvent.change(screen.getByTestId('password-generator-length-slider'), {
+      target: { value: '36' }
+    })
+
+    expect(localStorage.getItem('password-generator-characters')).toBe('36')
   })
 })

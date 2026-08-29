@@ -34,6 +34,10 @@ import {
   clearHistory,
   loadHistory
 } from '../../utils/passwordGeneratorHistory'
+import {
+  loadLastCharacterCount,
+  saveLastCharacterCount
+} from '../../utils/passwordGeneratorPrefs'
 
 const PASSWORD_OPTIONS = {
   password: 'password',
@@ -147,7 +151,7 @@ export const PasswordGenerator = ({
       capitalLetters: true,
       lowercaseLetters: true,
       numbers: true,
-      characters: 20
+      characters: loadLastCharacterCount()
     },
     passphrase: {
       capitalLetters: true,
@@ -304,6 +308,9 @@ export const PasswordGenerator = ({
         password: { ...prev.password, [key]: value }
       }
     })
+    if (key === 'characters' && typeof value === 'number') {
+      saveLastCharacterCount(value)
+    }
   }
 
   const handlePassphraseRuleChange = (
