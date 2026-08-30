@@ -17,5 +17,8 @@ describe('vault unlock art', () => {
 
     const vault = readFileSync(src('Intro', 'VaultUnlockAnimation.tsx'), 'utf8')
     expect(vault).toMatch(/infinite/)
+    expect(vault).not.toMatch(/x="70" y="122"/)
+    expect(vault).toMatch(/perspective\(360px\) rotateY\(-86deg\)/)
+    expect(vault).toMatch(/clipPath="url\(#vault-bore\)"/)
   })
 })

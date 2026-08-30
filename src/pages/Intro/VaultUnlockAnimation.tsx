@@ -14,9 +14,9 @@ const boltIn = keyframes`
 `
 
 const doorOpen = keyframes`
-  0%, 32% { transform: scaleX(1); }
-  50%, 78% { transform: scaleX(0.08); }
-  94%, 100% { transform: scaleX(1); }
+  0%, 32% { transform: perspective(360px) rotateY(0deg); }
+  50%, 78% { transform: perspective(360px) rotateY(-86deg); }
+  94%, 100% { transform: perspective(360px) rotateY(0deg); }
 `
 
 const glowPulse = keyframes`
@@ -30,7 +30,10 @@ const Stage = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  perspective: 520px;
+
+  svg {
+    overflow: hidden;
+  }
 
   .vault-door {
     transform-box: view-box;
@@ -57,7 +60,7 @@ const Stage = styled.div`
   @media (prefers-reduced-motion: reduce) {
     .vault-door {
       animation: none;
-      transform: scaleX(0.08);
+      transform: perspective(360px) rotateY(-86deg);
     }
 
     .vault-wheel {
@@ -99,17 +102,22 @@ export const VaultUnlockAnimation = (): React.ReactElement => {
             <stop offset="0%" stopColor="#2a2e36" />
             <stop offset="100%" stopColor="#14161b" />
           </linearGradient>
+          <clipPath id="vault-bore">
+            <circle cx="130" cy="130" r="94" />
+          </clipPath>
         </defs>
 
         <circle cx="130" cy="130" r="118" fill="#08090b" />
-        <ellipse
-          className="vault-glow"
-          cx="130"
-          cy="130"
-          rx="72"
-          ry="72"
-          fill="url(#vault-void)"
-        />
+        <g clipPath="url(#vault-bore)">
+          <ellipse
+            className="vault-glow"
+            cx="130"
+            cy="130"
+            rx="72"
+            ry="72"
+            fill="url(#vault-void)"
+          />
+        </g>
         <circle
           cx="130"
           cy="130"
@@ -175,8 +183,6 @@ export const VaultUnlockAnimation = (): React.ReactElement => {
             <circle cx="130" cy="130" r="8" fill="#b08d57" />
           </g>
         </g>
-
-        <rect x="70" y="122" width="10" height="16" rx="1" fill="#b08d57" />
       </svg>
     </Stage>
   )
