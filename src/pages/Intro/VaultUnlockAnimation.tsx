@@ -2,20 +2,26 @@ import React from 'react'
 import styled, { keyframes } from 'styled-components'
 
 const wheelTurn = keyframes`
-  to { transform: rotate(270deg); }
+  0%, 6% { transform: rotate(0deg); }
+  22%, 78% { transform: rotate(270deg); }
+  94%, 100% { transform: rotate(0deg); }
 `
 
 const boltIn = keyframes`
-  to { transform: translateY(14px); }
+  0%, 20% { transform: translateY(0); }
+  32%, 78% { transform: translateY(14px); }
+  90%, 100% { transform: translateY(0); }
 `
 
 const doorOpen = keyframes`
-  to { transform: scaleX(0.08); }
+  0%, 32% { transform: scaleX(1); }
+  50%, 78% { transform: scaleX(0.08); }
+  94%, 100% { transform: scaleX(1); }
 `
 
 const glowPulse = keyframes`
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 0.7; }
+  0%, 32%, 94%, 100% { opacity: 0.2; }
+  50%, 78% { opacity: 0.7; }
 `
 
 const Stage = styled.div`
@@ -29,23 +35,23 @@ const Stage = styled.div`
   .vault-door {
     transform-box: view-box;
     transform-origin: 36px 130px;
-    animation: ${doorOpen} 1.1s 2s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+    animation: ${doorOpen} 6s ease-in-out infinite;
   }
 
   .vault-wheel {
     transform-box: view-box;
     transform-origin: 130px 130px;
-    animation: ${wheelTurn} 1s 0.35s cubic-bezier(0.22, 0.8, 0.3, 1) forwards;
+    animation: ${wheelTurn} 6s ease-in-out infinite;
   }
 
   .vault-bolt {
     transform-box: fill-box;
     transform-origin: center;
-    animation: ${boltIn} 0.7s 1.15s ease-in forwards;
+    animation: ${boltIn} 6s ease-in-out infinite;
   }
 
   .vault-glow {
-    animation: ${glowPulse} 2.4s 3s ease-in-out infinite;
+    animation: ${glowPulse} 6s ease-in-out infinite;
   }
 
   @media (prefers-reduced-motion: reduce) {

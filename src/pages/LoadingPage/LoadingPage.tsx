@@ -10,7 +10,7 @@ import {
   ProgressTrack,
   TextBlock,
 } from './LoadingPageStyles'
-import { OnboardingLock } from '../../svgs/OnboardingLock'
+import { VaultUnlockAnimation } from '../Intro/VaultUnlockAnimation'
 
 interface LoadingPageProps {
   onLoadingComplete?: () => void
@@ -47,7 +47,7 @@ export const LoadingPage = ({
     <OnboardingShell background="gradient">
       <MainContent>
         <ArtFrame>
-          <OnboardingLock />
+          <VaultUnlockAnimation />
         </ArtFrame>
 
         <TextBlock>

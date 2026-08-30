@@ -17,6 +17,12 @@ export const createStyles = (colors: ThemeColors) => ({
     boxSizing: 'border-box' as const
   },
 
+  art: {
+    width: '220px',
+    height: '220px',
+    flex: '0 0 auto'
+  },
+
   container: {
     display: 'flex',
     flexDirection: 'column' as const,

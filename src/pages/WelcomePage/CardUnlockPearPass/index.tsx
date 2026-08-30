@@ -20,6 +20,7 @@ import {
   stringToBuffer
 } from '@tetherto/pearpass-lib-vault/src/utils/buffer'
 
+import { VaultUnlockAnimation } from '../../Intro/VaultUnlockAnimation'
 import { createStyles } from './styles'
 import { NAVIGATION_ROUTES } from '../../../constants/navigation'
 import { useGlobalLoading } from '../../../context/LoadingContext'
@@ -145,6 +146,9 @@ export const CardUnlockPearPass = (): React.ReactElement => {
 
   return (
     <div style={styles.card}>
+      <div style={styles.art}>
+        <VaultUnlockAnimation />
+      </div>
       {/* @ts-ignore - plain CSS objects passed to react-strict-dom components */}
       <Form onSubmit={handleSubmit} style={styles.container}>
         <div style={styles.header}>
