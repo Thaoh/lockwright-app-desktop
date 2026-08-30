@@ -48,24 +48,20 @@ export const createStyles = (colors: ThemeColors) => ({
     isolation: 'isolate' as const
   },
 
-  toast: {
+  checklist: {
     display: 'flex',
-    gap: `${rawTokens.spacing8}px`,
-    alignItems: 'center',
-    padding: `${rawTokens.spacing12}px`,
-    backgroundColor: colors.colorSurfaceHover,
-    border: `1px solid ${colors.colorBorderSecondary}`,
-    borderTop: 'none',
-    borderBottomLeftRadius: `${rawTokens.radius8}px`,
-    borderBottomRightRadius: `${rawTokens.radius8}px`,
-    width: '100%',
-    boxSizing: 'border-box' as const,
-    zIndex: 1
+    flexDirection: 'column' as const,
+    gap: `${rawTokens.spacing6}px`,
+    width: '100%'
   },
-  toastIcon: {
-    flexShrink: 0,
-    width: `${rawTokens.spacing16}px`,
-    height: `${rawTokens.spacing16}px`,
+  checklistRow: {
+    display: 'flex',
+    alignItems: 'center' as const
+  },
+  ruleMet: {
+    color: colors.colorTextPrimary
+  },
+  ruleUnmet: {
     color: colors.colorTextTertiary
   },
   footerRow: {

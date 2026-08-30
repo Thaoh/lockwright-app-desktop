@@ -17,6 +17,7 @@ import { checkPasswordStrength } from '@tetherto/pearpass-utils-password-check'
 import {
   AlertMessage,
   Button,
+  Dialog,
   Form,
   Link,
   PasswordField,
@@ -24,10 +25,7 @@ import {
   Title
 } from '@tetherto/pearpass-lib-ui-kit'
 import type { PasswordIndicatorVariant } from '@tetherto/pearpass-lib-ui-kit'
-import {
-  KeyboardArrowRightFilled,
-  InfoOutlined
-} from '@tetherto/pearpass-lib-ui-kit/icons'
+import { KeyboardArrowRightFilled } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
 import { createStyles } from './styles'
@@ -40,10 +38,20 @@ import { useTranslation } from '../../../hooks/useTranslation'
 import { logger } from '../../../utils/logger'
 import { STRENGTH_MAP } from '../../../constants/password'
 
+const ACCEPT_RULES = [
+  { key: 'minLength', label: 'At least 8 characters' },
+  { key: 'hasLowerCase', label: 'One lowercase letter' },
+  { key: 'hasUpperCase', label: 'One uppercase letter' },
+  { key: 'hasNumbers', label: 'One number' },
+  { key: 'hasSymbols', label: 'One special character' }
+] as const
+
 export const CardCreateMasterPassword = () => {
   const { t } = useTranslation()
   const { navigate } = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [warningOpen, setWarningOpen] = useState(false)
+  const warningConfirmedRef = useRef(false)
   const submitInFlightRef = useRef(false)
   const { theme } = useTheme()
   const styles = createStyles(theme.colors)
@@ -99,6 +107,11 @@ export const CardCreateMasterPassword = () => {
     password: string
     passwordConfirm: string
   }) => {
+    if (!warningConfirmedRef.current) {
+      setWarningOpen(true)
+      return
+    }
+
     if (submitInFlightRef.current || isLoading) return
 
     const strength = checkPasswordStrength(formValues.password)
@@ -187,7 +200,17 @@ export const CardCreateMasterPassword = () => {
     }
   }
 
-  const showInfoToast = values.password && !isPasswordStrong
+  const ruleTicks = (
+    checkPasswordStrength(values.password || '') as unknown as {
+      rules: Record<(typeof ACCEPT_RULES)[number]['key'], boolean>
+    }
+  ).rules
+
+  const handleConfirmWarning = () => {
+    warningConfirmedRef.current = true
+    setWarningOpen(false)
+    void handleSubmit(onSubmit)()
+  }
 
   return (
     <div style={styles.card}>
@@ -208,18 +231,30 @@ export const CardCreateMasterPassword = () => {
               error={errors.password || undefined}
               testID="master-password-field"
             />
-            {showInfoToast && (
-              <div style={styles.toast}>
-                <div style={styles.toastIcon}>
-                  <InfoOutlined width={16} height={16} />
+          </div>
+          <div
+            data-testid="password-accept-checklist"
+            style={styles.checklist}
+          >
+            {ACCEPT_RULES.map((rule) => {
+              const met = Boolean(ruleTicks[rule.key])
+              return (
+                <div
+                  key={rule.key}
+                  data-testid={`password-accept-rule-${rule.key}`}
+                  aria-checked={met}
+                  role="checkbox"
+                  style={{
+                    ...styles.checklistRow,
+                    ...(met ? styles.ruleMet : styles.ruleUnmet)
+                  }}
+                >
+                  <Text as="span" variant="caption">
+                    {`${met ? '\u2713' : '\u25CB'} ${t(rule.label)}`}
+                  </Text>
                 </div>
-                <Text as="span" variant="caption">
-                  {t(
-                    "Strong passwords are usually at least 8 characters long, hard to guess, use a mix of uppercase and lowercase letters, numbers, and symbols, and aren’t based on personal information."
-                  )}
-                </Text>
-              </div>
-            )}
+              )
+            })}
           </div>
 
           <PasswordField
@@ -268,7 +303,7 @@ export const CardCreateMasterPassword = () => {
               href={TERMS_OF_USE}
               isExternal
             >
-              {t('Lockwright Application Terms of Use')}
+              {t('Lockwright Privacy Policy')}
             </Link>
             <Text as="span">.</Text>
           </div>
@@ -279,11 +314,44 @@ export const CardCreateMasterPassword = () => {
             disabled={!isFormValid || isLoading}
             isLoading={isLoading}
             iconAfter={<KeyboardArrowRightFilled width={16} height={16} />}
+            data-testid="create-master-password-continue"
           >
             {t('Continue')}
           </Button>
         </div>
       </Form>
+      <Dialog
+        open={warningOpen}
+        title={t('We cannot reset this password')}
+        hideCloseButton
+        closeOnOutsideClick
+        onClose={() => setWarningOpen(false)}
+        testID="lost-password-dialog"
+        footer={
+          <>
+            <Button
+              variant="tertiary"
+              onClick={() => setWarningOpen(false)}
+              data-testid="lost-password-cancel"
+            >
+              {t('Go back')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleConfirmWarning}
+              data-testid="lost-password-confirm"
+            >
+              {t('I understand — create vault')}
+            </Button>
+          </>
+        }
+      >
+        <Text as="p">
+          {t(
+            'Other apps can email you a new password. Lockwright cannot. If you lose this Master password, the vault is gone. There is no recovery.'
+          )}
+        </Text>
+      </Dialog>
     </div>
   )
 }
