@@ -4,15 +4,15 @@ import { KeyboardArrowRightRound } from '@tetherto/pearpass-lib-ui-kit/icons'
 import { OnboardingShell } from '../../components/OnboardingShell'
 import { NAVIGATION_ROUTES } from '../../constants/navigation'
 import { useRouter } from '../../context/RouterContext'
-import { SyncWithoutCloudAnimation } from './SyncWithoutCloudAnimation'
-import { OnboardingLockVideo } from './OnboardingLockVideo'
+import { VaultUnlockAnimation } from './VaultUnlockAnimation'
+import { PeerLinkAnimation } from './PeerLinkAnimation'
 import {
   ButtonIconWrapper,
   ContinueButtonWrapper,
   MainContent,
   Footer,
   TextBlock,
-  RiveArtWrapper,
+  ArtWrapper,
 } from './IntroStyles'
 
 export const Intro: React.FC = () => {
@@ -30,9 +30,9 @@ export const Intro: React.FC = () => {
         </Text>
       ),
       art: (
-        <RiveArtWrapper>
-          <OnboardingLockVideo />
-        </RiveArtWrapper>
+        <ArtWrapper>
+          <VaultUnlockAnimation />
+        </ArtWrapper>
       )
     },
     {
@@ -50,9 +50,9 @@ export const Intro: React.FC = () => {
         </>
       ),
       art: (
-        <RiveArtWrapper>
-          <SyncWithoutCloudAnimation />
-        </RiveArtWrapper>
+        <ArtWrapper>
+          <PeerLinkAnimation />
+        </ArtWrapper>
       )
     }
   ]

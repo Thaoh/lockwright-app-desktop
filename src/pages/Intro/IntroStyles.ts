@@ -11,7 +11,7 @@ export const MainContent = styled.div`
   gap: ${rawTokens.spacing24}px;
 `
 
-export const RiveArtWrapper = styled.div`
+export const ArtWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;

@@ -186,7 +186,6 @@
     "@lingui/format-json": "5.1.2",
     "@lingui/macro": "5.1.2",
     "@lingui/react": "5.1.2",
-    "@rive-app/react-webgl2": "^4.28.1",
     "@tetherto/pear-apps-lib-feedback": "git+https://github.com/tetherto/pear-apps-lib-feedback.git",
     "@tetherto/pear-apps-lib-ui-react-hooks": "git+https://github.com/tetherto/pear-apps-lib-ui-react-hooks.git",
     "@tetherto/pear-apps-utils-avatar-initials": "git+https://github.com/tetherto/pear-apps-utils-avatar-initials.git",
