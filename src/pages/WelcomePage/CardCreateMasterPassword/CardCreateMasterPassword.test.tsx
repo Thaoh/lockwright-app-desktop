@@ -79,6 +79,11 @@ jest.mock('@tetherto/pear-apps-utils-validator', () => ({
   }
 }))
 
+jest.mock('@tetherto/pearpass-lib-constants', () => ({
+  TERMS_OF_USE: 'https://example.test/terms/',
+  PRIVACY_POLICY: 'https://example.test/privacy/'
+}))
+
 jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
   rawTokens: new Proxy({}, { get: () => 0 }),
   AlertMessage: () => null,
@@ -123,7 +128,13 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
     children: React.ReactNode
     onSubmit?: React.FormEventHandler
   }) => <form onSubmit={onSubmit}>{children}</form>,
-  Link: ({ children }: { children: React.ReactNode }) => <a>{children}</a>,
+  Link: ({
+    children,
+    href
+  }: {
+    children: React.ReactNode
+    href?: string
+  }) => <a href={href}>{children}</a>,
   PasswordField: ({ testID }: { testID?: string }) => (
     <input data-testid={testID} />
   ),
@@ -149,6 +160,14 @@ jest.mock('@tetherto/pearpass-lib-ui-kit/icons', () => ({
 describe('CardCreateMasterPassword', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+
+  it('opens the privacy policy, not terms or the old PearPass path', () => {
+    render(<CardCreateMasterPassword />)
+
+    expect(
+      screen.getByRole('link', { name: 'Lockwright Privacy Policy' })
+    ).toHaveAttribute('href', 'https://example.test/privacy/')
   })
 
   it('ticks accept rules the password already meets', () => {

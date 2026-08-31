@@ -204,7 +204,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@tetherto/pearpass-lib-constants': git+https://github.com/Thaoh/lockwright-lib-constants.git
+  '@tetherto/pearpass-lib-constants': git+https://github.com/Thaoh/lockwright-lib-constants.git#52680e3ab3f9ec5604ce2e12e951275101799de5
   '@tetherto/pearpass-lib-ui-kit': git+https://github.com/Thaoh/lockwright-lib-ui-react-native-components.git#design-system-v2
 
 importers:
@@ -248,8 +248,8 @@ importers:
         specifier: git+https://github.com/tetherto/pear-apps-utils-validator.git
         version: https://codeload.github.com/tetherto/pear-apps-utils-validator/tar.gz/bf6b3b6ce3e5c773d6df6a1956a38e578ce0e7ff
       '@tetherto/pearpass-lib-constants':
-        specifier: git+https://github.com/Thaoh/lockwright-lib-constants.git
-        version: https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/1f3338f06101e409255402e5ac6a4d696540d02b
+        specifier: git+https://github.com/Thaoh/lockwright-lib-constants.git#52680e3ab3f9ec5604ce2e12e951275101799de5
+        version: https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5
       '@tetherto/pearpass-lib-data-export':
         specifier: git+https://github.com/tetherto/pearpass-lib-data-export.git
         version: https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1
@@ -2327,8 +2327,8 @@ packages:
     resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pear-apps-utils-validator/tar.gz/bf6b3b6ce3e5c773d6df6a1956a38e578ce0e7ff}
     version: 0.0.10
 
-  '@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/1f3338f06101e409255402e5ac6a4d696540d02b':
-    resolution: {gitHosted: true, integrity: sha512-oIYstbQRAX6CC2jDuBsHdxqmhHTnv9fKqSlRpZ3AaOK9IvTtei4TEwiVjfyu0IZxGJNAognnPGpmk+LUDfg8Lw==, tarball: https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/1f3338f06101e409255402e5ac6a4d696540d02b}
+  '@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5':
+    resolution: {gitHosted: true, integrity: sha512-CqRZ4/r3SWa/N+n/kUetu0K/ysPtJfTZwwWXymdGovQPu4EOTTjSFw+rs0Vwb1RpeDdlOq8pjDJ69vRnF9I9MA==, tarball: https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5}
     version: 0.0.11
 
   '@tetherto/pearpass-lib-data-export@https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1':
@@ -9865,7 +9865,7 @@ snapshots:
 
   '@tetherto/pear-apps-utils-validator@https://codeload.github.com/tetherto/pear-apps-utils-validator/tar.gz/bf6b3b6ce3e5c773d6df6a1956a38e578ce0e7ff': {}
 
-  '@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/1f3338f06101e409255402e5ac6a4d696540d02b': {}
+  '@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5': {}
 
   '@tetherto/pearpass-lib-data-export@https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1': {}
 
@@ -9878,7 +9878,7 @@ snapshots:
 
   '@tetherto/pearpass-lib-native-messaging-bridge@https://codeload.github.com/tetherto/pearpass-lib-native-messaging-bridge/tar.gz/a1a3f4e71ce3e8d98172b13a6a9daa285f98eeae(bare-buffer@3.6.2)':
     dependencies:
-      '@tetherto/pearpass-lib-constants': https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/1f3338f06101e409255402e5ac6a4d696540d02b
+      '@tetherto/pearpass-lib-constants': https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5
       bare-fs: 4.5.0(bare-buffer@3.6.2)
       bare-os: 3.6.2
       bare-path: 3.0.0

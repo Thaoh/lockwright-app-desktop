@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 
 import { useForm } from '@tetherto/pear-apps-lib-ui-react-hooks'
 import { Validator } from '@tetherto/pear-apps-utils-validator'
-import { TERMS_OF_USE } from '@tetherto/pearpass-lib-constants'
+import { PRIVACY_POLICY } from '@tetherto/pearpass-lib-constants'
 import {
   useCreateVault,
   useUserData,
@@ -300,7 +300,7 @@ export const CardCreateMasterPassword = () => {
             <Link
               // @ts-ignore - plain CSS object
               style={styles.touLink}
-              href={TERMS_OF_USE}
+              href={PRIVACY_POLICY}
               isExternal
             >
               {t('Lockwright Privacy Policy')}
