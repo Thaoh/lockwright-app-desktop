@@ -3,6 +3,11 @@ import { join } from 'path'
 
 import IPC from 'pear-ipc'
 
+jest.mock('@tetherto/pearpass-lib-constants', () => ({
+  ...jest.requireActual('@tetherto/pearpass-lib-constants'),
+  IPC_SOCKET_DIR_NAME: '.lockwright'
+}))
+
 import {
   getIpcPath,
   getIPCSocketPath,
@@ -245,7 +250,7 @@ describe('nativeMessagingIPCServer', () => {
       platform.mockReturnValue('linux')
       const socketName = 'test-socket'
       expect(getIpcPath(socketName)).toBe(
-        join('/home/testuser', '.pearpass', `${socketName}.sock`)
+        join('/home/testuser', '.lockwright', `${socketName}.sock`)
       )
     })
   })
@@ -265,7 +270,11 @@ describe('nativeMessagingIPCServer', () => {
       expect(serverInstance.server).toBeNull()
       expect(serverInstance.isRunning).toBe(false)
       expect(serverInstance.socketPath).toBe(
-        join('/home/testuser', '.pearpass', 'pearpass-native-messaging.sock')
+        join(
+          '/home/testuser',
+          '.lockwright',
+          'lockwright-native-messaging.sock'
+        )
       )
     })
 
@@ -554,7 +563,11 @@ describe('nativeMessagingIPCServer', () => {
     it('getIPCSocketPath should return a default path when not running', () => {
       platform.mockReturnValue('linux')
       expect(getIPCSocketPath()).toBe(
-        join('/home/testuser', '.pearpass', 'pearpass-native-messaging.sock')
+        join(
+          '/home/testuser',
+          '.lockwright',
+          'lockwright-native-messaging.sock'
+        )
       )
     })
   })

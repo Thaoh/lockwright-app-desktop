@@ -9,7 +9,7 @@ jest.mock('os', () => ({
   homedir: jest.fn().mockReturnValue('/home/testuser')
 }))
 jest.mock('@tetherto/pearpass-lib-constants', () => ({
-  IPC_SOCKET_DIR_NAME: '.pearpass'
+  IPC_SOCKET_DIR_NAME: '.lockwright'
 }))
 jest.mock('../../utils/logger', () => ({
   logger: {
@@ -26,7 +26,7 @@ const { logger } = require('../../utils/logger')
 
 describe('SocketManager', () => {
   const socketName = 'testSocket'
-  const unixPath = '/home/testuser/.pearpass/testSocket.sock'
+  const unixPath = '/home/testuser/.lockwright/testSocket.sock'
   const winPath = '\\\\?\\pipe\\testSocket'
 
   beforeEach(() => {
@@ -107,6 +107,6 @@ describe('SocketManager', () => {
 describe('getIpcPath', () => {
   it('returns socket path for given name', () => {
     require('os').platform.mockReturnValue('linux')
-    expect(getIpcPath('foo')).toBe('/home/testuser/.pearpass/foo.sock')
+    expect(getIpcPath('foo')).toBe('/home/testuser/.lockwright/foo.sock')
   })
 })

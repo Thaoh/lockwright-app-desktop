@@ -27,7 +27,7 @@ export class NativeMessagingIPCServer {
     /** @type {boolean} */
     this.isRunning = false
     /** @type {SocketManager} */
-    this.socketManager = new SocketManager('pearpass-native-messaging')
+    this.socketManager = new SocketManager('lockwright-native-messaging')
     /** @type {string} */
     this.socketPath = this.socketManager.getPath()
 
@@ -548,4 +548,4 @@ export const isNativeMessagingIPCRunning = () =>
  * @returns {string}
  */
 export const getIPCSocketPath = () =>
-  ipcServerInstance?.socketPath ?? getIpcPath('pearpass-native-messaging')
+  ipcServerInstance?.socketPath ?? getIpcPath('lockwright-native-messaging')

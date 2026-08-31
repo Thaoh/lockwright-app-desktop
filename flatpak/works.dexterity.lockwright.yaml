@@ -55,11 +55,11 @@ modules:
       - chmod +x /app/bin/pearpass
 
       # ── Native messaging host entry point ────────────────────────────
-      # Invoked via `flatpak run --command=pearpass-native-host works.dexterity.lockwright`
+      # Invoked via `flatpak run --command=lockwright-native-host works.dexterity.lockwright`
       # by the host-side wrapper script that Chrome's Native Messaging API
       # launches. Runs the bridge bundle through Electron's embedded Node.
       - |
-        cat > /app/bin/pearpass-native-host <<'NMHOST'
+        cat > /app/bin/lockwright-native-host <<'NMHOST'
         #!/bin/sh
         # Call the Electron binary directly, bypassing the pearpass-app-desktop
         # shell launcher which unconditionally injects --no-sandbox. Under
@@ -72,7 +72,7 @@ modules:
           "$APP_ROOT/resources/app/dist/native-messaging-bridge.bundle.cjs" \
           "$@"
         NMHOST
-      - chmod +x /app/bin/pearpass-native-host
+      - chmod +x /app/bin/lockwright-native-host
 
       # ── Desktop integration ───────────────────────────────────────────
       - install -Dm644 works.dexterity.lockwright.desktop /app/share/applications/works.dexterity.lockwright.desktop

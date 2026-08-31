@@ -39,7 +39,7 @@ apps:
     # Browsers exec /snap/bin/pearpass.native-host directly (the manifest's
     # `path` field). snapd routes that to this app slot, which pipes JSON
     # over stdio through Electron's embedded Node.
-    command: usr/bin/pearpass-native-host
+    command: usr/bin/lockwright-native-host
     extensions: [gnome]
     plugs:
       - home
@@ -131,7 +131,7 @@ parts:
       # Native messaging host. Bypass the launcher (which forces
       # --no-sandbox) and call .bin directly: ELECTRON_RUN_AS_NODE rejects
       # --no-sandbox and Chrome would see "Native host has exited".
-      cat > "${CRAFT_PART_INSTALL}/usr/bin/pearpass-native-host" <<'NMHOST'
+      cat > "${CRAFT_PART_INSTALL}/usr/bin/lockwright-native-host" <<'NMHOST'
       #!/bin/sh
       APP_ROOT="${SNAP}/lib/pearpass"
       export LD_LIBRARY_PATH="${APP_ROOT}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
@@ -140,7 +140,7 @@ parts:
         "${APP_ROOT}/resources/app/dist/native-messaging-bridge.bundle.cjs" \
         "$@"
       NMHOST
-      chmod +x "${CRAFT_PART_INSTALL}/usr/bin/pearpass-native-host"
+      chmod +x "${CRAFT_PART_INSTALL}/usr/bin/lockwright-native-host"
 
       # Reuse flatpak desktop entry + metainfo + icon; sed below patches
       # Exec/Icon for snap-resolved paths.

@@ -18,7 +18,8 @@ const { isFlatpakRuntime, isSnapRuntime, getHostHome, getSnapRealHome } =
   flatpakPaths
 const { buildWrapperContent } = nativeHostWrapper
 
-const NATIVE_BRIDGE_PROCESS_IDENTIFIER = 'pearpass-lib-native-messaging-bridge'
+const NATIVE_BRIDGE_PROCESS_IDENTIFIER =
+  'lockwright-lib-native-messaging-bridge'
 
 const promisify =
   (fn) =>
@@ -39,13 +40,13 @@ export const getNativeHostExecutableInfo = (userDataPath) => {
 
   switch (platform) {
     case 'darwin':
-      executableFileName = 'pearpass-native-host.sh'
+      executableFileName = 'lockwright-native-host.sh'
       break
     case 'win32':
-      executableFileName = 'pearpass-native-host.cmd'
+      executableFileName = 'lockwright-native-host.cmd'
       break
     case 'linux':
-      executableFileName = 'pearpass-native-host.sh'
+      executableFileName = 'lockwright-native-host.sh'
       break
     default:
       throw new Error(`Unsupported platform: ${platform}`)

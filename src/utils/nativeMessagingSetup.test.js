@@ -61,7 +61,7 @@ describe('getNativeHostExecutableInfo', () => {
     os.platform.mockReturnValue('darwin')
     const info = getNativeHostExecutableInfo(MOCK_USER_DATA_PATH)
     expect(info.platform).toBe('darwin')
-    expect(info.executableFileName).toBe('pearpass-native-host.sh')
+    expect(info.executableFileName).toBe('lockwright-native-host.sh')
     expect(info.executablePath).toContain('native-messaging')
   })
 
@@ -69,7 +69,7 @@ describe('getNativeHostExecutableInfo', () => {
     os.platform.mockReturnValue('linux')
     const info = getNativeHostExecutableInfo(MOCK_USER_DATA_PATH)
     expect(info.platform).toBe('linux')
-    expect(info.executableFileName).toBe('pearpass-native-host.sh')
+    expect(info.executableFileName).toBe('lockwright-native-host.sh')
     expect(info.executablePath).toContain('native-messaging')
   })
 
@@ -77,7 +77,7 @@ describe('getNativeHostExecutableInfo', () => {
     os.platform.mockReturnValue('win32')
     const info = getNativeHostExecutableInfo(MOCK_USER_DATA_PATH)
     expect(info.platform).toBe('win32')
-    expect(info.executableFileName).toBe('pearpass-native-host.cmd')
+    expect(info.executableFileName).toBe('lockwright-native-host.cmd')
     expect(info.executablePath).toContain('native-messaging')
   })
 
@@ -95,14 +95,14 @@ describe('generateNativeHostExecutable', () => {
   it('should generate executable for macOS', async () => {
     os.platform.mockReturnValue('darwin')
     const result = await generateNativeHostExecutable(
-      '/mock/path/pearpass-native-host.sh',
+      '/mock/path/lockwright-native-host.sh',
       MOCK_EXEC_PATH,
       MOCK_BRIDGE_PATH
     )
     expect(result.success).toBe(true)
     expect(fs.writeFile).toHaveBeenCalled()
     expect(fs.chmod).toHaveBeenCalledWith(
-      '/mock/path/pearpass-native-host.sh',
+      '/mock/path/lockwright-native-host.sh',
       0o755
     )
     const writeCall = fs.writeFile.mock.calls[0]
@@ -115,14 +115,14 @@ describe('generateNativeHostExecutable', () => {
   it('should generate executable for Linux', async () => {
     os.platform.mockReturnValue('linux')
     const result = await generateNativeHostExecutable(
-      '/mock/path/pearpass-native-host.sh',
+      '/mock/path/lockwright-native-host.sh',
       MOCK_EXEC_PATH,
       MOCK_BRIDGE_PATH
     )
     expect(result.success).toBe(true)
     expect(fs.writeFile).toHaveBeenCalled()
     expect(fs.chmod).toHaveBeenCalledWith(
-      '/mock/path/pearpass-native-host.sh',
+      '/mock/path/lockwright-native-host.sh',
       0o755
     )
     const writeCall = fs.writeFile.mock.calls[0]
@@ -134,7 +134,7 @@ describe('generateNativeHostExecutable', () => {
   it('should generate executable for Windows', async () => {
     os.platform.mockReturnValue('win32')
     const result = await generateNativeHostExecutable(
-      'C:/mock/path/pearpass-native-host.cmd',
+      'C:/mock/path/lockwright-native-host.cmd',
       MOCK_EXEC_PATH,
       MOCK_BRIDGE_PATH
     )
@@ -318,7 +318,7 @@ describe('killNativeMessagingHostProcesses', () => {
     expect(execMock).toHaveBeenCalledTimes(1)
     const cmd = execMock.mock.calls[0][0]
     expect(cmd).toContain('pkill -f')
-    expect(cmd).toContain('pearpass-lib-native-messaging-bridge')
+    expect(cmd).toContain('lockwright-lib-native-messaging-bridge')
   })
 
   it('should kill processes on macOS', async () => {

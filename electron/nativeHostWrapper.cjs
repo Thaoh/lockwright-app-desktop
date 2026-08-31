@@ -1,7 +1,7 @@
 const fsp = require('fs/promises')
 
 const FLATPAK_APP_ID = 'works.dexterity.lockwright'
-const FLATPAK_NATIVE_HOST_COMMAND = 'pearpass-native-host'
+const FLATPAK_NATIVE_HOST_COMMAND = 'lockwright-native-host'
 
 // Wrappers emit diagnostics to stderr only: Chrome reads stdout as framed
 // native-messaging payloads, so any plain text there drops the port with
@@ -30,7 +30,7 @@ if [ -z "\${FLATPAK_BIN}" ]; then
   done
 fi
 if [ -z "\${FLATPAK_BIN}" ]; then
-  echo "pearpass-native-host: flatpak binary not found on PATH" >&2
+  echo "lockwright-native-host: flatpak binary not found on PATH" >&2
   exit 127
 fi
 

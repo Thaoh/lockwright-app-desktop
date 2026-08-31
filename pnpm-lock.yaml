@@ -204,7 +204,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@tetherto/pearpass-lib-constants': git+https://github.com/Thaoh/lockwright-lib-constants.git#52680e3ab3f9ec5604ce2e12e951275101799de5
+  '@tetherto/pearpass-lib-constants': git+https://github.com/Thaoh/lockwright-lib-constants.git#0221dba94373926c7316c675d9bff774daf8464f
   '@tetherto/pearpass-lib-ui-kit': git+https://github.com/Thaoh/lockwright-lib-ui-react-native-components.git#design-system-v2
 
 importers:
@@ -248,8 +248,8 @@ importers:
         specifier: git+https://github.com/tetherto/pear-apps-utils-validator.git
         version: https://codeload.github.com/tetherto/pear-apps-utils-validator/tar.gz/bf6b3b6ce3e5c773d6df6a1956a38e578ce0e7ff
       '@tetherto/pearpass-lib-constants':
-        specifier: git+https://github.com/Thaoh/lockwright-lib-constants.git#52680e3ab3f9ec5604ce2e12e951275101799de5
-        version: https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5
+        specifier: git+https://github.com/Thaoh/lockwright-lib-constants.git#0221dba94373926c7316c675d9bff774daf8464f
+        version: https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/0221dba94373926c7316c675d9bff774daf8464f
       '@tetherto/pearpass-lib-data-export':
         specifier: git+https://github.com/tetherto/pearpass-lib-data-export.git
         version: https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1
@@ -2288,26 +2288,26 @@ packages:
         optional: true
 
   '@tetherto/pear-apps-lib-feedback@https://codeload.github.com/tetherto/pear-apps-lib-feedback/tar.gz/870e741f0ebf23c1da461d8f70d99ff461f548eb':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pear-apps-lib-feedback/tar.gz/870e741f0ebf23c1da461d8f70d99ff461f548eb}
+    resolution: {gitHosted: true, integrity: sha512-45pHezfuNaWxtp5S0WPAMC0TAlY170NxhL1f/faOkMZL10UKVxmkA1NwUkqnClEq8HYbn8INWU16NGCoNUKPwA==, tarball: https://codeload.github.com/tetherto/pear-apps-lib-feedback/tar.gz/870e741f0ebf23c1da461d8f70d99ff461f548eb}
     version: 0.0.7
 
   '@tetherto/pear-apps-lib-ui-react-hooks@https://codeload.github.com/tetherto/pear-apps-lib-ui-react-hooks/tar.gz/9a2bf80dc26780c81fcefa78af7244f1fbfaff03':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pear-apps-lib-ui-react-hooks/tar.gz/9a2bf80dc26780c81fcefa78af7244f1fbfaff03}
+    resolution: {gitHosted: true, integrity: sha512-VVv+wqt1IsTHk8HNOsYL1/y2rUUJ7ZCEm2ApADCm6NhOu1O37YEupqQ5wnkXl4eTeUixk3JC5gZCuix5EFSdbQ==, tarball: https://codeload.github.com/tetherto/pear-apps-lib-ui-react-hooks/tar.gz/9a2bf80dc26780c81fcefa78af7244f1fbfaff03}
     version: 0.0.11
     peerDependencies:
       react: '>=18.3.1'
       react-dom: '>=18.3.1'
 
   '@tetherto/pear-apps-utils-avatar-initials@https://codeload.github.com/tetherto/pear-apps-utils-avatar-initials/tar.gz/42406bc95ebee8090ed37942ce4b7dcfade48374':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pear-apps-utils-avatar-initials/tar.gz/42406bc95ebee8090ed37942ce4b7dcfade48374}
+    resolution: {gitHosted: true, integrity: sha512-60TM4Lf0uMz6dJDH0NP0dZNoYjfXfZJgCQi44dsTNXrJdqkEmOjkuL/xj8Ki0PXfNrFWznphev53l/Mn9DTIwg==, tarball: https://codeload.github.com/tetherto/pear-apps-utils-avatar-initials/tar.gz/42406bc95ebee8090ed37942ce4b7dcfade48374}
     version: 0.0.7
 
   '@tetherto/pear-apps-utils-date@https://codeload.github.com/tetherto/pear-apps-utils-date/tar.gz/b998c84247ca93d806290e44648a300d39188865':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pear-apps-utils-date/tar.gz/b998c84247ca93d806290e44648a300d39188865}
+    resolution: {gitHosted: true, integrity: sha512-e5Zjx/SjDfR+8XmRqdA95JAG3Jco79wIDIWkAY9RL0IAvbvxTQqOqb0G3XQP2RMXXhDCGUxNX7aG6YQHBMGhbw==, tarball: https://codeload.github.com/tetherto/pear-apps-utils-date/tar.gz/b998c84247ca93d806290e44648a300d39188865}
     version: 0.0.8
 
   '@tetherto/pear-apps-utils-generate-unique-id@https://codeload.github.com/tetherto/pear-apps-utils-generate-unique-id/tar.gz/8a9ccca79f4713df83ecdd5eacc92746d3f819dc':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pear-apps-utils-generate-unique-id/tar.gz/8a9ccca79f4713df83ecdd5eacc92746d3f819dc}
+    resolution: {gitHosted: true, integrity: sha512-U5/70wmdJoMGFWD+kQ4BGDBUNGzhUtcBN9x9YpPDnbcVNkVVIow+gobcSP6spRB23E1prG4anVP8zn/WKJkcIA==, tarball: https://codeload.github.com/tetherto/pear-apps-utils-generate-unique-id/tar.gz/8a9ccca79f4713df83ecdd5eacc92746d3f819dc}
     version: 0.0.6
     peerDependencies:
       expo-crypto: ~13.0.0
@@ -2316,19 +2316,19 @@ packages:
         optional: true
 
   '@tetherto/pear-apps-utils-pattern-search@https://codeload.github.com/tetherto/pear-apps-utils-pattern-search/tar.gz/fdb7f98db21d1b02a6c025ed89e8ec5791358db2':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pear-apps-utils-pattern-search/tar.gz/fdb7f98db21d1b02a6c025ed89e8ec5791358db2}
+    resolution: {gitHosted: true, integrity: sha512-CapSKM1PPhFo9TmFrx1FUw6A04OmwDrzCkq/ksRC0LSrYDHP3l3KX4Jxps+I8V/DveK23eHyzsVUvXcvwJz+Iw==, tarball: https://codeload.github.com/tetherto/pear-apps-utils-pattern-search/tar.gz/fdb7f98db21d1b02a6c025ed89e8ec5791358db2}
     version: 0.0.5
 
   '@tetherto/pear-apps-utils-qr@https://codeload.github.com/tetherto/pear-apps-utils-qr/tar.gz/f5346165dcee9f2b54360897c429564b712083aa':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pear-apps-utils-qr/tar.gz/f5346165dcee9f2b54360897c429564b712083aa}
+    resolution: {gitHosted: true, integrity: sha512-9daLV4tdPqrwJEE98rcj7rb8BASwnGEcIxI4sMvj3mtfL3uMR8r9wzboCHXHEKccz94gqFjZxrK+9Gd+KQTMkQ==, tarball: https://codeload.github.com/tetherto/pear-apps-utils-qr/tar.gz/f5346165dcee9f2b54360897c429564b712083aa}
     version: 0.0.5
 
   '@tetherto/pear-apps-utils-validator@https://codeload.github.com/tetherto/pear-apps-utils-validator/tar.gz/bf6b3b6ce3e5c773d6df6a1956a38e578ce0e7ff':
     resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pear-apps-utils-validator/tar.gz/bf6b3b6ce3e5c773d6df6a1956a38e578ce0e7ff}
     version: 0.0.10
 
-  '@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5':
-    resolution: {gitHosted: true, integrity: sha512-CqRZ4/r3SWa/N+n/kUetu0K/ysPtJfTZwwWXymdGovQPu4EOTTjSFw+rs0Vwb1RpeDdlOq8pjDJ69vRnF9I9MA==, tarball: https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5}
+  '@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/0221dba94373926c7316c675d9bff774daf8464f':
+    resolution: {gitHosted: true, integrity: sha512-8eG2w5E/l7DqWsZfYSFNT+pBUeMunFuFSnO2/zzZq3JlI1xfsiXWulr/et58T4ErVrAIoMq33bTcG9135Z5ztA==, tarball: https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/0221dba94373926c7316c675d9bff774daf8464f}
     version: 0.0.11
 
   '@tetherto/pearpass-lib-data-export@https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1':
@@ -2340,7 +2340,7 @@ packages:
     version: 0.0.14
 
   '@tetherto/pearpass-lib-native-messaging-bridge@https://codeload.github.com/tetherto/pearpass-lib-native-messaging-bridge/tar.gz/a1a3f4e71ce3e8d98172b13a6a9daa285f98eeae':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-lib-native-messaging-bridge/tar.gz/a1a3f4e71ce3e8d98172b13a6a9daa285f98eeae}
+    resolution: {gitHosted: true, integrity: sha512-SOIs5POQUa/6qbmUJa2YE+L+p+hutF1hNUuC90T1xMhdlFaHGLlhTs0IVM3wmOJ1DhgZkhUMpeufALF7CGj4/g==, tarball: https://codeload.github.com/tetherto/pearpass-lib-native-messaging-bridge/tar.gz/a1a3f4e71ce3e8d98172b13a6a9daa285f98eeae}
     version: 0.0.2
 
   '@tetherto/pearpass-lib-ui-react-native-components@https://codeload.github.com/Thaoh/lockwright-lib-ui-react-native-components/tar.gz/4b254fff341c791a27a45f3e1488a3860f2b1987':
@@ -2386,19 +2386,19 @@ packages:
       react-dom: '>=18.3.1'
 
   '@tetherto/pearpass-utils-password-check@https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/4705b7937691a446412b27df7f7c644d8915aba9':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/4705b7937691a446412b27df7f7c644d8915aba9}
+    resolution: {gitHosted: true, integrity: sha512-u175XaOx7m6qyi0ra7BjfSzTXLcLCPuwnAgCdIi2QVnSppmFK7VBMWrq0TDvz/ZgqlRhJ2gO6oZMj5j/UxTcPA==, tarball: https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/4705b7937691a446412b27df7f7c644d8915aba9}
     version: 0.0.14
 
   '@tetherto/pearpass-utils-password-check@https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/5175d97c3c560221a6f1a36d4c3c8be9c45daf81':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/5175d97c3c560221a6f1a36d4c3c8be9c45daf81}
+    resolution: {gitHosted: true, integrity: sha512-hjBTn/VRC9c1MR92Jy7CD9vPAeiBifD6E7APG9x4ycfKV+KONd08IH0dway7/3dx/KTjxDvWocnbJs/miuCifw==, tarball: https://codeload.github.com/tetherto/pearpass-utils-password-check/tar.gz/5175d97c3c560221a6f1a36d4c3c8be9c45daf81}
     version: 0.0.14
 
   '@tetherto/pearpass-utils-password-generator@https://codeload.github.com/tetherto/pearpass-utils-password-generator/tar.gz/a29d6fcd0d0191fc6e7647f9cea6ece42514e977':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/pearpass-utils-password-generator/tar.gz/a29d6fcd0d0191fc6e7647f9cea6ece42514e977}
+    resolution: {gitHosted: true, integrity: sha512-OEIN5/qOu6pFfxvQKs8kjeQnX8f2zzqoM1bcQyUnPhHvC25tzJeDLeRibnhy8JzPUaflzoiD2DJFIRsW5HHUWQ==, tarball: https://codeload.github.com/tetherto/pearpass-utils-password-generator/tar.gz/a29d6fcd0d0191fc6e7647f9cea6ece42514e977}
     version: 0.0.11
 
   '@tetherto/tether-dev-docs@https://codeload.github.com/tetherto/tether-dev-docs/tar.gz/cb82786f04714a56577df1555db947969ec90aeb':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/tetherto/tether-dev-docs/tar.gz/cb82786f04714a56577df1555db947969ec90aeb}
+    resolution: {gitHosted: true, integrity: sha512-MpEUiBTyJJBBQSz2yMljGYTKEbZlhZwuczg7KgHf5Wux7dzgiPKY2glkXezAU9ndURR0F1lmYpdXwCAHMmpSvw==, tarball: https://codeload.github.com/tetherto/tether-dev-docs/tar.gz/cb82786f04714a56577df1555db947969ec90aeb}
     version: 0.0.8
 
   '@tootallnate/once@2.0.1':
@@ -9865,7 +9865,7 @@ snapshots:
 
   '@tetherto/pear-apps-utils-validator@https://codeload.github.com/tetherto/pear-apps-utils-validator/tar.gz/bf6b3b6ce3e5c773d6df6a1956a38e578ce0e7ff': {}
 
-  '@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5': {}
+  '@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/0221dba94373926c7316c675d9bff774daf8464f': {}
 
   '@tetherto/pearpass-lib-data-export@https://codeload.github.com/tetherto/pearpass-lib-data-export/tar.gz/baff7490a4dedefa79121eabc3b3e3da86933ed1': {}
 
@@ -9878,7 +9878,7 @@ snapshots:
 
   '@tetherto/pearpass-lib-native-messaging-bridge@https://codeload.github.com/tetherto/pearpass-lib-native-messaging-bridge/tar.gz/a1a3f4e71ce3e8d98172b13a6a9daa285f98eeae(bare-buffer@3.6.2)':
     dependencies:
-      '@tetherto/pearpass-lib-constants': https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5
+      '@tetherto/pearpass-lib-constants': https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/0221dba94373926c7316c675d9bff774daf8464f
       bare-fs: 4.5.0(bare-buffer@3.6.2)
       bare-os: 3.6.2
       bare-path: 3.0.0

@@ -17,7 +17,7 @@ const {
 
 const EXEC_PATH = '/mock/electron/Lockwright'
 const BRIDGE_PATH = '/mock/dist/native-messaging-bridge.bundle.cjs'
-const WRAPPER_PATH = '/mock/userData/native-messaging/pearpass-native-host.sh'
+const WRAPPER_PATH = '/mock/userData/native-messaging/lockwright-native-host.sh'
 
 describe('buildWrapperContent', () => {
   it('emits a bash wrapper with ELECTRON_RUN_AS_NODE for darwin', () => {
@@ -54,7 +54,7 @@ describe('buildWrapperContent', () => {
     })
     expect(content).toContain('flatpak')
     expect(content).toContain('works.dexterity.lockwright')
-    expect(content).toContain('--command=pearpass-native-host')
+    expect(content).toContain('--command=lockwright-native-host')
     // In-sandbox paths are resolved by `flatpak run`, not baked into the wrapper.
     expect(content).not.toContain(EXEC_PATH)
     expect(content).not.toContain(BRIDGE_PATH)

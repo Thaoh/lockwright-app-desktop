@@ -278,8 +278,8 @@ async function refreshNativeHostWrapper() {
     getStorageDir(),
     'native-messaging',
     platform === 'win32'
-      ? 'pearpass-native-host.cmd'
-      : 'pearpass-native-host.sh'
+      ? 'lockwright-native-host.cmd'
+      : 'lockwright-native-host.sh'
   )
 
   try {
