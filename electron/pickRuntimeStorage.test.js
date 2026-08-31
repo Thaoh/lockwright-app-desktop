@@ -6,6 +6,7 @@ const path = require('path')
 
 const {
   adoptInheritedVault,
+  hasVault,
   pickRuntimeStorageDir
 } = require('./pickRuntimeStorage.cjs')
 
@@ -18,6 +19,35 @@ function writeVault(storageRoot) {
   fs.writeFileSync(vaultFile, 'vault-bytes')
   return vaultFile
 }
+
+function writeMasterStore(storageRoot) {
+  for (const name of ['encryption', 'vaults']) {
+    const marker = path.join(storageRoot, name, 'db', 'CURRENT')
+    fs.mkdirSync(path.dirname(marker), { recursive: true })
+    fs.writeFileSync(marker, 'corestore')
+  }
+}
+
+describe('hasVault', () => {
+  let root
+
+  afterEach(() => {
+    if (root) fs.rmSync(root, { recursive: true, force: true })
+    root = null
+  })
+
+  it('is true when encryption and vaults exist without a vault folder', () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'lockwright-hasvault-'))
+    writeMasterStore(root)
+    expect(hasVault(root)).toBe(true)
+  })
+
+  it('uses real fs when the renderer asks with one argument', () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'lockwright-hasvault-'))
+    writeVault(root)
+    expect(hasVault(root)).toBe(true)
+  })
+})
 
 describe('pickRuntimeStorageDir', () => {
   let root
@@ -53,6 +83,33 @@ describe('pickRuntimeStorageDir', () => {
         upgrade: null
       })
     ).toBe(inherited)
+  })
+
+  it('opens a copied by-dkey store that only has encryption and vaults', () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'lockwright-pick-'))
+    const userDataDir = path.join(root, 'Lockwright')
+    const inherited = path.join(userDataDir, 'app-storage', 'by-dkey', OLD_ID)
+    writeMasterStore(inherited)
+
+    expect(
+      pickRuntimeStorageDir({
+        userDataDir,
+        upgrade: null
+      })
+    ).toBe(inherited)
+  })
+
+  it('opens userData when PearPass stored encryption at the folder root', () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'lockwright-pick-'))
+    const userDataDir = path.join(root, 'Lockwright')
+    writeMasterStore(userDataDir)
+
+    expect(
+      pickRuntimeStorageDir({
+        userDataDir,
+        upgrade: null
+      })
+    ).toBe(userDataDir)
   })
 
   it('prefers app-storage/local when that folder already has a vault', () => {

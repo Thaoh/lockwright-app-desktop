@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-function dirHasEntries(dir, fsImpl) {
+function dirHasEntries(dir, fsImpl = fs) {
   try {
     if (!fsImpl.existsSync(dir)) return false
     if (!fsImpl.statSync(dir).isDirectory()) return false
@@ -11,8 +11,10 @@ function dirHasEntries(dir, fsImpl) {
   }
 }
 
-function hasVault(storageRoot, fsImpl) {
-  return dirHasEntries(path.join(storageRoot, 'vault'), fsImpl)
+function hasVault(storageRoot, fsImpl = fs) {
+  return ['vault', 'vaults', 'encryption'].some((name) =>
+    dirHasEntries(path.join(storageRoot, name), fsImpl)
+  )
 }
 
 function upgradeLinkId(upgrade) {
@@ -58,6 +60,7 @@ function pickRuntimeStorageDir({ userDataDir, upgrade, fsImpl = fs } = {}) {
     return inherited[0].dir
   }
   if (stores.length === 1) return stores[0].dir
+  if (hasVault(userDataDir, fsImpl)) return userDataDir
   if (!upgrade) return local
   return path.join(userDataDir, 'app-storage', 'by-dkey', linkId)
 }
