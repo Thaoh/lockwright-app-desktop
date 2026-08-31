@@ -47,8 +47,10 @@
       ],
       "artifactName": "${productName}.${ext}",
       "desktop": {
-        "Name": "Lockwright",
-        "StartupWMClass": "Lockwright"
+        "entry": {
+          "Name": "Lockwright",
+          "StartupWMClass": "Lockwright"
+        }
       }
     },
     "toolsets": {

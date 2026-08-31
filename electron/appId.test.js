@@ -131,6 +131,15 @@ describe('Lockwright app id', () => {
     const linux = JSON.parse(
       fs.readFileSync(path.join(root, 'electron-builder.linux.json'), 'utf8')
     )
-    expect(linux.linux.desktop.StartupWMClass).toBe('Lockwright')
+    // electron-builder 26: linux.desktop is LinuxDesktopFile { entry }, not
+    // a flat Name/StartupWMClass map (schema rejects that as "should be null").
+    expect(linux.linux.desktop.entry.StartupWMClass).toBe('Lockwright')
+    expect(linux.linux.desktop.Name).toBeUndefined()
+
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+    )
+    expect(pkg.build.linux.desktop.entry.StartupWMClass).toBe('Lockwright')
+    expect(pkg.build.linux.desktop.Name).toBeUndefined()
   })
 })
