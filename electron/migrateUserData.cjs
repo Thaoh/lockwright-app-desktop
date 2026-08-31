@@ -2,6 +2,9 @@ const fs = require('fs')
 const path = require('path')
 
 const LEGACY_USER_DATA_DIR_NAME = 'PearPass'
+// Electron userData is appData/<package.json name> unless setPath pins it.
+// Official PearPass and a Lockwright build that only called setName land here.
+const PACKAGE_USER_DATA_DIR_NAME = 'pearpass-app-desktop'
 
 const VAULT_DIR_NAMES = [
   'app-storage',
@@ -30,7 +33,11 @@ function hasVaultData(root, fsImpl) {
 
 function legacyUserDataDirs(destDir) {
   if (!destDir) return []
-  return [path.join(path.dirname(destDir), LEGACY_USER_DATA_DIR_NAME)]
+  const parent = path.dirname(destDir)
+  return [
+    path.join(parent, LEGACY_USER_DATA_DIR_NAME),
+    path.join(parent, PACKAGE_USER_DATA_DIR_NAME)
+  ]
 }
 
 function migratePearPassUserData({

@@ -35,8 +35,33 @@ describe('migratePearPassUserData', () => {
   it('names the legacy folder PearPass next to Lockwright userData', () => {
     expect(LEGACY_USER_DATA_DIR_NAME).toBe('PearPass')
     expect(legacyUserDataDirs('/home/x/.config/Lockwright')).toEqual([
-      '/home/x/.config/PearPass'
+      '/home/x/.config/PearPass',
+      '/home/x/.config/pearpass-app-desktop'
     ])
+  })
+
+  it('copies a vault left in pearpass-app-desktop (Electron name, not productName)', () => {
+    const tree = makeTree()
+    root = tree.root
+    const namedDir = path.join(tree.root, 'pearpass-app-desktop')
+    writeVault(namedDir)
+
+    const result = migratePearPassUserData({
+      destDir: tree.destDir,
+      sourceDirs: legacyUserDataDirs(tree.destDir)
+    })
+
+    expect(result).toEqual({
+      migrated: true,
+      from: namedDir,
+      to: tree.destDir
+    })
+    expect(
+      fs.readFileSync(
+        path.join(tree.destDir, 'app-storage', 'local', 'vault', 'core'),
+        'utf8'
+      )
+    ).toBe('vault-bytes')
   })
 
   it('copies PearPass vault data into an empty Lockwright userData dir', () => {
@@ -135,5 +160,13 @@ describe('desktop main process wiring', () => {
     expect(readyAt).toBeGreaterThan(-1)
     expect(setNameAt).toBeLessThan(migrateAt)
     expect(migrateAt).toBeLessThan(readyAt)
+  })
+
+  it('pins userData to appData/productName before any getPath userData', () => {
+    const main = fs.readFileSync(path.join(__dirname, 'main.cjs'), 'utf8')
+    const setPathAt = main.indexOf("app.setPath('userData'")
+    const getUserDataAt = main.indexOf("app.getPath('userData')")
+    expect(setPathAt).toBeGreaterThan(-1)
+    expect(setPathAt).toBeLessThan(getUserDataAt)
   })
 })

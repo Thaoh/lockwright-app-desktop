@@ -48,8 +48,9 @@ if (isWindows) {
   app.setAppUserModelId(pkg.build?.appId ?? 'works.dexterity.lockwright')
 }
 
-// userData follows the process name. Set it before any getPath('userData').
+// userData does not follow setName. Pin it before any getPath('userData').
 app.setName(pkg.productName)
+app.setPath('userData', path.join(app.getPath('appData'), pkg.productName))
 
 const {
   getSandboxSafePath,

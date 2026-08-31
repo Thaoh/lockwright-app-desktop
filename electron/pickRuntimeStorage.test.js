@@ -107,6 +107,26 @@ describe('adoptInheritedVault', () => {
     root = null
   })
 
+  it('still adopts PearPass when dest already has a new local vault', () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'lockwright-adopt-'))
+    const destDir = path.join(root, 'Lockwright')
+    const sourceDir = path.join(root, 'PearPass')
+    writeVault(path.join(destDir, 'app-storage', 'local'))
+    writeVault(path.join(sourceDir, 'app-storage', 'by-dkey', OLD_ID))
+
+    const adopted = adoptInheritedVault({
+      destDir,
+      sourceDirs: [sourceDir],
+      upgrade: null
+    })
+
+    const destInherited = path.join(destDir, 'app-storage', 'by-dkey', OLD_ID)
+    expect(adopted).toBe(destInherited)
+    expect(
+      fs.readFileSync(path.join(destInherited, 'vault', 'core'), 'utf8')
+    ).toBe('vault-bytes')
+  })
+
   it('copies PearPass by-dkey/{id} into Lockwright userData when dest has no inherited vault', () => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'lockwright-adopt-'))
     const destDir = path.join(root, 'Lockwright')

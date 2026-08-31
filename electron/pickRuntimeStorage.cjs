@@ -78,7 +78,8 @@ function adoptInheritedVault({
   if (
     destPick &&
     hasVault(destPick, fsImpl) &&
-    isInheritedStorageDir(destPick, upgrade)
+    isInheritedStorageDir(destPick, upgrade) &&
+    !isLocalStorageDir(destPick)
   ) {
     return destPick
   }
