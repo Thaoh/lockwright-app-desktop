@@ -42,6 +42,14 @@ describe('Lockwright app id', () => {
     )
   })
 
+  it('uses package name lockwright-app-desktop, not pearpass-app-desktop', () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+    )
+    expect(pkg.name).toBe('lockwright-app-desktop')
+    expect(pkg.pear.name).toBe('lockwright-app-desktop')
+  })
+
   it('ships productName Lockwright, not PearPass', () => {
     const pkg = JSON.parse(
       fs.readFileSync(path.join(root, 'package.json'), 'utf8')
