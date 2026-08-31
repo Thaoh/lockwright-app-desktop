@@ -1,7 +1,7 @@
 {
   "name": "pearpass-app-desktop",
   "productName": "Lockwright",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Lockwright password manager",
   "author": "Lockwright",
   "main": "electron/main.cjs",
