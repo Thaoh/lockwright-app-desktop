@@ -126,4 +126,11 @@ describe('Lockwright app id', () => {
       /scripts\/run-electron-builder\.cjs/
     )
   })
+
+  it('sets StartupWMClass so a taskbar pin matches the running window', () => {
+    const linux = JSON.parse(
+      fs.readFileSync(path.join(root, 'electron-builder.linux.json'), 'utf8')
+    )
+    expect(linux.linux.desktop.StartupWMClass).toBe('Lockwright')
+  })
 })

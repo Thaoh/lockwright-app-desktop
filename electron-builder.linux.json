@@ -31,7 +31,11 @@
     "target": [
       "AppImage"
     ],
-    "artifactName": "${productName}.${ext}"
+    "artifactName": "${productName}.${ext}",
+    "desktop": {
+      "Name": "Lockwright",
+      "StartupWMClass": "Lockwright"
+    }
   },
   "toolsets": {
     "appimage": "1.0.2"

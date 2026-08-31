@@ -51,6 +51,9 @@ if (isWindows) {
 // userData does not follow setName. Pin it before any getPath('userData').
 app.setName(pkg.productName)
 app.setPath('userData', path.join(app.getPath('appData'), pkg.productName))
+if (isLinux) {
+  app.commandLine.appendSwitch('class', pkg.productName)
+}
 
 const {
   getSandboxSafePath,
@@ -58,6 +61,7 @@ const {
   isSnapRuntime
 } = require('./flatpak-paths.cjs')
 const { refreshNativeHostWrapperIfPresent } = require('./nativeHostWrapper.cjs')
+const { installAppImageDesktop } = require('./installAppImageDesktop.cjs')
 const runtimeConfig = require('./runtime-config.cjs')
 const devicePreferences = require('../src/utils/devicePreferences.cjs')
 const {
@@ -892,6 +896,26 @@ app.whenReady().then(async () => {
   }
   registerIPC()
   await refreshNativeHostWrapper()
+  try {
+    const iconPath = app.isPackaged
+      ? path.join(process.resourcesPath, 'assets', 'linux', 'icon.png')
+      : path.join(__dirname, '..', 'assets', 'linux', 'icon.png')
+    const desktop = installAppImageDesktop({
+      appImagePath: process.env.APPIMAGE,
+      productName: pkg.productName,
+      appId: pkg.build?.appId ?? 'works.dexterity.lockwright',
+      iconSourcePath: iconPath
+    })
+    if (desktop.installed) {
+      logger.info('[MAIN]', 'Installed AppImage desktop entry', desktop.desktopPath)
+    }
+  } catch (err) {
+    logger.warn(
+      '[MAIN]',
+      'AppImage desktop entry failed:',
+      (err && err.message) || err
+    )
+  }
   try {
     await startRuntime()
   } catch (err) {
