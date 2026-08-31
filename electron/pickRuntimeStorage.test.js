@@ -28,6 +28,22 @@ function writeMasterStore(storageRoot) {
   }
 }
 
+function writeCorestoreDeviceFile(storageRoot) {
+  writeMasterStore(storageRoot)
+  const file = path.join(storageRoot, 'encryption', 'CORESTORE')
+  fs.writeFileSync(
+    file,
+    [
+      'device/platform=linux',
+      'device/inode=1',
+      'device/created=1',
+      'device/attribute=original',
+      ''
+    ].join('\n')
+  )
+  return file
+}
+
 describe('hasVault', () => {
   let root
 
@@ -206,6 +222,52 @@ describe('adoptInheritedVault', () => {
     expect(fs.readFileSync(path.join(sourceVault, 'vault', 'core'), 'utf8')).toBe(
       'vault-bytes'
     )
+  })
+
+  it('drops copied CORESTORE files so Corestore can restamp this machine', () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'lockwright-adopt-'))
+    const destDir = path.join(root, 'Lockwright')
+    const sourceDir = path.join(root, 'PearPass')
+    const sourceVault = path.join(sourceDir, 'app-storage', 'by-dkey', OLD_ID)
+    writeCorestoreDeviceFile(sourceVault)
+    writeVault(path.join(destDir, 'app-storage', 'by-dkey', NEW_ID))
+
+    const adopted = adoptInheritedVault({
+      destDir,
+      sourceDirs: [sourceDir],
+      upgrade: `pear://${NEW_ID}`
+    })
+
+    expect(adopted).toBe(
+      path.join(destDir, 'app-storage', 'by-dkey', OLD_ID)
+    )
+    expect(
+      fs.existsSync(path.join(adopted, 'encryption', 'CORESTORE'))
+    ).toBe(false)
+    expect(
+      fs.existsSync(path.join(sourceVault, 'encryption', 'CORESTORE'))
+    ).toBe(true)
+    expect(
+      fs.existsSync(path.join(adopted, 'encryption', 'db', 'CURRENT'))
+    ).toBe(true)
+  })
+
+  it('restamps CORESTORE on an inherited vault copied on a previous launch', () => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'lockwright-adopt-'))
+    const destDir = path.join(root, 'Lockwright')
+    const destInherited = path.join(destDir, 'app-storage', 'by-dkey', OLD_ID)
+    writeCorestoreDeviceFile(destInherited)
+
+    const adopted = adoptInheritedVault({
+      destDir,
+      sourceDirs: [],
+      upgrade: `pear://${NEW_ID}`
+    })
+
+    expect(adopted).toBe(destInherited)
+    expect(
+      fs.existsSync(path.join(destInherited, 'encryption', 'CORESTORE'))
+    ).toBe(false)
   })
 })
 

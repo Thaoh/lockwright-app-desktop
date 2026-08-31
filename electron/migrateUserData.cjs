@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const { restampCopiedCorestores } = require('./restampCopiedCorestores.cjs')
 
 const LEGACY_USER_DATA_DIR_NAME = 'PearPass'
 // Electron userData is appData/<package.json name> unless setPath pins it.
@@ -64,6 +65,7 @@ function migratePearPassUserData({
 
   fsImpl.mkdirSync(destDir, { recursive: true })
   fsImpl.cpSync(from, destDir, { recursive: true, force: false })
+  restampCopiedCorestores(destDir, fsImpl)
   logger?.info?.('[MAIN]', 'Migrated PearPass userData', { from, to: destDir })
   return { migrated: true, from, to: destDir }
 }

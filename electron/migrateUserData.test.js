@@ -109,6 +109,42 @@ describe('migratePearPassUserData', () => {
     expect(fs.readFileSync(destVault, 'utf8')).toBe('lockwright-bytes')
   })
 
+  it('drops copied CORESTORE files so Corestore can restamp this machine', () => {
+    const tree = makeTree()
+    root = tree.root
+    writeVault(tree.sourceDir)
+    const corestore = path.join(
+      tree.sourceDir,
+      'app-storage',
+      'local',
+      'encryption',
+      'CORESTORE'
+    )
+    fs.mkdirSync(path.dirname(corestore), { recursive: true })
+    fs.writeFileSync(
+      corestore,
+      'device/platform=linux\ndevice/attribute=original\n'
+    )
+
+    migratePearPassUserData({
+      destDir: tree.destDir,
+      sourceDirs: [tree.sourceDir]
+    })
+
+    expect(
+      fs.existsSync(
+        path.join(
+          tree.destDir,
+          'app-storage',
+          'local',
+          'encryption',
+          'CORESTORE'
+        )
+      )
+    ).toBe(false)
+    expect(fs.existsSync(corestore)).toBe(true)
+  })
+
   it('skips when PearPass has no vault data', () => {
     const tree = makeTree()
     root = tree.root

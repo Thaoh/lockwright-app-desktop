@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const { restampCopiedCorestores } = require('./restampCopiedCorestores.cjs')
 
 function dirHasEntries(dir, fsImpl = fs) {
   try {
@@ -84,6 +85,7 @@ function adoptInheritedVault({
     isInheritedStorageDir(destPick, upgrade) &&
     !isLocalStorageDir(destPick)
   ) {
+    restampCopiedCorestores(destPick, fsImpl)
     return destPick
   }
 
@@ -103,6 +105,7 @@ function adoptInheritedVault({
     if (!hasVault(destFound, fsImpl)) {
       fsImpl.mkdirSync(path.dirname(destFound), { recursive: true })
       fsImpl.cpSync(found, destFound, { recursive: true, force: false })
+      restampCopiedCorestores(destFound, fsImpl)
     }
     return destFound
   }
