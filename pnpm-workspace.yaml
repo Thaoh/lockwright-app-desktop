@@ -5,7 +5,7 @@ nodeLinker: hoisted
 blockExoticSubdeps: false
 
 overrides:
-  "@tetherto/pearpass-lib-constants": "git+https://github.com/Thaoh/lockwright-lib-constants.git#0221dba94373926c7316c675d9bff774daf8464f"
+  "@tetherto/pearpass-lib-constants": "git+https://github.com/Thaoh/lockwright-lib-constants.git#0cf657575130f2168f883579c17daf344e4aaefd"
   "@tetherto/pearpass-lib-ui-kit": "git+https://github.com/Thaoh/lockwright-lib-ui-react-native-components.git#design-system-v2"
 
 allowBuilds:
@@ -34,6 +34,7 @@ allowBuilds:
   "@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/1f3338f06101e409255402e5ac6a4d696540d02b": true
   "@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/52680e3ab3f9ec5604ce2e12e951275101799de5": true
   "@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/0221dba94373926c7316c675d9bff774daf8464f": true
+  "@tetherto/pearpass-lib-constants@https://codeload.github.com/Thaoh/lockwright-lib-constants/tar.gz/0cf657575130f2168f883579c17daf344e4aaefd": true
   "@tetherto/pearpass-lib-vault-core@file:../pearpass-lib-vault-core": true
   "@tetherto/pearpass-lib-vault@file:../pearpass-lib-vault": true
   electron: set this to true or false

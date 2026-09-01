@@ -46,6 +46,15 @@ describe('chromiumExtensionAllowlist', () => {
       expect(getChromiumExtensionIds()).toEqual([CHROMIUM_EXTENSION_ID])
     })
 
+    it('Chrome Web Store link uses the shipped Chromium ID', () => {
+      const {
+        CHROME_EXTENSION_STORE_LINK
+      } = require('../constants/pearpassLinks')
+      expect(CHROME_EXTENSION_STORE_LINK).toBe(
+        `https://chromewebstore.google.com/detail/${CHROMIUM_EXTENSION_ID}`
+      )
+    })
+
     it('reads the allowlist JSON key', () => {
       localStorage.setItem(
         LOCAL_STORAGE_KEYS.CHROMIUM_EXTENSION_ALLOWLIST,

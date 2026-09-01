@@ -200,7 +200,7 @@
     "@tetherto/pear-apps-utils-pattern-search": "git+https://github.com/tetherto/pear-apps-utils-pattern-search.git",
     "@tetherto/pear-apps-utils-qr": "git+https://github.com/tetherto/pear-apps-utils-qr.git",
     "@tetherto/pear-apps-utils-validator": "git+https://github.com/tetherto/pear-apps-utils-validator.git",
-    "@tetherto/pearpass-lib-constants": "git+https://github.com/Thaoh/lockwright-lib-constants.git#0221dba94373926c7316c675d9bff774daf8464f",
+    "@tetherto/pearpass-lib-constants": "git+https://github.com/Thaoh/lockwright-lib-constants.git#0cf657575130f2168f883579c17daf344e4aaefd",
     "@tetherto/pearpass-lib-data-export": "git+https://github.com/tetherto/pearpass-lib-data-export.git",
     "@tetherto/pearpass-lib-data-import": "git+https://github.com/tetherto/pearpass-lib-data-import.git",
     "@tetherto/pearpass-lib-native-messaging-bridge": "git+https://github.com/tetherto/pearpass-lib-native-messaging-bridge.git",
@@ -238,7 +238,7 @@
     "@esbuild/win32-x64": "0.24.2"
   },
   "overrides": {
-    "@tetherto/pearpass-lib-constants": "git+https://github.com/Thaoh/lockwright-lib-constants.git#0221dba94373926c7316c675d9bff774daf8464f",
+    "@tetherto/pearpass-lib-constants": "git+https://github.com/Thaoh/lockwright-lib-constants.git#0cf657575130f2168f883579c17daf344e4aaefd",
     "@xmldom/xmldom": "^0.8.10",
     "react": "19.1.0",
     "react-dom": "19.1.0",
