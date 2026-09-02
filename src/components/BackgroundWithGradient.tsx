@@ -2,6 +2,8 @@ import React, { useState, useEffect, ReactNode, CSSProperties } from 'react'
 import styled from 'styled-components'
 import { useTheme } from '@tetherto/pearpass-lib-ui-kit'
 
+import { nextBackgroundSize } from './backgroundSize'
+
 interface ContainerProps {
   $backgroundColor: string
 }
@@ -49,10 +51,12 @@ export const BackgroundWithGradient: React.FC<BackgroundWithGradientProps> = ({
 
   useEffect(() => {
     const handleResize = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight
-      })
+      setDimensions((prev) =>
+        nextBackgroundSize(prev, {
+          width: window.innerWidth,
+          height: window.innerHeight
+        })
+      )
     }
 
     window.addEventListener('resize', handleResize)
