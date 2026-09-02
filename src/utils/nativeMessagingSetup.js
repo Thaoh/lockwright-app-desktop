@@ -16,10 +16,7 @@ import { getChromiumExtensionIds } from '../services/chromiumExtensionAllowlist'
 
 const { isFlatpakRuntime, isSnapRuntime, getHostHome, getSnapRealHome } =
   flatpakPaths
-const { buildWrapperContent } = nativeHostWrapper
-
-const NATIVE_BRIDGE_PROCESS_IDENTIFIER =
-  'lockwright-lib-native-messaging-bridge'
+const { buildWrapperContent, NATIVE_HOST_PROCESS_PATTERN } = nativeHostWrapper
 
 const promisify =
   (fn) =>
@@ -503,7 +500,7 @@ export const killNativeMessagingHostProcesses = async () => {
     if (platform === 'win32') {
       // Find processes with the bridge module in their command line and force-kill them
       try {
-        const psCmd = `powershell -NoProfile -Command "Get-WmiObject Win32_Process | Where-Object {\$_.CommandLine -like '*${NATIVE_BRIDGE_PROCESS_IDENTIFIER}*'} | ForEach-Object { taskkill /PID \$_.ProcessId /F }"`
+        const psCmd = `powershell -NoProfile -Command "Get-WmiObject Win32_Process | Where-Object {\$_.CommandLine -like '*${NATIVE_HOST_PROCESS_PATTERN}*'} | ForEach-Object { taskkill /PID \$_.ProcessId /F }"`
         await execAsync(psCmd)
         logger.info(
           'NATIVE-MESSAGING-KILL',
@@ -518,7 +515,7 @@ export const killNativeMessagingHostProcesses = async () => {
     } else {
       // macOS/Linux: the wrapper uses 'exec' so the bridge module path appears in the process args
       try {
-        await execAsync(`pkill -f "${NATIVE_BRIDGE_PROCESS_IDENTIFIER}"`)
+        await execAsync(`pkill -f "${NATIVE_HOST_PROCESS_PATTERN}"`)
         logger.info(
           'NATIVE-MESSAGING-KILL',
           'Killed native messaging host process'

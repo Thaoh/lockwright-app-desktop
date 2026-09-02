@@ -1,7 +1,12 @@
+const { exec } = require('child_process')
 const fsp = require('fs/promises')
 
 const FLATPAK_APP_ID = 'works.dexterity.lockwright'
 const FLATPAK_NATIVE_HOST_COMMAND = 'lockwright-native-host'
+// Packaged host argv is `.../native-messaging-bridge.bundle.cjs`, not the
+// unbundled package name. pkill -f must match that argv or AppImage remounts
+// leave a zombie host on the previous /tmp/.mount_* path.
+const NATIVE_HOST_PROCESS_PATTERN = 'native-messaging-bridge.bundle'
 
 // Wrappers emit diagnostics to stderr only: Chrome reads stdout as framed
 // native-messaging payloads, so any plain text there drops the port with
@@ -71,6 +76,16 @@ async function writeWrapperAtomic(executablePath, content, platform) {
   await fsp.rename(tmpPath, executablePath)
 }
 
+function killNativeHostProcesses() {
+  return new Promise((resolve) => {
+    const cmd =
+      process.platform === 'win32'
+        ? `powershell -NoProfile -Command "Get-WmiObject Win32_Process | Where-Object {$_.CommandLine -like '*${NATIVE_HOST_PROCESS_PATTERN}*'} | ForEach-Object { taskkill /PID $_.ProcessId /F }"`
+        : `pkill -f "${NATIVE_HOST_PROCESS_PATTERN}"`
+    exec(cmd, () => resolve())
+  })
+}
+
 async function refreshNativeHostWrapperIfPresent({
   executablePath,
   electronExecPath,
@@ -95,7 +110,9 @@ async function refreshNativeHostWrapperIfPresent({
 }
 
 module.exports = {
+  NATIVE_HOST_PROCESS_PATTERN,
   buildWrapperContent,
   writeWrapperAtomic,
-  refreshNativeHostWrapperIfPresent
+  refreshNativeHostWrapperIfPresent,
+  killNativeHostProcesses
 }

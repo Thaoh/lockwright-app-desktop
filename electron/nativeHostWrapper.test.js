@@ -9,10 +9,14 @@ jest.mock('fs/promises', () => ({
 
 const fsp = require('fs/promises')
 
+const fs = require('fs')
+const path = require('path')
+
 const {
   buildWrapperContent,
   writeWrapperAtomic,
-  refreshNativeHostWrapperIfPresent
+  refreshNativeHostWrapperIfPresent,
+  NATIVE_HOST_PROCESS_PATTERN
 } = require('./nativeHostWrapper.cjs')
 
 const EXEC_PATH = '/mock/electron/Lockwright'
@@ -133,5 +137,28 @@ describe('refreshNativeHostWrapperIfPresent', () => {
     expect(writeCall[0].startsWith(`${WRAPPER_PATH}.tmp-`)).toBe(true)
     expect(writeCall[1]).toContain(EXEC_PATH)
     expect(fsp.rename).toHaveBeenCalledWith(writeCall[0], WRAPPER_PATH)
+  })
+})
+
+describe('NATIVE_HOST_PROCESS_PATTERN', () => {
+  // Live AppImage host argv from a Fedora session where the previous
+  // squashfs had already unmounted. pkill -f must match this, not the
+  // unbundled package name.
+  const packagedHostArgv =
+    '/tmp/.mount_LockwrhaMfmP/lockwright-app-desktop.bin /tmp/.mount_LockwrhaMfmP/resources/app/dist/native-messaging-bridge.bundle.cjs'
+  const appArgv =
+    '/tmp/.mount_LockwrKGKfJf/lockwright-app-desktop.bin --no-sandbox'
+
+  it('matches a packaged native-host argv and not the desktop app', () => {
+    expect(packagedHostArgv).toContain(NATIVE_HOST_PROCESS_PATTERN)
+    expect(appArgv).not.toContain(NATIVE_HOST_PROCESS_PATTERN)
+  })
+
+  it('is what main.cjs kills after rewriting the AppImage wrapper', () => {
+    const main = fs.readFileSync(path.join(__dirname, 'main.cjs'), 'utf8')
+    const afterRefresh = main.slice(
+      main.indexOf('await refreshNativeHostWrapper()')
+    )
+    expect(afterRefresh).toMatch(/await killNativeHostProcesses\(\)/)
   })
 })

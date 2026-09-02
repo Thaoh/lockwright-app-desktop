@@ -60,7 +60,10 @@ const {
   isFlatpakRuntime,
   isSnapRuntime
 } = require('./flatpak-paths.cjs')
-const { refreshNativeHostWrapperIfPresent } = require('./nativeHostWrapper.cjs')
+const {
+  refreshNativeHostWrapperIfPresent,
+  killNativeHostProcesses
+} = require('./nativeHostWrapper.cjs')
 const { installAppImageDesktop } = require('./installAppImageDesktop.cjs')
 const runtimeConfig = require('./runtime-config.cjs')
 const devicePreferences = require('../src/utils/devicePreferences.cjs')
@@ -896,6 +899,9 @@ app.whenReady().then(async () => {
   }
   registerIPC()
   await refreshNativeHostWrapper()
+  // AppImage remount leaves the previous host alive on a dead /tmp/.mount_*
+  // path. Chrome keeps that port; the extension then talks to a zombie.
+  await killNativeHostProcesses()
   try {
     const iconPath = app.isPackaged
       ? path.join(process.resourcesPath, 'assets', 'linux', 'icon.png')

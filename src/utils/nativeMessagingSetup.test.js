@@ -318,7 +318,8 @@ describe('killNativeMessagingHostProcesses', () => {
     expect(execMock).toHaveBeenCalledTimes(1)
     const cmd = execMock.mock.calls[0][0]
     expect(cmd).toContain('pkill -f')
-    expect(cmd).toContain('lockwright-lib-native-messaging-bridge')
+    expect(cmd).toContain('native-messaging-bridge.bundle')
+    expect(cmd).not.toContain('lockwright-lib-native-messaging-bridge')
   })
 
   it('should kill processes on macOS', async () => {
