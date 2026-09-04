@@ -4,11 +4,11 @@
 
 # Lockwright Desktop
 
-> The desktop app for Lockwright, an open-source, end-to-end encrypted password and identity manager built on Pear Runtime.
+> Desktop app for Lockwright. Local vaults, peer-to-peer sync.
 
 Site: [lockwright.dexterity.works](https://lockwright.dexterity.works)
 
-Community fork of PearPass (Apache 2.0). Not affiliated with or endorsed by Tether Data or the Pears project. This GitHub repo stays a fork of `tetherto/pearpass-app-desktop` on purpose. Do not open pull requests against Tether.
+Community fork of PearPass (Apache 2.0). Not affiliated with or endorsed by Tether Data or the Pears project.
 
 ---
 
@@ -17,6 +17,7 @@ Community fork of PearPass (Apache 2.0). Not affiliated with or endorsed by Teth
 - [Introduction](#introduction)
 - [Features](#features)
 - [Installation](#installation)
+- [Changelog](CHANGELOG.md)
 - [Usage Examples](#usage-examples)
 - [Logging](#logging)
 - [Testing](#testing)
@@ -31,9 +32,7 @@ Community fork of PearPass (Apache 2.0). Not affiliated with or endorsed by Teth
 
 ## Introduction
 
-Lockwright is an open-source, privacy-first password and identity manager. It encrypts and stores all data locally on your device.
-
-Unlike traditional password managers that rely on centralized servers, Lockwright is built on [Pear Runtime](https://pears.com/) and uses peer-to-peer technology to sync your credentials directly between your devices. No cloud account. The credentials stay under your control.
+Lockwright encrypts the vault on this device. Devices sync with each other. There is no cloud account.
 
 The on-disk vault at the fork point is PearPass's. Vault work in this tree aims to open those vaults in place. Test that on a copy.
 
@@ -42,7 +41,7 @@ The on-disk vault at the fork point is PearPass's. Vault work in this tree aims 
 ## Features
 
 - **Encrypted-at-rest storage.** Lockwright encrypts passwords, credit cards, secure notes, and custom fields before writing them to disk.
-- **Cross-device sync.** Credentials sync directly between your devices using Pear Runtime, with no central server.
+- **Cross-device sync.** Credentials sync directly between your devices. No central server.
 - **Offline access.** Access your vault anytime, even without a network connection.
 - **Password health.** Analyse password strength and identify weak passwords.
 - **Random password generator.** Generate strong, unique passwords.
@@ -61,7 +60,6 @@ node --version
 ```
 
 - **pnpm** `11.10.0` (`packageManager` in `package.json`)
-- **Pear Runtime.** [Installation guide](https://docs.pears.com/guide/getting-started.html).
 
 ### Steps
 
@@ -171,7 +169,7 @@ The following sibling modules must be present in the workspace (they are not dec
 
 ## Dependencies
 
-- [Pear Runtime](https://pears.com/)
+- [Electron](https://www.electronjs.org/)
 - [React](https://reactjs.org/)
 - [Lingui](https://lingui.dev/)
 - [Redux](https://redux.js.org/)
@@ -193,7 +191,7 @@ The following sibling modules must be present in the workspace (they are not dec
 
 ## Contributing
 
-Open issues and pull requests on this repo (`Thaoh/lockwright-app-desktop`). Do not open PRs against `tetherto/pearpass-app-desktop`. See [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+Issues and pull requests are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ---
 

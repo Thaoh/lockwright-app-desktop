@@ -1,26 +1,24 @@
 # Contributing to Lockwright
 
-The source is open under the [LICENSE](./LICENSE.md).
+The source is Apache 2.0. See [LICENSE](./LICENSE.md).
 
-This GitHub repo is a fork of `tetherto/pearpass-app-desktop` on purpose. Open issues and pull requests here (`Thaoh/lockwright-app-desktop`). Never open a pull request against `tetherto/pearpass-app-desktop`.
+Open issues and pull requests on this repository.
 
-Any pull request or issue may be closed without explanation.
+A pull request or issue may be closed without explanation.
 
 ## Issues
 
-- Feature requests are welcome.
-- For bug reports, provide a failing test case or steps to reproduce.
+Feature requests are welcome. Bug reports need a failing test or steps to reproduce.
 
-## Pull Request
+## Pull requests
 
-Newer contributors are encouraged to start small. Tests, both failing and passing, are very helpful.
+Start small. Tests, failing and passing, help.
 
-- Keep pull requests focused on a single feature or bug fix
-- Provide a clear description of changes
-- Ensure code passes linting: `pnpm run lint`
-- Ensure tests are passing: `pnpm test`
-  - except any added failing tests
+- One feature or bug per pull request
+- Describe the change
+- `pnpm run lint` must pass
+- `pnpm test` must pass, except tests you added that are meant to fail
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the project [LICENSE](./LICENSE.md).
+Contributions are licensed under the project [LICENSE](./LICENSE.md).
