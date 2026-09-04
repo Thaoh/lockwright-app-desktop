@@ -35,27 +35,7 @@ export class VaultHandlers {
       `vaultsList called with filterKey: ${params?.filterKey}`
     )
 
-    // Check vault status first
-    const vaultsStatus = await this.client.vaultsGetStatus()
-    logger.debug(
-      'VAULT-HANDLER',
-      `Vaults status before list: ${JSON.stringify(vaultsStatus)}`
-    )
-
-    const result = await this.client.vaultsList(params?.filterKey)
-    logger.debug(
-      'VAULT-HANDLER',
-      `vaultsList result: ${JSON.stringify(result)}`
-    )
-
-    // Also check encryption status
-    const encStatus = await this.client.encryptionGetStatus()
-    logger.debug(
-      'VAULT-HANDLER',
-      `Encryption status: ${JSON.stringify(encStatus)}`
-    )
-
-    return result
+    return await this.client.vaultsList(params?.filterKey)
   }
 
   async vaultsAdd(params) {
@@ -120,20 +100,6 @@ export class VaultHandlers {
   }
 
   async activeVaultList(params) {
-    const encStatus = await this.client.encryptionGetStatus()
-    const vaultsStatus = await this.client.vaultsGetStatus()
-    const activeVaultStatus = await this.client.activeVaultGetStatus()
-
-    logger.debug(
-      'VAULT-HANDLER',
-      `Before activeVaultList: ${JSON.stringify({
-        encStatus,
-        vaultsStatus,
-        activeVaultStatus,
-        filterKey: params?.filterKey
-      })}`
-    )
-
     return await this.client.activeVaultList(params?.filterKey)
   }
 
