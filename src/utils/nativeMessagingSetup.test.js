@@ -11,7 +11,6 @@ import {
   cleanupNativeMessaging,
   killNativeMessagingHostProcesses
 } from './nativeMessagingSetup'
-import { getChromiumExtensionIds } from '../services/chromiumExtensionAllowlist'
 
 // Mock dependencies
 jest.mock('@tetherto/pearpass-lib-constants', () => ({
@@ -19,9 +18,6 @@ jest.mock('@tetherto/pearpass-lib-constants', () => ({
   CHROMIUM_EXTENSION_ID: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   FIREFOX_EXTENSION_ID: 'pearpass@example.com',
   FIREFOX_NIGHTLY_EXTENSION_ID: 'pearpass-nightly@example.com'
-}))
-jest.mock('../services/chromiumExtensionAllowlist', () => ({
-  getChromiumExtensionIds: jest.fn(() => ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'])
 }))
 jest.mock('os')
 jest.mock('fs/promises')
@@ -457,11 +453,7 @@ describe('setupNativeMessaging', () => {
     expect(execMock).toHaveBeenCalledTimes(6)
   })
 
-  it('writes Chromium allowed_origins from the allowlist', async () => {
-    getChromiumExtensionIds.mockReturnValueOnce([
-      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-    ])
+  it('writes Chromium allowed_origins for the shipped Chrome Web Store extension', async () => {
     const result = await setupNativeMessaging({
       userDataPath: MOCK_USER_DATA_PATH,
       execPath: MOCK_EXEC_PATH,
@@ -480,8 +472,7 @@ describe('setupNativeMessaging', () => {
     expect(chromiumWrites.length).toBeGreaterThan(0)
     for (const manifest of chromiumWrites) {
       expect(manifest.allowed_origins).toEqual([
-        'chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/',
-        'chrome-extension://bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb/'
+        'chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/'
       ])
     }
   })

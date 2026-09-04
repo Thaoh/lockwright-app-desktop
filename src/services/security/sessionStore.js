@@ -95,6 +95,22 @@ export const closeSession = (sessionId) => {
 }
 
 /**
+ * Close sessions bound to one extension client. Leaves other browsers connected.
+ * @param {string} clientPubB64
+ * @returns {number} closed session count
+ */
+export const closeSessionsForClient = (clientPubB64) => {
+  let closed = 0
+  for (const [sessionId, session] of SESSIONS) {
+    if (session.clientPubB64 === clientPubB64) {
+      SESSIONS.delete(sessionId)
+      closed += 1
+    }
+  }
+  return closed
+}
+
+/**
  * Clear all active sessions
  * This will unpair all connected extensions
  */

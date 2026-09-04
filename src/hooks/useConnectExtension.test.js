@@ -25,7 +25,6 @@ jest.mock(
 import { act, renderHook, waitFor } from '@testing-library/react'
 
 import { useConnectExtension } from './useConnectExtension'
-import { setChromiumExtensionIds } from '../services/chromiumExtensionAllowlist'
 import { createOrGetPearpassClient } from '../services/createOrGetPearpassClient'
 import {
   isNativeMessagingIPCRunning,
@@ -39,8 +38,12 @@ import {
 import {
   getFingerprint,
   getOrCreateIdentity,
-  getPairingToken
+  getPairingToken,
+  getPairedClients,
+  removeClientIdentity,
+  resetIdentity
 } from '../services/security/appIdentity'
+import { closeSessionsForClient } from '../services/security/sessionStore.js'
 import {
   killNativeMessagingHostProcesses,
   setupNativeMessaging
@@ -78,22 +81,18 @@ jest.mock('../services/security/appIdentity', () => ({
   getFingerprint: jest.fn(),
   getOrCreateIdentity: jest.fn(),
   getPairingToken: jest.fn(),
+  getPairedClients: jest.fn(),
+  removeClientIdentity: jest.fn(),
   resetIdentity: jest.fn()
+}))
+jest.mock('../services/security/sessionStore.js', () => ({
+  clearAllSessions: jest.fn(),
+  closeSessionsForClient: jest.fn()
 }))
 jest.mock('../utils/nativeMessagingSetup', () => ({
   setupNativeMessaging: jest.fn(),
   cleanupNativeMessaging: jest.fn().mockResolvedValue(),
   killNativeMessagingHostProcesses: jest.fn().mockResolvedValue()
-}))
-jest.mock('../services/chromiumExtensionAllowlist', () => ({
-  formatChromiumExtensionIdsText: jest.fn(
-    () => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-  ),
-  getChromiumExtensionIds: jest.fn(() => ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']),
-  parseChromiumExtensionIdsText: jest.fn((text) =>
-    text.split(/[\s,]+/).filter(Boolean)
-  ),
-  setChromiumExtensionIds: jest.fn((ids) => ({ ok: true, ids }))
 }))
 jest.mock('../electron', () => ({
   getElectronConfig: jest.fn().mockResolvedValue({
@@ -106,14 +105,20 @@ jest.mock('../electron', () => ({
 describe('useConnectExtension', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    getPairedClients.mockResolvedValue([])
+    getNativeMessagingEnabled.mockReturnValue(false)
+    isNativeMessagingIPCRunning.mockReturnValue(false)
   })
 
-  it('initializes extension state if enabled and running', () => {
+  it('initializes extension state if enabled and running', async () => {
     getNativeMessagingEnabled.mockReturnValue(true)
     isNativeMessagingIPCRunning.mockReturnValue(true)
 
     const { result } = renderHook(() => useConnectExtension())
     expect(result.current.isBrowserExtensionEnabled).toBe(true)
+    await waitFor(() => {
+      expect(getPairedClients).toHaveBeenCalled()
+    })
   })
 
   it('does not enable if not running or not enabled', () => {
@@ -181,33 +186,6 @@ describe('useConnectExtension', () => {
     expect(setNativeMessagingEnabled).toHaveBeenCalledWith(false)
   })
 
-  it('applies chromium extension allowlist and rewrites the host manifest', async () => {
-    setupNativeMessaging.mockResolvedValue({ success: true })
-    killNativeMessagingHostProcesses.mockResolvedValue()
-    isNativeMessagingIPCRunning.mockReturnValue(true)
-    setChromiumExtensionIds.mockReturnValue({
-      ok: true,
-      ids: ['bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb']
-    })
-
-    const { result } = renderHook(() => useConnectExtension())
-
-    let ids
-    await act(async () => {
-      ids = await result.current.applyChromiumExtensionAllowlist(
-        'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-      )
-    })
-
-    expect(setChromiumExtensionIds).toHaveBeenCalledWith([
-      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-    ])
-    expect(setupNativeMessaging).toHaveBeenCalled()
-    expect(killNativeMessagingHostProcesses).toHaveBeenCalled()
-    expect(ids).toEqual(['bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'])
-    expect(mockSetToast).toHaveBeenCalled()
-  })
-
   it('loads pairing info on enable', async () => {
     const fakeIdentity = {
       ed25519PublicKey: 'pubkey',
@@ -238,5 +216,73 @@ describe('useConnectExtension', () => {
       expect(getPairingToken).toHaveBeenCalled()
       expect(getFingerprint).toHaveBeenCalledWith('pubkey')
     })
+  })
+
+  it('shows an existing pair code without restarting the native host', async () => {
+    getOrCreateIdentity.mockResolvedValue({
+      ed25519PublicKey: 'pubkey',
+      creationDate: '2023-01-01'
+    })
+    getPairingToken.mockResolvedValue('PAIRCODE-ABCD')
+    getFingerprint.mockReturnValue('ABCD1234')
+    createOrGetPearpassClient.mockReturnValue({
+      encryptionAdd: jest.fn().mockResolvedValue(undefined)
+    })
+
+    const { result } = renderHook(() => useConnectExtension())
+
+    await act(async () => {
+      await result.current.showPairingCode()
+    })
+
+    expect(setupNativeMessaging).not.toHaveBeenCalled()
+    expect(killNativeMessagingHostProcesses).not.toHaveBeenCalled()
+    expect(getPairingToken).toHaveBeenCalled()
+    expect(mockSetModal).toHaveBeenCalled()
+  })
+
+  it('unpairs one browser without stopping native messaging when others remain', async () => {
+    createOrGetPearpassClient.mockReturnValue({})
+    removeClientIdentity.mockResolvedValue([
+      {
+        publicKey: 'chromePub',
+        pairingState: 'CONFIRMED',
+        browserName: 'Chrome'
+      }
+    ])
+
+    const { result } = renderHook(() => useConnectExtension())
+
+    await act(async () => {
+      await result.current.unpairBrowser('firefoxPub')
+    })
+
+    expect(removeClientIdentity).toHaveBeenCalledWith({}, 'firefoxPub')
+    expect(closeSessionsForClient).toHaveBeenCalledWith('firefoxPub')
+    expect(stopNativeMessagingIPC).not.toHaveBeenCalled()
+    expect(resetIdentity).not.toHaveBeenCalled()
+    expect(result.current.pairedBrowsers).toEqual([
+      {
+        publicKey: 'chromePub',
+        pairingState: 'CONFIRMED',
+        browserName: 'Chrome'
+      }
+    ])
+  })
+
+  it('stops native messaging when the last browser is unpaired', async () => {
+    createOrGetPearpassClient.mockReturnValue({})
+    removeClientIdentity.mockResolvedValue([])
+    stopNativeMessagingIPC.mockResolvedValue()
+
+    const { result } = renderHook(() => useConnectExtension())
+
+    await act(async () => {
+      await result.current.unpairBrowser('chromePub')
+    })
+
+    expect(closeSessionsForClient).toHaveBeenCalledWith('chromePub')
+    expect(stopNativeMessagingIPC).toHaveBeenCalled()
+    expect(resetIdentity).toHaveBeenCalled()
   })
 })

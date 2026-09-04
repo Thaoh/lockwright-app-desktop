@@ -1,20 +1,15 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { ContentCopy } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { useCopyToClipboard } from './useCopyToClipboard.electron'
 import { useTranslation } from './useTranslation'
+import { PAIRING_STATES } from '../constants/pairing.js'
 import { ExtensionPairingModalContent } from '../containers/Modal/ExtensionPairingModalContent/ExtensionPairingModalContent'
 import { useGlobalLoading } from '../context/LoadingContext.js'
 import { useModal } from '../context/ModalContext'
 import { useToast } from '../context/ToastContext'
 import { getElectronConfig } from '../electron'
-import {
-  formatChromiumExtensionIdsText,
-  getChromiumExtensionIds,
-  parseChromiumExtensionIdsText,
-  setChromiumExtensionIds
-} from '../services/chromiumExtensionAllowlist'
 import { createOrGetPearpassClient } from '../services/createOrGetPearpassClient'
 import {
   isNativeMessagingIPCRunning,
@@ -29,9 +24,14 @@ import {
   getFingerprint,
   getOrCreateIdentity,
   getPairingToken,
+  getPairedClients,
+  removeClientIdentity,
   resetIdentity
 } from '../services/security/appIdentity'
-import { clearAllSessions } from '../services/security/sessionStore.js'
+import {
+  clearAllSessions,
+  closeSessionsForClient
+} from '../services/security/sessionStore.js'
 import {
   setupNativeMessaging,
   killNativeMessagingHostProcesses,
@@ -50,6 +50,36 @@ export const useConnectExtension = () => {
   const [isBrowserExtensionEnabled, setIsBrowserExtensionEnabled] = useState(
     getNativeMessagingEnabled() && isNativeMessagingIPCRunning()
   )
+  const [pairedBrowsers, setPairedBrowsers] = useState(
+    /** @type {{ publicKey: string, pairingState?: string, browserName?: string }[]} */ ([])
+  )
+
+  const refreshPairedBrowsers = useCallback(async () => {
+    try {
+      const client = createOrGetPearpassClient()
+      const clients = await getPairedClients(client)
+      setPairedBrowsers(
+        clients.filter(
+          (entry) => entry.pairingState === PAIRING_STATES.CONFIRMED
+        )
+      )
+    } catch {
+      setPairedBrowsers([])
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!isBrowserExtensionEnabled) {
+      setPairedBrowsers([])
+      return
+    }
+    void refreshPairedBrowsers()
+    const onFocus = () => {
+      void refreshPairedBrowsers()
+    }
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [isBrowserExtensionEnabled, refreshPairedBrowsers])
 
   const handleSetupExtension = async () => {
     // Setup native messaging for the extension
@@ -105,6 +135,7 @@ export const useConnectExtension = () => {
   const resetState = () => {
     setIsBrowserExtensionEnabled(false)
     setIsExtensionConnectionLoading(false)
+    setPairedBrowsers([])
   }
 
   const loadPairingInfo = async (reset = false) => {
@@ -132,20 +163,36 @@ export const useConnectExtension = () => {
     return result
   }
 
+  const openPairingModal = (pairingToken) => {
+    setModal(
+      <ExtensionPairingModalContent
+        onCopy={() => copyToClipboard(pairingToken)}
+        pairingToken={pairingToken}
+        loadingPairing={isExtensionConnectionLoading}
+      />,
+      { replace: true }
+    )
+  }
+
+  const showPairingCode = async () => {
+    setIsExtensionConnectionLoading(true)
+    try {
+      const { pairingToken } = await loadPairingInfo(false)
+      openPairingModal(pairingToken)
+    } catch (error) {
+      setToast({ message: t('Error: ') + error.message })
+    } finally {
+      setIsExtensionConnectionLoading(false)
+    }
+  }
+
   const toggleBrowserExtension = async (isOn) => {
     if (isOn) {
       setIsExtensionConnectionLoading(true)
       return handleSetupExtension()
         .then(loadPairingInfo)
         .then(({ pairingToken }) => {
-          setModal(
-            <ExtensionPairingModalContent
-              onCopy={() => copyToClipboard(pairingToken)}
-              pairingToken={pairingToken}
-              loadingPairing={isExtensionConnectionLoading}
-            />,
-            { replace: true }
-          )
+          openPairingModal(pairingToken)
         })
         .catch((error) => {
           setToast({ message: t('Error: ') + error.message })
@@ -158,47 +205,25 @@ export const useConnectExtension = () => {
     return handleStopNativeMessaging()
   }
 
-  const applyChromiumExtensionAllowlist = async (idsText) => {
-    const parsed = parseChromiumExtensionIdsText(idsText)
-    const saved = setChromiumExtensionIds(parsed)
-    if (!saved.ok) {
-      throw new Error(saved.error)
+  const unpairBrowser = async (publicKey) => {
+    const client = createOrGetPearpassClient()
+    const remaining = await removeClientIdentity(client, publicKey)
+    closeSessionsForClient(publicKey)
+    const confirmed = remaining.filter(
+      (entry) => entry.pairingState === PAIRING_STATES.CONFIRMED
+    )
+    if (confirmed.length === 0) {
+      await handleStopNativeMessaging()
+      return
     }
-
-    const config = await getElectronConfig()
-    const result = await setupNativeMessaging({
-      userDataPath: config.userDataPath,
-      execPath: config.execPath,
-      bridgePath: config.bridgePath
-    })
-    if (!result.success) {
-      throw new Error(result.message || t('Setup failed'))
-    }
-
-    await killNativeMessagingHostProcesses()
-
-    if (!isNativeMessagingIPCRunning()) {
-      const client = createOrGetPearpassClient()
-      await startNativeMessagingIPC(client)
-    }
-    setNativeMessagingEnabled(true)
-    setIsBrowserExtensionEnabled(true)
-
-    setToast({
-      message: t(
-        'Approved extension IDs updated. Restart the browser tab if needed.'
-      )
-    })
-
-    return saved.ids
+    setPairedBrowsers(confirmed)
   }
 
   return {
     toggleBrowserExtension,
-    isBrowserExtensionEnabled,
-    chromiumExtensionIdsText: formatChromiumExtensionIdsText(
-      getChromiumExtensionIds()
-    ),
-    applyChromiumExtensionAllowlist
+    showPairingCode,
+    unpairBrowser,
+    pairedBrowsers,
+    isBrowserExtensionEnabled
   }
 }

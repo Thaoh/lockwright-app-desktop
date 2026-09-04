@@ -6,7 +6,8 @@ import {
   getFingerprint,
   __getMemIdentity,
   setClientIdentityPublicKey,
-  confirmClientPairing
+  confirmClientPairing,
+  removeClientIdentity
 } from './appIdentity'
 import { LOCAL_STORAGE_KEYS } from '../../constants/localStorage'
 import { PAIRING_STATES } from '../../constants/pairing'
@@ -52,6 +53,7 @@ describe('appIdentity', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    localStorage.clear()
 
     mockClient = {
       encryptionGetStatus: jest.fn(),
@@ -268,13 +270,18 @@ describe('appIdentity', () => {
   describe('setClientIdentityPublicKey', () => {
     it('should store client data in vault but NOT in localStorage', async () => {
       const clientPub = 'clientPub123'
+      mockClient.encryptionGet.mockResolvedValue(null)
       await setClientIdentityPublicKey(mockClient, clientPub)
 
       expect(mockClient.encryptionAdd).toHaveBeenCalledWith(
         'nm.client.data',
         JSON.stringify({
-          publicKey: clientPub,
-          pairingState: PAIRING_STATES.PENDING
+          clients: [
+            {
+              publicKey: clientPub,
+              pairingState: PAIRING_STATES.PENDING
+            }
+          ]
         })
       )
 
@@ -282,13 +289,49 @@ describe('appIdentity', () => {
         localStorage.getItem(LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY)
       ).toBeNull()
     })
+
+    it('keeps a confirmed client when a second extension starts pairing', async () => {
+      mockClient.encryptionGet.mockResolvedValue(
+        JSON.stringify({
+          clients: [
+            {
+              publicKey: 'chromePub',
+              pairingState: PAIRING_STATES.CONFIRMED
+            }
+          ]
+        })
+      )
+
+      await setClientIdentityPublicKey(
+        mockClient,
+        'firefoxPub',
+        PAIRING_STATES.PENDING,
+        'Firefox'
+      )
+
+      expect(mockClient.encryptionAdd).toHaveBeenCalledWith(
+        'nm.client.data',
+        JSON.stringify({
+          clients: [
+            {
+              publicKey: 'chromePub',
+              pairingState: PAIRING_STATES.CONFIRMED
+            },
+            {
+              publicKey: 'firefoxPub',
+              pairingState: PAIRING_STATES.PENDING,
+              browserName: 'Firefox'
+            }
+          ]
+        })
+      )
+    })
   })
 
   describe('confirmClientPairing', () => {
     it('should update vault state and set localStorage', async () => {
       const clientPub = 'clientPub123'
 
-      // Mock existing pending pairing in vault
       mockClient.encryptionGet.mockResolvedValue(
         JSON.stringify({
           publicKey: clientPub,
@@ -301,14 +344,110 @@ describe('appIdentity', () => {
       expect(mockClient.encryptionAdd).toHaveBeenCalledWith(
         'nm.client.data',
         JSON.stringify({
-          publicKey: clientPub,
-          pairingState: PAIRING_STATES.CONFIRMED
+          clients: [
+            {
+              publicKey: clientPub,
+              pairingState: PAIRING_STATES.CONFIRMED
+            }
+          ]
         })
       )
 
       expect(
         localStorage.getItem(LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY)
-      ).toBe(clientPub)
+      ).toBe(JSON.stringify([clientPub]))
+    })
+
+    it('confirms a second client without dropping the first', async () => {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY,
+        JSON.stringify(['chromePub'])
+      )
+      mockClient.encryptionGet.mockResolvedValue(
+        JSON.stringify({
+          clients: [
+            {
+              publicKey: 'chromePub',
+              pairingState: PAIRING_STATES.CONFIRMED
+            },
+            {
+              publicKey: 'firefoxPub',
+              pairingState: PAIRING_STATES.PENDING
+            }
+          ]
+        })
+      )
+
+      await confirmClientPairing(mockClient, 'firefoxPub')
+
+      expect(mockClient.encryptionAdd).toHaveBeenCalledWith(
+        'nm.client.data',
+        JSON.stringify({
+          clients: [
+            {
+              publicKey: 'chromePub',
+              pairingState: PAIRING_STATES.CONFIRMED
+            },
+            {
+              publicKey: 'firefoxPub',
+              pairingState: PAIRING_STATES.CONFIRMED
+            }
+          ]
+        })
+      )
+      expect(
+        localStorage.getItem(LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY)
+      ).toBe(JSON.stringify(['chromePub', 'firefoxPub']))
+    })
+  })
+
+  describe('removeClientIdentity', () => {
+    it('drops one paired client and leaves the other confirmed', async () => {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY,
+        JSON.stringify(['chromePub', 'firefoxPub'])
+      )
+      mockClient.encryptionGet.mockResolvedValue(
+        JSON.stringify({
+          clients: [
+            {
+              publicKey: 'chromePub',
+              pairingState: PAIRING_STATES.CONFIRMED,
+              browserName: 'Chrome'
+            },
+            {
+              publicKey: 'firefoxPub',
+              pairingState: PAIRING_STATES.CONFIRMED,
+              browserName: 'Firefox'
+            }
+          ]
+        })
+      )
+
+      const remaining = await removeClientIdentity(mockClient, 'firefoxPub')
+
+      expect(remaining).toEqual([
+        {
+          publicKey: 'chromePub',
+          pairingState: PAIRING_STATES.CONFIRMED,
+          browserName: 'Chrome'
+        }
+      ])
+      expect(mockClient.encryptionAdd).toHaveBeenCalledWith(
+        'nm.client.data',
+        JSON.stringify({
+          clients: [
+            {
+              publicKey: 'chromePub',
+              pairingState: PAIRING_STATES.CONFIRMED,
+              browserName: 'Chrome'
+            }
+          ]
+        })
+      )
+      expect(
+        localStorage.getItem(LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY)
+      ).toBe(JSON.stringify(['chromePub']))
     })
   })
 })

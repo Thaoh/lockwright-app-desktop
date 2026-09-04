@@ -1,20 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 import {
   Button,
-  ContextMenu,
   ListItem,
-  NavbarListItem,
   PageHeader,
   Text,
-  TextArea,
   useTheme
 } from '@tetherto/pearpass-lib-ui-kit'
-import {
-  MoreVert,
-  PublicOutlined,
-  SwapVert
-} from '@tetherto/pearpass-lib-ui-kit/icons'
+import { PublicOutlined, SwapVert } from '@tetherto/pearpass-lib-ui-kit/icons'
 
 import { useConnectExtension } from '../../../../hooks/useConnectExtension'
 import { useTranslation } from '../../../../hooks/useTranslation'
@@ -23,9 +16,7 @@ import { createStyles } from './styles'
 const TEST_IDS = {
   root: 'settings-your-devices',
   extensionSection: 'settings-card-browser-extension-connections',
-  extensionActionButton: 'settings-browser-extension-action',
-  allowlistField: 'settings-chromium-extension-allowlist',
-  allowlistApply: 'settings-chromium-extension-allowlist-apply'
+  unpairBrowser: (publicKey: string) => `settings-unpair-browser-${publicKey}`
 } as const
 
 export const YourDevicesContent = () => {
@@ -35,32 +26,12 @@ export const YourDevicesContent = () => {
   const {
     isBrowserExtensionEnabled,
     toggleBrowserExtension,
-    chromiumExtensionIdsText,
-    applyChromiumExtensionAllowlist
+    showPairingCode,
+    pairedBrowsers,
+    unpairBrowser
   } = useConnectExtension()
 
-  const [allowlistText, setAllowlistText] = useState(chromiumExtensionIdsText)
-  const [allowlistError, setAllowlistError] = useState<string | undefined>()
-  const [isApplyingAllowlist, setIsApplyingAllowlist] = useState(false)
-
-  useEffect(() => {
-    setAllowlistText(chromiumExtensionIdsText)
-  }, [chromiumExtensionIdsText])
-
-  const handleApplyAllowlist = async () => {
-    setAllowlistError(undefined)
-    setIsApplyingAllowlist(true)
-    try {
-      const ids = await applyChromiumExtensionAllowlist(allowlistText)
-      setAllowlistText(ids.join('\n'))
-    } catch (error) {
-      setAllowlistError(
-        error instanceof Error ? error.message : String(error)
-      )
-    } finally {
-      setIsApplyingAllowlist(false)
-    }
-  }
+  const browsers = pairedBrowsers ?? []
 
   return (
     <div data-testid={TEST_IDS.root} style={styles.root}>
@@ -79,47 +50,79 @@ export const YourDevicesContent = () => {
       </div>
 
       <div data-testid={TEST_IDS.extensionSection} style={styles.sectionCard}>
-        {isBrowserExtensionEnabled ? (
-          <div style={styles.list}>
-            <div>
-              <ListItem
-                icon={
-                  <div style={styles.iconWrap}>
-                    <PublicOutlined
-                      width={16}
-                      height={16}
-                      color={theme.colors.colorTextPrimary}
-                    />
-                  </div>
-                }
-                title={'Browser'}
-                testID="settings-device-item-browser"
-                rightElement={
-                  <ContextMenu
-                    trigger={
-                      <Button
-                        variant="tertiary"
-                        size="small"
-                        iconBefore={
-                          <MoreVert
-                            width={16}
-                            height={16}
-                            color={theme.colors.colorTextPrimary}
-                          />
-                        }
-                        data-testid={TEST_IDS.extensionActionButton}
-                        aria-label={t('Browser extension actions')}
+        {isBrowserExtensionEnabled && browsers.length > 0 ? (
+          <>
+            <div style={styles.list}>
+              {browsers.map((browser) => (
+                <ListItem
+                  key={browser.publicKey}
+                  icon={
+                    <div style={styles.iconWrap}>
+                      <PublicOutlined
+                        width={16}
+                        height={16}
+                        color={theme.colors.colorTextPrimary}
                       />
-                    }
-                  >
-                    <NavbarListItem
-                      label={t('Unpair Browser extension')}
-                      variant="destructive"
-                      onClick={() => toggleBrowserExtension(false)}
-                    />
-                  </ContextMenu>
-                }
-              />
+                    </div>
+                  }
+                  title={browser.browserName || t('Browser')}
+                  testID={`settings-device-item-${browser.publicKey}`}
+                  rightElement={
+                    <Button
+                      variant="tertiary"
+                      size="small"
+                      onClick={() => {
+                        void unpairBrowser(browser.publicKey)
+                      }}
+                      data-testid={TEST_IDS.unpairBrowser(browser.publicKey)}
+                    >
+                      {t('Unpair')}
+                    </Button>
+                  }
+                />
+              ))}
+            </div>
+            <div style={styles.footer}>
+              <Button
+                variant="tertiary"
+                size="small"
+                onClick={() => {
+                  void showPairingCode()
+                }}
+                iconBefore={<SwapVert width={16} height={16} />}
+              >
+                {t('Pair another browser')}
+              </Button>
+            </div>
+          </>
+        ) : isBrowserExtensionEnabled ? (
+          <div style={styles.emptyBrowserStateWrap}>
+            <div style={styles.emptyStateCaptions}>
+              <Text>{t('Browser Extension')}</Text>
+              <Text color={theme.colors.colorTextSecondary}>
+                {t(
+                  'Waiting for a browser. Paste the pair code in Chrome or Firefox.'
+                )}
+              </Text>
+            </div>
+            <div style={styles.emptyStateFooter}>
+              <Button
+                variant="tertiary"
+                size="small"
+                onClick={() => {
+                  void showPairingCode()
+                }}
+                iconBefore={<SwapVert width={16} height={16} />}
+              >
+                {t('Pair another browser')}
+              </Button>
+              <Button
+                variant="tertiary"
+                size="small"
+                onClick={() => toggleBrowserExtension(false)}
+              >
+                {t('Turn off browser connections')}
+              </Button>
             </div>
           </div>
         ) : (
@@ -144,39 +147,8 @@ export const YourDevicesContent = () => {
             </div>
           </div>
         )}
-
-        <div style={styles.allowlistWrap}>
-          <Text variant="caption" color={theme.colors.colorTextSecondary}>
-            {t(
-              'If Vivaldi/Chrome shows “Access to the specified native messaging host is forbidden”, paste your extension ID from vivaldi://extensions (Developer mode). One ID per line.'
-            )}
-          </Text>
-          <TextArea
-            label={t('Approved Chromium extension IDs')}
-            value={allowlistText}
-            onChange={(value) => {
-              setAllowlistText(value)
-              if (allowlistError) setAllowlistError(undefined)
-            }}
-            error={allowlistError}
-            testID={TEST_IDS.allowlistField}
-          />
-          <div style={styles.allowlistActions}>
-            <Button
-              variant="secondary"
-              size="small"
-              isLoading={isApplyingAllowlist}
-              disabled={isApplyingAllowlist}
-              onClick={() => {
-                void handleApplyAllowlist()
-              }}
-              data-testid={TEST_IDS.allowlistApply}
-            >
-              {t('Apply approved IDs')}
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   )
 }
+

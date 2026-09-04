@@ -73,19 +73,8 @@ export const createStyles = (colors: ThemeColors) => ({
   emptyStateFooter: {
     display: 'flex' as const,
     justifyContent: 'flex-start' as const,
+    flexWrap: 'wrap' as const,
+    gap: `${rawTokens.spacing4}px`,
     padding: `${rawTokens.spacing4}px`
-  },
-
-  allowlistWrap: {
-    display: 'flex' as const,
-    flexDirection: 'column' as const,
-    gap: `${rawTokens.spacing12}px`,
-    padding: `${rawTokens.spacing12}px`,
-    borderTop: `1px solid ${colors.colorBorderPrimary}`
-  },
-
-  allowlistActions: {
-    display: 'flex' as const,
-    justifyContent: 'flex-start' as const
   }
 })

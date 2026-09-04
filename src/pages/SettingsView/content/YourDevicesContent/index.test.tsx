@@ -3,7 +3,7 @@
 import React from 'react'
 
 import '@testing-library/jest-dom'
-import { act, fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 
 import { YourDevicesContent } from './index'
 ;(globalThis as { React?: typeof React }).React = React
@@ -15,14 +15,15 @@ jest.mock('../../../../hooks/useTranslation', () => ({
 }))
 
 const mockToggleBrowserExtension = jest.fn()
-const mockApplyChromiumExtensionAllowlist = jest.fn(
-  async (_idsText: string): Promise<string[]> => []
-)
+const mockShowPairingCode = jest.fn()
+const mockUnpairBrowser = jest.fn()
+type PairedBrowser = { publicKey: string; browserName?: string }
 let mockExtensionState = {
   isBrowserExtensionEnabled: false,
   toggleBrowserExtension: mockToggleBrowserExtension,
-  chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-  applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
+  showPairingCode: mockShowPairingCode,
+  pairedBrowsers: [] as PairedBrowser[],
+  unpairBrowser: mockUnpairBrowser
 }
 
 jest.mock('../../../../hooks/useConnectExtension', () => ({
@@ -39,8 +40,7 @@ jest.mock('./styles', () => ({
     emptyBrowserStateWrap: {},
     emptyStateCaptions: {},
     emptyStateFooter: {},
-    allowlistWrap: {},
-    allowlistActions: {}
+    footer: {}
   })
 }))
 
@@ -115,24 +115,6 @@ jest.mock('@tetherto/pearpass-lib-ui-kit', () => ({
     <button type="button" onClick={props.onClick}>
       {props.label}
     </button>
-  ),
-  TextArea: (props: {
-    label?: string
-    value?: string
-    onChange?: (value: string) => void
-    error?: string
-    testID?: string
-    [key: string]: unknown
-  }) => (
-    <label>
-      {props.label}
-      <textarea
-        data-testid={props.testID}
-        value={props.value}
-        onChange={(event) => props.onChange?.(event.target.value)}
-      />
-      {props.error ? <span>{props.error}</span> : null}
-    </label>
   )
 }))
 
@@ -149,8 +131,9 @@ describe('YourDevicesContent', () => {
     mockExtensionState = {
       isBrowserExtensionEnabled: false,
       toggleBrowserExtension: mockToggleBrowserExtension,
-      chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
+      showPairingCode: mockShowPairingCode,
+      pairedBrowsers: [],
+      unpairBrowser: mockUnpairBrowser
     }
   })
 
@@ -190,73 +173,93 @@ describe('YourDevicesContent', () => {
     expect(mockToggleBrowserExtension).toHaveBeenCalledWith(true)
   })
 
-  it('shows browser device row when the extension is enabled', () => {
+  it('lists each paired browser so one can be dropped without the other', () => {
     mockExtensionState = {
       isBrowserExtensionEnabled: true,
       toggleBrowserExtension: mockToggleBrowserExtension,
-      chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
+      showPairingCode: mockShowPairingCode,
+      pairedBrowsers: [
+        { publicKey: 'chromePub', browserName: 'Chrome' },
+        { publicKey: 'firefoxPub', browserName: 'Firefox' }
+      ],
+      unpairBrowser: mockUnpairBrowser
     }
 
     render(<YourDevicesContent />)
 
+    expect(screen.getByText('Chrome')).toBeInTheDocument()
+    expect(screen.getByText('Firefox')).toBeInTheDocument()
     expect(
-      screen.getByTestId('settings-device-item-browser')
-    ).toBeInTheDocument()
-    expect(screen.getByText('Browser')).toBeInTheDocument()
-    expect(
-      screen.queryByText('Generate Pair Code for Browser Extension')
+      screen.queryByTestId('settings-device-item-browser')
     ).not.toBeInTheDocument()
+    expect(screen.getByText('Pair another browser')).toBeInTheDocument()
   })
 
-  it('applies approved Chromium extension IDs', async () => {
-    mockApplyChromiumExtensionAllowlist.mockResolvedValue([
-      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-    ])
-
-    render(<YourDevicesContent />)
-
-    fireEvent.change(
-      screen.getByTestId('settings-chromium-extension-allowlist'),
-      { target: { value: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' } }
-    )
-    await act(async () => {
-      fireEvent.click(
-        screen.getByTestId('settings-chromium-extension-allowlist-apply')
-      )
-    })
-
-    expect(mockApplyChromiumExtensionAllowlist).toHaveBeenCalledWith(
-      'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-    )
-  })
-
-  it('shows the extension actions button when the extension is enabled', () => {
+  it('unpairs only the chosen browser', () => {
     mockExtensionState = {
       isBrowserExtensionEnabled: true,
       toggleBrowserExtension: mockToggleBrowserExtension,
-      chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
+      showPairingCode: mockShowPairingCode,
+      pairedBrowsers: [
+        { publicKey: 'chromePub', browserName: 'Chrome' },
+        { publicKey: 'firefoxPub', browserName: 'Firefox' }
+      ],
+      unpairBrowser: mockUnpairBrowser
     }
 
+    render(<YourDevicesContent />)
+
+    fireEvent.click(screen.getByTestId('settings-unpair-browser-firefoxPub'))
+
+    expect(mockUnpairBrowser).toHaveBeenCalledTimes(1)
+    expect(mockUnpairBrowser).toHaveBeenCalledWith('firefoxPub')
+    expect(mockToggleBrowserExtension).not.toHaveBeenCalled()
+  })
+
+  it('does not ask the user for Chromium extension IDs', () => {
     render(<YourDevicesContent />)
 
     expect(
-      screen.getByTestId('settings-browser-extension-action')
-    ).toBeInTheDocument()
+      screen.queryByTestId('settings-chromium-extension-allowlist')
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(
+        'If Vivaldi/Chrome shows “Access to the specified native messaging host is forbidden”, paste your extension ID from vivaldi://extensions (Developer mode). One ID per line.'
+      )
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText('Approved Chromium extension IDs')).toBeNull()
+    expect(screen.queryByText('Apply approved IDs')).toBeNull()
   })
 
-  it('calls toggleBrowserExtension(false) when unpair is clicked', () => {
+  it('lets you show the pair code while waiting for the first browser', () => {
     mockExtensionState = {
       isBrowserExtensionEnabled: true,
       toggleBrowserExtension: mockToggleBrowserExtension,
-      chromiumExtensionIdsText: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      applyChromiumExtensionAllowlist: mockApplyChromiumExtensionAllowlist
+      showPairingCode: mockShowPairingCode,
+      pairedBrowsers: [],
+      unpairBrowser: mockUnpairBrowser
     }
 
     render(<YourDevicesContent />)
 
-    fireEvent.click(screen.getByText('Unpair Browser extension'))
+    fireEvent.click(screen.getByText('Pair another browser'))
+
+    expect(mockShowPairingCode).toHaveBeenCalledTimes(1)
+    expect(mockToggleBrowserExtension).not.toHaveBeenCalled()
+  })
+
+  it('turns native messaging off when no browsers are paired yet', () => {
+    mockExtensionState = {
+      isBrowserExtensionEnabled: true,
+      toggleBrowserExtension: mockToggleBrowserExtension,
+      showPairingCode: mockShowPairingCode,
+      pairedBrowsers: [],
+      unpairBrowser: mockUnpairBrowser
+    }
+
+    render(<YourDevicesContent />)
+
+    fireEvent.click(screen.getByText('Turn off browser connections'))
 
     expect(mockToggleBrowserExtension).toHaveBeenCalledTimes(1)
     expect(mockToggleBrowserExtension).toHaveBeenCalledWith(false)

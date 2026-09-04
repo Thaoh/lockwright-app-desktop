@@ -5,6 +5,7 @@ import path from 'path'
 
 import {
   MANIFEST_NAME,
+  CHROMIUM_EXTENSION_ID,
   FIREFOX_EXTENSION_ID,
   FIREFOX_NIGHTLY_EXTENSION_ID
 } from '@tetherto/pearpass-lib-constants'
@@ -12,7 +13,6 @@ import {
 import { logger } from './logger'
 import flatpakPaths from '../../electron/flatpak-paths.cjs'
 import nativeHostWrapper from '../../electron/nativeHostWrapper.cjs'
-import { getChromiumExtensionIds } from '../services/chromiumExtensionAllowlist'
 
 const { isFlatpakRuntime, isSnapRuntime, getHostHome, getSnapRealHome } =
   flatpakPaths
@@ -568,17 +568,12 @@ export const setupNativeMessaging = async ({
       }
     }
 
-    const chromiumExtensionIds = getChromiumExtensionIds()
-
-    // Create Chromium native messaging manifest (Chrome / Edge / Brave / Vivaldi / …)
     const chromiumManifest = {
       name: MANIFEST_NAME,
       description: 'Lockwright Native Messaging Host',
       path: manifestExecPath,
       type: 'stdio',
-      allowed_origins: chromiumExtensionIds.map(
-        (id) => `chrome-extension://${id}/`
-      )
+      allowed_origins: [`chrome-extension://${CHROMIUM_EXTENSION_ID}/`]
     }
 
     // Create Firefox native messaging manifest

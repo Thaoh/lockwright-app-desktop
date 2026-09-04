@@ -91,13 +91,14 @@ export const decryptWithSession = (sessionId, nonce, ciphertext) => {
  */
 export const beginHandshake = async (
   client,
-  extensionEphemeralPublicKeyB64
+  extensionEphemeralPublicKeyB64,
+  presentedClientPubB64
 ) => {
   // Load or create identity, then load private parts from encryption store (or memory)
   await getOrCreateIdentity(client)
 
-  // Load pinned client public key (required for transcript binding)
-  const clientPubB64 = await getClientIdentityPublicKey(client)
+  const clientPubB64 =
+    presentedClientPubB64 || (await getClientIdentityPublicKey(client))
   if (!clientPubB64) {
     throw new Error(
       createErrorWithCode(
@@ -128,7 +129,8 @@ export const beginHandshake = async (
         return finalizeHandshakeWithMemoryIdentity(
           mem,
           extensionEphemeralPublicKeyB64,
-          clientPublicKeyBytes
+          clientPublicKeyBytes,
+          clientPubB64
         )
       }
     } catch {}
@@ -182,6 +184,8 @@ export const beginHandshake = async (
 
   // Create session
   const { sessionId } = createSession(sharedSecret, transcript)
+  const session = getSession(sessionId)
+  if (session) session.clientPubB64 = clientPubB64
 
   return {
     hostEphemeralPubB64: Buffer.from(hostEphemeralPublicKey).toString('base64'),
@@ -195,11 +199,13 @@ export const beginHandshake = async (
  * @param {{ ed25519PublicKeyBytes: Uint8Array, ed25519PrivateKeyBytes: Uint8Array, x25519PublicKeyBytes: Uint8Array, x25519PrivateKeyBytes: Uint8Array } | { edPk: Uint8Array, edSk: Uint8Array, xPk: Uint8Array, xSk: Uint8Array }} mem
  * @param {string} extensionEphemeralPublicKeyB64
  * @param {Uint8Array} clientPublicKeyBytes - The pinned client Ed25519 public key
+ * @param {string} clientPubB64
  */
 function finalizeHandshakeWithMemoryIdentity(
   mem,
   extensionEphemeralPublicKeyB64,
-  clientPublicKeyBytes
+  clientPublicKeyBytes,
+  clientPubB64
 ) {
   const hostEphemeralPrivateKey = new Uint8Array(
     sodium.crypto_box_SECRETKEYBYTES
@@ -234,6 +240,8 @@ function finalizeHandshakeWithMemoryIdentity(
 
   // Create session
   const { sessionId } = createSession(sharedSecret, transcript)
+  const session = getSession(sessionId)
+  if (session) session.clientPubB64 = clientPubB64
 
   return {
     hostEphemeralPubB64: Buffer.from(hostEphemeralPublicKey).toString('base64'),

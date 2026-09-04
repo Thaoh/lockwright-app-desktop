@@ -411,6 +411,7 @@ export const __getMemIdentity = () => MEMORY_IDENTITY
 
 /**
  * Store client (extension) Ed25519 public key with pairing state.
+ * Adds or updates this client without dropping other paired extensions.
  * @param {import('@tetherto/pearpass-lib-vault-core').PearpassVaultClient} client
  * @param {string} ed25519PublicKeyB64
  * @param {string} state - PAIRING_STATES.PENDING or PAIRING_STATES.CONFIRMED
@@ -418,7 +419,8 @@ export const __getMemIdentity = () => MEMORY_IDENTITY
 export const setClientIdentityPublicKey = async (
   client,
   ed25519PublicKeyB64,
-  state = PAIRING_STATES.PENDING
+  state = PAIRING_STATES.PENDING,
+  browserName
 ) => {
   if (!ed25519PublicKeyB64) {
     throw new Error(
@@ -429,13 +431,56 @@ export const setClientIdentityPublicKey = async (
     )
   }
 
-  await client.encryptionAdd(
-    ENC_KEY_CLIENT_DATA,
-    JSON.stringify({
-      publicKey: ed25519PublicKeyB64,
-      pairingState: state
-    })
+  const clients = await getPairedClients(client)
+  const index = clients.findIndex(
+    (entry) => entry.publicKey === ed25519PublicKeyB64
   )
+  const label =
+    typeof browserName === 'string' && browserName.trim()
+      ? browserName.trim()
+      : index >= 0
+        ? clients[index].browserName
+        : undefined
+  const next = {
+    publicKey: ed25519PublicKeyB64,
+    pairingState: state,
+    ...(label ? { browserName: label } : {})
+  }
+  if (index >= 0) {
+    clients[index] = {
+      ...clients[index],
+      ...next
+    }
+  } else {
+    clients.push(next)
+  }
+
+  await persistPairedClients(client, clients)
+}
+
+/**
+ * Normalize vault client-data JSON to a list of paired clients.
+ * Accepts the current `{ clients: [...] }` shape and the legacy
+ * single `{ publicKey, pairingState }` record.
+ * @param {unknown} data
+ * @returns {{ publicKey: string, pairingState: string }[]}
+ */
+const parseClientRecords = (data) => {
+  if (!data || typeof data !== 'object') return []
+  if (Array.isArray(data.clients)) {
+    return data.clients.filter(
+      (entry) => entry && typeof entry.publicKey === 'string'
+    )
+  }
+  if (typeof data.publicKey === 'string') {
+    return [
+      {
+        publicKey: data.publicKey,
+        pairingState: data.pairingState || PAIRING_STATES.PENDING
+      }
+    ]
+  }
+  return []
 }
 
 /**
@@ -455,13 +500,51 @@ const getClientData = async (client) => {
 }
 
 /**
+ * Load all registered extension clients from the vault.
+ * @param {import('@tetherto/pearpass-lib-vault-core').PearpassVaultClient} client
+ * @returns {Promise<{ publicKey: string, pairingState: string }[]>}
+ */
+export const getPairedClients = async (client) =>
+  parseClientRecords(await getClientData(client))
+
+const persistPairedClients = async (client, clients) => {
+  await client.encryptionAdd(ENC_KEY_CLIENT_DATA, JSON.stringify({ clients }))
+}
+
+/**
  * Load client (extension) Ed25519 public key from vault.
+ * When several clients are paired, returns the first confirmed key
+ * (legacy callers that still expect a single identity).
  * @param {import('@tetherto/pearpass-lib-vault-core').PearpassVaultClient} client
  * @returns {Promise<string|null>}
  */
 export const getClientIdentityPublicKey = async (client) => {
-  const data = await getClientData(client)
-  return data?.publicKey || null
+  const clients = await getPairedClients(client)
+  const confirmed = clients.find(
+    (entry) => entry.pairingState === PAIRING_STATES.CONFIRMED
+  )
+  return confirmed?.publicKey || clients[0]?.publicKey || null
+}
+
+/**
+ * Load confirmed client public keys from local storage cache.
+ * @returns {string[]}
+ */
+export const getCachedClientIdentityPublicKeys = () => {
+  const raw = localStorage.getItem(LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY)
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) {
+      return parsed.filter((key) => typeof key === 'string')
+    }
+    if (typeof parsed === 'string' && parsed.length > 0) {
+      return [parsed]
+    }
+  } catch {
+    // Legacy: a single base64 public key, not JSON
+  }
+  return [raw]
 }
 
 /**
@@ -469,7 +552,14 @@ export const getClientIdentityPublicKey = async (client) => {
  * @returns {string|null}
  */
 export const getCachedClientIdentityPublicKey = () =>
-  localStorage.getItem(LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY) || null
+  getCachedClientIdentityPublicKeys()[0] || null
+
+const persistCachedClientIdentityPublicKeys = (keys) => {
+  localStorage.setItem(
+    LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY,
+    JSON.stringify(keys)
+  )
+}
 
 /**
  * Get the current pairing state.
@@ -477,8 +567,11 @@ export const getCachedClientIdentityPublicKey = () =>
  * @returns {Promise<string|null>} - PAIRING_STATES.PENDING, PAIRING_STATES.CONFIRMED, or null
  */
 export const getClientPairingState = async (client) => {
-  const data = await getClientData(client)
-  return data?.pairingState || null
+  const clients = await getPairedClients(client)
+  const confirmed = clients.find(
+    (entry) => entry.pairingState === PAIRING_STATES.CONFIRMED
+  )
+  return confirmed?.pairingState || clients[0]?.pairingState || null
 }
 
 /**
@@ -490,9 +583,12 @@ export const confirmClientPairing = async (
   client,
   clientEd25519PublicKeyB64
 ) => {
-  const data = await getClientData(client)
+  const clients = await getPairedClients(client)
+  const index = clients.findIndex(
+    (entry) => entry.publicKey === clientEd25519PublicKeyB64
+  )
 
-  if (!data?.publicKey) {
+  if (index < 0) {
     throw new Error(
       createErrorWithCode(
         SecurityErrorCodes.NO_PENDING_PAIRING,
@@ -501,27 +597,39 @@ export const confirmClientPairing = async (
     )
   }
 
-  if (data.publicKey !== clientEd25519PublicKeyB64) {
-    throw new Error(
-      createErrorWithCode(
-        SecurityErrorCodes.CLIENT_KEY_MISMATCH,
-        'Client public key does not match stored pending pairing key'
-      )
-    )
+  clients[index] = {
+    ...clients[index],
+    publicKey: clientEd25519PublicKeyB64,
+    pairingState: PAIRING_STATES.CONFIRMED
   }
 
-  // Now that pairing is confirmed do store client public key in localStorage
-  // Accessible even when locked for checkExtensionPairingStatus
-  localStorage.setItem(
-    LOCAL_STORAGE_KEYS.NM_CLIENT_PUBLIC_KEY,
-    clientEd25519PublicKeyB64
-  )
+  const cached = getCachedClientIdentityPublicKeys()
+  if (!cached.includes(clientEd25519PublicKeyB64)) {
+    cached.push(clientEd25519PublicKeyB64)
+  }
+  persistCachedClientIdentityPublicKeys(cached)
 
-  await client.encryptionAdd(
-    ENC_KEY_CLIENT_DATA,
-    JSON.stringify({
-      ...data,
-      pairingState: PAIRING_STATES.CONFIRMED
-    })
+  await persistPairedClients(client, clients)
+}
+
+/**
+ * Remove one extension client without resetting desktop identity.
+ * @param {import('@tetherto/pearpass-lib-vault-core').PearpassVaultClient} client
+ * @param {string} clientEd25519PublicKeyB64
+ * @returns {Promise<{ publicKey: string, pairingState: string, browserName?: string }[]>}
+ */
+export const removeClientIdentity = async (
+  client,
+  clientEd25519PublicKeyB64
+) => {
+  const remaining = (await getPairedClients(client)).filter(
+    (entry) => entry.publicKey !== clientEd25519PublicKeyB64
   )
+  await persistPairedClients(client, remaining)
+  persistCachedClientIdentityPublicKeys(
+    getCachedClientIdentityPublicKeys().filter(
+      (key) => key !== clientEd25519PublicKeyB64
+    )
+  )
+  return remaining
 }

@@ -6,7 +6,11 @@ import {
   encryptWithSession,
   decryptWithSession
 } from './sessionManager'
-import { getSession, closeSession } from './sessionStore'
+import {
+  getSession,
+  closeSession,
+  closeSessionsForClient
+} from './sessionStore'
 import { SecurityErrorCodes } from '../../constants/securityErrors'
 
 // Mock dependencies
@@ -165,6 +169,34 @@ describe('sessionManager', () => {
 
       const session = getSession(result.sessionId)
       expect(session).toBeDefined()
+    })
+
+    it('should bind concurrent handshakes to different client keys', async () => {
+      const extEphemeralPubB64 = Buffer.alloc(32, 20).toString('base64')
+      mockClient.encryptionGet.mockResolvedValue(null)
+      const chromePub = Buffer.alloc(32, 11).toString('base64')
+      const firefoxPub = Buffer.alloc(32, 22).toString('base64')
+
+      const chrome = await beginHandshake(
+        mockClient,
+        extEphemeralPubB64,
+        chromePub
+      )
+      const firefox = await beginHandshake(
+        mockClient,
+        extEphemeralPubB64,
+        firefoxPub
+      )
+
+      const chromeSession = getSession(chrome.sessionId)
+      const firefoxSession = getSession(firefox.sessionId)
+      expect(chromeSession.transcript).not.toEqual(firefoxSession.transcript)
+      expect(chromeSession.clientPubB64).toBe(chromePub)
+      expect(firefoxSession.clientPubB64).toBe(firefoxPub)
+
+      expect(closeSessionsForClient(firefoxPub)).toBe(1)
+      expect(getSession(chrome.sessionId)).toBeDefined()
+      expect(getSession(firefox.sessionId)).toBeNull()
     })
 
     it('should initialize session with sequence numbers', async () => {

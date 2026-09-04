@@ -100,17 +100,19 @@ describe('SecurityHandlers', () => {
       appIdentity.verifyPairingToken.mockResolvedValue(true)
       appIdentity.getFingerprint.mockReturnValue('fingerprint')
       appIdentity.setClientIdentityPublicKey.mockResolvedValue(undefined)
-      appIdentity.getClientIdentityPublicKey.mockResolvedValue(null)
+      appIdentity.getPairedClients.mockResolvedValue([])
 
       const result = await handlers.nmGetAppIdentity({
         pairingToken: 'token',
-        clientEd25519PublicKeyB64: 'clientPub'
+        clientEd25519PublicKeyB64: 'clientPub',
+        browserName: 'Chrome'
       })
 
       expect(appIdentity.setClientIdentityPublicKey).toHaveBeenCalledWith(
         client,
         'clientPub',
-        'PENDING'
+        'PENDING',
+        'Chrome'
       )
       expect(result).toEqual({
         ed25519PublicKey: 'pubKey',
@@ -119,25 +121,35 @@ describe('SecurityHandlers', () => {
       })
     })
 
-    it('throws if a different client is already paired', async () => {
+    it('pairs a second client while another is already confirmed', async () => {
       appIdentity.getOrCreateIdentity.mockResolvedValue({
         ed25519PublicKey: 'pubKey',
         x25519PublicKey: 'xPubKey'
       })
       appIdentity.verifyPairingToken.mockResolvedValue(true)
-      appIdentity.getClientIdentityPublicKey.mockResolvedValue(
-        'existingClientPub'
+      appIdentity.getFingerprint.mockReturnValue('fingerprint')
+      appIdentity.setClientIdentityPublicKey.mockResolvedValue(undefined)
+      appIdentity.getPairedClients.mockResolvedValue([
+        { publicKey: 'existingClientPub', pairingState: 'CONFIRMED' }
+      ])
+
+      const result = await handlers.nmGetAppIdentity({
+        pairingToken: 'token',
+        clientEd25519PublicKeyB64: 'differentClientPub',
+        browserName: 'Firefox'
+      })
+
+      expect(appIdentity.setClientIdentityPublicKey).toHaveBeenCalledWith(
+        client,
+        'differentClientPub',
+        'PENDING',
+        'Firefox'
       )
-      appIdentity.getClientPairingState.mockResolvedValue('CONFIRMED')
-
-      await expect(
-        handlers.nmGetAppIdentity({
-          pairingToken: 'token',
-          clientEd25519PublicKeyB64: 'differentClientPub'
-        })
-      ).rejects.toThrow(SecurityErrorCodes.CLIENT_ALREADY_PAIRED)
-
-      expect(appIdentity.setClientIdentityPublicKey).not.toHaveBeenCalled()
+      expect(result).toEqual({
+        ed25519PublicKey: 'pubKey',
+        x25519PublicKey: 'xPubKey',
+        fingerprint: 'fingerprint'
+      })
     })
 
     it('allows re-pairing same client with valid token', async () => {
@@ -148,14 +160,22 @@ describe('SecurityHandlers', () => {
       appIdentity.verifyPairingToken.mockResolvedValue(true)
       appIdentity.getFingerprint.mockReturnValue('fingerprint')
       appIdentity.setClientIdentityPublicKey.mockResolvedValue(undefined)
-      appIdentity.getClientIdentityPublicKey.mockResolvedValue('sameClientPub')
+      appIdentity.getPairedClients.mockResolvedValue([
+        { publicKey: 'sameClientPub', pairingState: 'CONFIRMED' }
+      ])
 
       const result = await handlers.nmGetAppIdentity({
         pairingToken: 'token',
-        clientEd25519PublicKeyB64: 'sameClientPub'
+        clientEd25519PublicKeyB64: 'sameClientPub',
+        browserName: 'Chrome'
       })
 
-      expect(appIdentity.setClientIdentityPublicKey).not.toHaveBeenCalled()
+      expect(appIdentity.setClientIdentityPublicKey).toHaveBeenCalledWith(
+        client,
+        'sameClientPub',
+        'CONFIRMED',
+        'Chrome'
+      )
       expect(result).toEqual({
         ed25519PublicKey: 'pubKey',
         x25519PublicKey: 'xPubKey',
@@ -193,17 +213,49 @@ describe('SecurityHandlers', () => {
       )
     })
 
-    it('calls beginHandshake with correct params when client is paired', async () => {
+    it('calls beginHandshake with stored client key when none is presented', async () => {
       appIdentity.getClientIdentityPublicKey.mockResolvedValue('clientPubKey')
       sessionManager.beginHandshake.mockResolvedValue('handshake-result')
       const result = await handlers.nmBeginHandshake({
         extEphemeralPubB64: 'abc'
       })
-      expect(appIdentity.getClientIdentityPublicKey).toHaveBeenCalledWith(
-        client
+      expect(sessionManager.beginHandshake).toHaveBeenCalledWith(
+        client,
+        'abc',
+        'clientPubKey'
       )
-      expect(sessionManager.beginHandshake).toHaveBeenCalledWith(client, 'abc')
       expect(result).toBe('handshake-result')
+    })
+
+    it('calls beginHandshake with the presented confirmed client key', async () => {
+      appIdentity.getPairedClients.mockResolvedValue([
+        { publicKey: 'chromePub', pairingState: 'CONFIRMED' },
+        { publicKey: 'firefoxPub', pairingState: 'CONFIRMED' }
+      ])
+      sessionManager.beginHandshake.mockResolvedValue('handshake-result')
+      const result = await handlers.nmBeginHandshake({
+        extEphemeralPubB64: 'abc',
+        clientEd25519PublicKeyB64: 'firefoxPub'
+      })
+      expect(sessionManager.beginHandshake).toHaveBeenCalledWith(
+        client,
+        'abc',
+        'firefoxPub'
+      )
+      expect(result).toBe('handshake-result')
+    })
+
+    it('throws if the presented client key is not a confirmed pairing', async () => {
+      appIdentity.getPairedClients.mockResolvedValue([
+        { publicKey: 'chromePub', pairingState: 'CONFIRMED' }
+      ])
+      await expect(
+        handlers.nmBeginHandshake({
+          extEphemeralPubB64: 'abc',
+          clientEd25519PublicKeyB64: 'unknownPub'
+        })
+      ).rejects.toThrow(SecurityErrorCodes.CLIENT_NOT_PAIRED)
+      expect(sessionManager.beginHandshake).not.toHaveBeenCalled()
     })
   })
 
@@ -289,19 +341,30 @@ describe('SecurityHandlers', () => {
     })
 
     it('returns paired=true when client key matches', async () => {
-      appIdentity.getCachedClientIdentityPublicKey.mockReturnValue(
+      appIdentity.getCachedClientIdentityPublicKeys.mockReturnValue([
         'clientPubKey123'
-      )
+      ])
       const result = await handlers.checkExtensionPairingStatus({
         clientEd25519PublicKeyB64: 'clientPubKey123'
       })
       expect(result.paired).toBe(true)
     })
 
+    it('returns paired=true when the client is one of several cached keys', async () => {
+      appIdentity.getCachedClientIdentityPublicKeys.mockReturnValue([
+        'chromePub',
+        'firefoxPub'
+      ])
+      const result = await handlers.checkExtensionPairingStatus({
+        clientEd25519PublicKeyB64: 'firefoxPub'
+      })
+      expect(result.paired).toBe(true)
+    })
+
     it('returns paired=false when key does not match', async () => {
-      appIdentity.getCachedClientIdentityPublicKey.mockReturnValue(
+      appIdentity.getCachedClientIdentityPublicKeys.mockReturnValue([
         'differentKey'
-      )
+      ])
       const result = await handlers.checkExtensionPairingStatus({
         clientEd25519PublicKeyB64: 'clientPubKey123'
       })
@@ -309,7 +372,7 @@ describe('SecurityHandlers', () => {
     })
 
     it('returns paired=false when no client key is stored', async () => {
-      appIdentity.getCachedClientIdentityPublicKey.mockReturnValue(null)
+      appIdentity.getCachedClientIdentityPublicKeys.mockReturnValue([])
       const result = await handlers.checkExtensionPairingStatus({
         clientEd25519PublicKeyB64: 'clientPubKey123'
       })

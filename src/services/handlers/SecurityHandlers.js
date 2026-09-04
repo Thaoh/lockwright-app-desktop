@@ -19,8 +19,8 @@ import {
   resetIdentity,
   setClientIdentityPublicKey,
   getClientIdentityPublicKey,
-  getCachedClientIdentityPublicKey,
-  getClientPairingState,
+  getCachedClientIdentityPublicKeys,
+  getPairedClients,
   confirmClientPairing
 } from '../security/appIdentity.js'
 import { PROTOCOL_TAGS } from '../security/protocolConstants.js'
@@ -43,7 +43,8 @@ export class SecurityHandlers {
    * Get the app's identity for pairing
    */
   async nmGetAppIdentity(params) {
-    const { pairingToken, clientEd25519PublicKeyB64 } = params || {}
+    const { pairingToken, clientEd25519PublicKeyB64, browserName } =
+      params || {}
 
     // Require a pairing token that the user manually copied from desktop app
     if (!pairingToken) {
@@ -82,33 +83,17 @@ export class SecurityHandlers {
       )
     }
 
-    // Check if a different client is already paired
-    const existingClientPubB64 = await getClientIdentityPublicKey(this.client)
-    const pairingState = await getClientPairingState(this.client)
-
-    if (
-      existingClientPubB64 &&
-      existingClientPubB64 !== clientEd25519PublicKeyB64 &&
-      pairingState === PAIRING_STATES.CONFIRMED
-    ) {
-      // Existing pairing is confirmed - reject new client
-      throw new Error(
-        createErrorWithCode(
-          SecurityErrorCodes.CLIENT_ALREADY_PAIRED,
-          'A different extension is already paired. Reset pairing in the desktop app first.'
-        )
-      )
-    }
-
-    // If there is no existing client or pairing with existing client is pending
-    // save/overwrite with new client
-    if (existingClientPubB64 !== clientEd25519PublicKeyB64) {
-      await setClientIdentityPublicKey(
-        this.client,
-        clientEd25519PublicKeyB64,
-        PAIRING_STATES.PENDING
-      )
-    }
+    // Register this extension as pending. Other confirmed clients stay paired.
+    const clients = await getPairedClients(this.client)
+    const existing = clients.find(
+      (entry) => entry.publicKey === clientEd25519PublicKeyB64
+    )
+    await setClientIdentityPublicKey(
+      this.client,
+      clientEd25519PublicKeyB64,
+      existing?.pairingState || PAIRING_STATES.PENDING,
+      browserName
+    )
 
     return {
       ed25519PublicKey: id.ed25519PublicKey,
@@ -153,18 +138,7 @@ export class SecurityHandlers {
       )
     }
 
-    // Require a pinned client public key in secure vault (set during pairing via nmGetAppIdentity)
-    const clientPubB64 = await getClientIdentityPublicKey(this.client)
-    if (!clientPubB64) {
-      throw new Error(
-        createErrorWithCode(
-          SecurityErrorCodes.NOT_PAIRED,
-          'No client identity registered. Please complete pairing first.'
-        )
-      )
-    }
-
-    const { extEphemeralPubB64 } = params || {}
+    const { extEphemeralPubB64, clientEd25519PublicKeyB64 } = params || {}
     if (!extEphemeralPubB64) {
       throw new Error(
         createErrorWithCode(
@@ -173,7 +147,36 @@ export class SecurityHandlers {
         )
       )
     }
-    return beginHandshake(this.client, extEphemeralPubB64)
+
+    let clientPubB64 = clientEd25519PublicKeyB64
+    if (clientPubB64) {
+      const clients = await getPairedClients(this.client)
+      const confirmed = clients.find(
+        (entry) =>
+          entry.publicKey === clientPubB64 &&
+          entry.pairingState === PAIRING_STATES.CONFIRMED
+      )
+      if (!confirmed) {
+        throw new Error(
+          createErrorWithCode(
+            SecurityErrorCodes.CLIENT_NOT_PAIRED,
+            'No client identity registered'
+          )
+        )
+      }
+    } else {
+      clientPubB64 = await getClientIdentityPublicKey(this.client)
+      if (!clientPubB64) {
+        throw new Error(
+          createErrorWithCode(
+            SecurityErrorCodes.NOT_PAIRED,
+            'No client identity registered. Please complete pairing first.'
+          )
+        )
+      }
+    }
+
+    return beginHandshake(this.client, extEphemeralPubB64, clientPubB64)
   }
 
   /**
@@ -209,8 +212,9 @@ export class SecurityHandlers {
     }
     if (session.clientVerified) return { ok: true }
 
-    // Load pinned client identity
-    const clientPubB64 = await getClientIdentityPublicKey(this.client)
+    // Load the client identity bound into this handshake
+    const clientPubB64 =
+      session.clientPubB64 || (await getClientIdentityPublicKey(this.client))
     if (!clientPubB64) {
       throw new Error(
         createErrorWithCode(
@@ -323,8 +327,8 @@ export class SecurityHandlers {
       )
     }
 
-    const storedClientPubB64 = getCachedClientIdentityPublicKey()
-    const paired = storedClientPubB64 === clientEd25519PublicKeyB64
+    const storedClientPubs = getCachedClientIdentityPublicKeys()
+    const paired = storedClientPubs.includes(clientEd25519PublicKeyB64)
 
     return {
       paired
