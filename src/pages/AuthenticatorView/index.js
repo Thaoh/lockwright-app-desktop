@@ -28,6 +28,7 @@ import {
   isExpiring,
   RECORD_TYPES,
   useFolders,
+  useOtpWatch,
   useRecords
 } from '@tetherto/pearpass-lib-vault'
 import { html } from 'htm/react'
@@ -57,6 +58,7 @@ import { getRecordSubtitle } from '../../utils/getRecordSubtitle'
 const SORT_MENU_WIDTH = 260
 
 export const AuthenticatorView = () => {
+  useOtpWatch('all')
   const { i18n } = useLingui()
   const { theme } = useTheme()
   const { navigate, data: routeData } = useRouter()

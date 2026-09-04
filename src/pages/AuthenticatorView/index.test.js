@@ -2,6 +2,7 @@ import React from 'react'
 
 import '@testing-library/jest-dom'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { useOtpWatch } from '@tetherto/pearpass-lib-vault'
 
 let mockSearchValue = ''
 let mockRecords = []
@@ -46,7 +47,8 @@ jest.mock('@tetherto/pearpass-lib-vault', () => ({
     period: 30,
     generateNext: null,
     isLoading: false
-  })
+  }),
+  useOtpWatch: jest.fn()
 }))
 
 jest.mock('@lingui/react', () => ({
@@ -247,6 +249,12 @@ describe('AuthenticatorView', () => {
   beforeEach(() => {
     mockSearchValue = ''
     mockRecords = []
+    useOtpWatch.mockClear()
+  })
+
+  test('asks vault for OTP codes while Authenticator is open', () => {
+    render(<AuthenticatorView />)
+    expect(useOtpWatch).toHaveBeenCalledWith('all')
   })
 
   test('renders empty state with Add/Import buttons when no records and no search', () => {

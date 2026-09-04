@@ -9,6 +9,10 @@ Starts at 0.0.17, after the Lockwright package rename. Earlier history is git.
 
 ## [Unreleased]
 
+### Fixed
+
+- Authenticator asks for OTP codes so digits and the 1s timer show after Home skipped them.
+
 ## [0.0.19] - 2026-09-04
 
 `eb6d08ec8b068eb517c80d1d2bddd1857ecc0521`
