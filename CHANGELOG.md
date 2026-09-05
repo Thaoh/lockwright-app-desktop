@@ -9,6 +9,14 @@ Starts at 0.0.17, after the Lockwright package rename. Earlier history is git.
 
 ## [Unreleased]
 
+## [0.0.20] - 2026-09-05
+
+`BUMP_SHA`
+
+### Changed
+
+- Unlock does not wait on Autobase catching up other writers.
+
 ### Fixed
 
 - Authenticator asks for OTP codes so digits and the 1s timer show after Home skipped them.
@@ -47,7 +55,8 @@ Starts at 0.0.17, after the Lockwright package rename. Earlier history is git.
 
 - A PearPass vault copied onto disk is treated as a vault, not empty.
 
-[unreleased]: https://github.com/Thaoh/lockwright-app-desktop/compare/eb6d08ec8b068eb517c80d1d2bddd1857ecc0521...HEAD
+[unreleased]: https://github.com/Thaoh/lockwright-app-desktop/compare/BUMP_SHA...HEAD
+[0.0.20]: https://github.com/Thaoh/lockwright-app-desktop/compare/eb6d08ec8b068eb517c80d1d2bddd1857ecc0521...BUMP_SHA
 [0.0.19]: https://github.com/Thaoh/lockwright-app-desktop/compare/b9dea4cc24cbcc34a7dca6354897f9d86b6d1e18...eb6d08ec8b068eb517c80d1d2bddd1857ecc0521
 [0.0.18]: https://github.com/Thaoh/lockwright-app-desktop/compare/ca6d8c856cff54c3fdccabf9a0c6d8272a63f1fd...b9dea4cc24cbcc34a7dca6354897f9d86b6d1e18
 [0.0.17]: https://github.com/Thaoh/lockwright-app-desktop/compare/21b9f29828856acad42fda07d65da0e2e75c1944...ca6d8c856cff54c3fdccabf9a0c6d8272a63f1fd
