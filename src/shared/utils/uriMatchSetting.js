@@ -30,6 +30,9 @@ export const toVaultUriMatch = (matchType) => {
   return VAULT_MATCH_BASE_DOMAIN
 }
 
+const storedLoginUri = (website) =>
+  website.trim().replace(/^(https?:\/\/)((?:android|ios)app:\/\/)/i, '$2')
+
 /**
  * @param {string|null|undefined} website
  * @returns {string|null}
@@ -81,7 +84,8 @@ export const resolveUriMatchType = (recordOrId, website) => {
 
 /**
  * Build v2 `uris` entries from website rows (UI match types → vault).
- * Uses `addHttps` so websites/uris stay consistent with the create/edit save path.
+ * Store the trimmed URI as typed. Match-type lookup uses a parse key so
+ * `example.com` still finds a vault row stored as `https://example.com`.
  *
  * @param {Array<{ website?: string, matchType?: string }>} websiteRows
  * @returns {Array<{ uri: string, match: string }>}
@@ -101,13 +105,12 @@ export const buildLoginUris = (websiteRows, existingUris) => {
   for (const row of websiteRows) {
     const trimmed = typeof row?.website === 'string' ? row.website.trim() : ''
     if (!trimmed) continue
-    const uri = addHttps(trimmed)
-    if (!uri) continue
+    const uri = storedLoginUri(trimmed)
     if (row.matchType && isValidMatchType(row.matchType)) {
       uris.push({ uri, match: toVaultUriMatch(row.matchType) })
       continue
     }
-    const prev = previous.get(uri)
+    const prev = previous.get(normalizeWebsiteKey(uri))
     if (prev && typeof prev.match === 'string' && prev.match.length > 0) {
       uris.push({ uri, match: prev.match })
       continue
@@ -124,15 +127,17 @@ export const buildLoginUris = (websiteRows, existingUris) => {
  */
 export const getRecordWebsiteValues = (record) => {
   const websites = Array.isArray(record?.data?.websites)
-    ? record.data.websites.filter(
-        (website) => typeof website === 'string' && website.trim() !== ''
-      )
+    ? record.data.websites
+        .filter(
+          (website) => typeof website === 'string' && website.trim() !== ''
+        )
+        .map(storedLoginUri)
     : []
   const fromUris = Array.isArray(record?.data?.uris)
     ? record.data.uris
         .map((entry) =>
           entry && typeof entry.uri === 'string' && entry.uri.trim() !== ''
-            ? entry.uri
+            ? storedLoginUri(entry.uri)
             : null
         )
         .filter((uri) => uri !== null)

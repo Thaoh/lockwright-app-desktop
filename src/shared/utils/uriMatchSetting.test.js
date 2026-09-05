@@ -77,7 +77,7 @@ describe('uriMatchSetting', () => {
   })
 
   describe('buildLoginUris', () => {
-    it('maps domain→baseDomain and normalizes with addHttps', () => {
+    it('stores the trimmed URI as typed', () => {
       expect(
         buildLoginUris([
           { website: 'example.com', matchType: URI_MATCH_TYPES.DOMAIN },
@@ -90,23 +90,28 @@ describe('uriMatchSetting', () => {
           {
             website: 'prefix.com/x',
             matchType: URI_MATCH_TYPES.STARTS_WITH
+          },
+          {
+            website: 'androidapp://com.twitter.android',
+            matchType: URI_MATCH_TYPES.HOST
           }
         ])
       ).toEqual([
-        { uri: 'https://example.com', match: 'baseDomain' },
+        { uri: 'example.com', match: 'baseDomain' },
         { uri: 'https://other.com/path', match: 'host' },
-        { uri: 'https://exact.com', match: 'exact' },
-        { uri: 'https://prefix.com/x', match: 'startsWith' }
+        { uri: 'exact.com', match: 'exact' },
+        { uri: 'prefix.com/x', match: 'startsWith' },
+        { uri: 'androidapp://com.twitter.android', match: 'host' }
       ])
     })
 
     it('defaults invalid/missing matchType to baseDomain', () => {
       expect(buildLoginUris([{ website: 'a.com' }])).toEqual([
-        { uri: 'https://a.com', match: 'baseDomain' }
+        { uri: 'a.com', match: 'baseDomain' }
       ])
       expect(
         buildLoginUris([{ website: 'a.com', matchType: 'regex' }])
-      ).toEqual([{ uri: 'https://a.com', match: 'baseDomain' }])
+      ).toEqual([{ uri: 'a.com', match: 'baseDomain' }])
     })
 
     it('returns empty array for non-array input', () => {
@@ -121,6 +126,26 @@ describe('uriMatchSetting', () => {
           [{ uri: 'https://example.com', match: 'exact' }]
         )
       ).toEqual([{ uri: 'https://example.com', match: 'exact' }])
+    })
+
+    it('unwraps glued https on androidapp URIs so save repairs vault rows', () => {
+      expect(
+        buildLoginUris([
+          {
+            website: 'https://androidapp://com.twitter.android',
+            matchType: URI_MATCH_TYPES.HOST
+          }
+        ])
+      ).toEqual([{ uri: 'androidapp://com.twitter.android', match: 'host' }])
+    })
+
+    it('keeps stored match when the typed URI is schemeless and vault has https', () => {
+      expect(
+        buildLoginUris(
+          [{ website: 'example.com' }],
+          [{ uri: 'https://example.com', match: 'exact' }]
+        )
+      ).toEqual([{ uri: 'example.com', match: 'exact' }])
     })
   })
 
@@ -161,6 +186,27 @@ describe('uriMatchSetting', () => {
     it('returns one empty domain row when the record has no sites', () => {
       expect(websiteRowsFromRecord(null)).toEqual([
         { website: '', matchType: URI_MATCH_TYPES.DOMAIN }
+      ])
+    })
+
+    it('shows unwrapped androidapp URIs in edit rows', () => {
+      expect(
+        websiteRowsFromRecord({
+          data: {
+            websites: ['https://androidapp://com.twitter.android'],
+            uris: [
+              {
+                uri: 'https://androidapp://com.twitter.android',
+                match: 'host'
+              }
+            ]
+          }
+        })
+      ).toEqual([
+        {
+          website: 'androidapp://com.twitter.android',
+          matchType: URI_MATCH_TYPES.HOST
+        }
       ])
     })
   })

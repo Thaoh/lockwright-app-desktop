@@ -1,11 +1,14 @@
 /**
  * @param {string} url
- * @returns {boolean}
+ * @returns {string}
  */
 export const addHttps = (url) => {
-  const lowerUrl = url.toLowerCase()
+  let lowerUrl = url.toLowerCase()
+  lowerUrl = lowerUrl.replace(/^(https?:\/\/)((?:android|ios)app:\/\/)/, '$2')
 
-  return lowerUrl.startsWith('http://') || lowerUrl.startsWith('https://')
-    ? lowerUrl
-    : `https://${lowerUrl}`
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(lowerUrl)) {
+    return lowerUrl
+  }
+
+  return `https://${lowerUrl}`
 }

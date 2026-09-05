@@ -41,7 +41,6 @@ import { useTranslation } from '../../../../hooks/useTranslation'
 import { useScrollToFirstError } from '../../../../hooks/useScrollToFirstError'
 import { useCreateOrEditRecord } from '../../../../hooks/useCreateOrEditRecord'
 import { useGetMultipleFiles } from '../../../../hooks/useGetMultipleFiles'
-import { addHttps } from '../../../../utils/addHttps'
 import { formatPasskeyDate } from '../../../../utils/formatPasskeyDate'
 import { getFilteredAttachmentsById } from '../../../../utils/getFilteredAttachmentsById'
 import { handleFileSelect } from '../../../../utils/handleFileSelect'
@@ -142,7 +141,7 @@ export const CreateOrEditLoginModalContent = ({
     note: Validator.string(),
     websites: Validator.array().items(
       Validator.object({
-        website: Validator.string().website('Wrong format of website'),
+        website: Validator.string(),
         matchType: Validator.string()
       })
     ),
@@ -210,8 +209,8 @@ export const CreateOrEditLoginModalContent = ({
     const websiteRows = ((formValues.websites as Website[]) ?? []).filter(
       (website) => !!website?.website?.trim().length
     )
-    const websites = websiteRows.map((website) => addHttps(website.website!))
     const uris = buildLoginUris(websiteRows, initialRecord?.data?.uris)
+    const websites = uris.map((entry) => entry.uri)
 
     const data = {
       type: RECORD_TYPES.LOGIN,
