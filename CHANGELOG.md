@@ -9,6 +9,10 @@ Starts at 0.0.17, after the Lockwright package rename. Earlier history is git.
 
 ## [Unreleased]
 
+## [0.0.21] - 2026-09-05
+
+`BUMP_SHA`
+
 ### Fixed
 
 - Login URIs store as typed. Edit unwraps glued `https://androidapp://` so Save writes the app URI.
@@ -59,7 +63,8 @@ Starts at 0.0.17, after the Lockwright package rename. Earlier history is git.
 
 - A PearPass vault copied onto disk is treated as a vault, not empty.
 
-[unreleased]: https://github.com/Thaoh/lockwright-app-desktop/compare/44f1bbb00605b20c5301a7f3e5110a2c78eca7c9...HEAD
+[unreleased]: https://github.com/Thaoh/lockwright-app-desktop/compare/BUMP_SHA...HEAD
+[0.0.21]: https://github.com/Thaoh/lockwright-app-desktop/compare/44f1bbb00605b20c5301a7f3e5110a2c78eca7c9...BUMP_SHA
 [0.0.20]: https://github.com/Thaoh/lockwright-app-desktop/compare/eb6d08ec8b068eb517c80d1d2bddd1857ecc0521...44f1bbb00605b20c5301a7f3e5110a2c78eca7c9
 [0.0.19]: https://github.com/Thaoh/lockwright-app-desktop/compare/b9dea4cc24cbcc34a7dca6354897f9d86b6d1e18...eb6d08ec8b068eb517c80d1d2bddd1857ecc0521
 [0.0.18]: https://github.com/Thaoh/lockwright-app-desktop/compare/ca6d8c856cff54c3fdccabf9a0c6d8272a63f1fd...b9dea4cc24cbcc34a7dca6354897f9d86b6d1e18
