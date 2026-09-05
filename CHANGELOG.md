@@ -13,6 +13,7 @@ Starts at 0.0.17, after the Lockwright package rename. Earlier history is git.
 
 - Authenticator asks for OTP codes so digits and the 1s timer show after Home skipped them.
 - Native-messaging vault list no longer probes encryption and vault status before the list.
+- Native-messaging skips extra status probes unless debug logging is on.
 
 ## [0.0.19] - 2026-09-04
 

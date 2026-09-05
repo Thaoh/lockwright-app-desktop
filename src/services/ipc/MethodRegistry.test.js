@@ -25,6 +25,7 @@ describe('MethodRegistry', () => {
       activeVaultGetStatus: jest.fn()
     }
     context = { client: mockClient }
+    logger.debugMode = false
     jest.clearAllMocks()
   })
 
@@ -136,7 +137,23 @@ describe('MethodRegistry', () => {
     })
 
     describe('status checks', () => {
+      it('skips debug status probes when debugMode is off', async () => {
+        logger.debugMode = false
+        const handler = jest.fn().mockResolvedValue({ success: true })
+        registry.register('methodWithChecks', handler, {
+          requiresStatus: ['encryption', 'vaults']
+        })
+
+        mockClient.vaultsGetStatus.mockResolvedValue({ status: true })
+
+        await registry.execute('methodWithChecks', {}, context)
+
+        expect(mockClient.encryptionGetStatus).not.toHaveBeenCalled()
+        expect(mockClient.vaultsGetStatus).toHaveBeenCalledTimes(1)
+      })
+
       it('should perform configured status checks', async () => {
+        logger.debugMode = true
         const handler = jest.fn().mockResolvedValue({ success: true })
         registry.register('methodWithChecks', handler, {
           requiresStatus: ['encryption', 'vaults']

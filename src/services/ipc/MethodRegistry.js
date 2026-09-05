@@ -163,6 +163,8 @@ export class MethodRegistry {
    * Perform status checks before method execution
    */
   async performStatusChecks(methodName, statusChecks, context) {
+    if (!logger.debugMode) return
+
     const statuses = {}
 
     for (const check of statusChecks) {
